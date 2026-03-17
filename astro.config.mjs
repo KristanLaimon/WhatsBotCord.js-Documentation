@@ -1,42 +1,72 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import starlightThemeGalaxy from "starlight-theme-galaxy";
 
 // https://astro.build/config
 export default defineConfig({
   integrations: [
     starlight({
-      title: "Whatsbotcord | Documentation",
-      // plugins: [starlightThemeGalaxy()],
-      social: [{ icon: "github", label: "GitHub", href: "https://github.com/withastro/starlight" }],
+      title: "Whatsbotcord.js",
+      logo: {
+        src: "./src/assets/whatsbotcord_logo.png",
+        alt: "Whatsbotcord Logo",
+      },
+      social: [
+        {
+          icon: "github",
+          label: "GitHub",
+          href: "https://github.com/KristanLaimon/WhatsBotCord.js",
+        },
+        {
+          icon: "discord",
+          label: "npm",
+          href: "https://www.npmjs.com/package/whatsbotcord",
+        },
+      ],
+      customCss: ["./src/styles/custom.css"],
       sidebar: [
         {
-          label: "Getting started",
-          autogenerate: { directory: "gettingstarted" },
+          label: "Getting Started",
+          items: [
+            { label: "Installation", slug: "getting-started/installation" },
+            { label: "Quick Start", slug: "getting-started/quickstart" },
+          ],
         },
         {
           label: "Guides",
           items: [
-            // Starlight will automatically look in /en/guides/ or /es/guides/ based on the user's language
-            { label: "Example Guide", slug: "guides/example" },
+            { label: "Advanced Usage", slug: "guides/advanced-usage" },
+            {
+              label: "Cancelling Commands",
+              slug: "guides/cancelling-commands",
+            },
+            { label: "Events", slug: "guides/events" },
+            { label: "Middleware", slug: "guides/middleware" },
+            { label: "Plugins", slug: "guides/plugins" },
+            { label: "Tags & Groups", slug: "guides/tags-and-groups" },
+            {
+              label: "Manipulating Chat Context",
+              slug: "guides/chat-context",
+            },
+            {
+              label: "AdditionalAPI & Internal Socket",
+              slug: "guides/additional-api",
+            },
+          ],
+        },
+        {
+          label: "Testing",
+          items: [
+            { label: "Mocking & Testing", slug: "testing/testing" },
+          ],
+        },
+        {
+          label: "Reference",
+          items: [
+            { label: "Contributing", slug: "reference/contributing" },
           ],
         },
       ],
-      defaultLocale: "root", // Tells Starlight the root folder is the default
-      locales: {
-        root: {
-          // Defines the root folder as English
-          label: "English",
-          lang: "en",
-        },
-        es: {
-          // Defines the /es/ folder as Spanish
-          label: "Español",
-          lang: "es",
-        },
-      },
     }),
   ],
 });
-

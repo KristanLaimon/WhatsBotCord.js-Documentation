@@ -1,0 +1,99 @@
+---
+title: Mocking & Testing
+description: Test your bot workflows entirely offline without scanning a WhatsApp QR.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+With Whatsbotcord you can simulate full command lifecycle tests entirely locally, without mounting your bot via a WhatsApp application payload. This eliminates rate limits, delays, or accidentally broadcasting testing payloads during development!
+
+Simply require the `ChatMock` wrapper.
+
+## The Simplest Sandbox
+
+With `ChatMock`, you declare what the user will reply with before simulation begins. 
+
+<Tabs>
+  <TabItem label="JavaScript">
+    ```javascript
+    import { it } from "vitest"; // or jest, etc.
+    import { ChatMock, CreateCommand } from "whatsbotcord";
+
+    const testCommand = CreateCommand(
+      "mynamecommand",
+      async (ctx, api, args) => {
+        await ctx.SendText("Hello User");
+        await ctx.SendText("What's your name?");
+
+        // Ask for standard text, cancelling on "hello" or "world"
+        const userName = await ctx.WaitText({ cancelKeywords: ["hello", "world"] }); 
+        await ctx.SendText("Hello " + userName);
+      },
+      { aliases: [] }
+    );
+
+    it("retrieves user input correctly", async () => {
+      // 1. Instantiate the mock layer
+      const chat = new ChatMock(testCommand);
+
+      // 2. Pre-fill the targeted user's inputs
+      chat.EnqueueIncomingText("chris");
+
+      // 3. Fire the execution
+      await chat.StartChatSimulation();
+
+      // 4. Validate output
+      console.log(chat.SentFromCommand.Texts); 
+      // Output: [{text:"Hello User"}, {text: "What's your name?"}, {text:"Hello chris"}]
+      
+      console.log(chat.WaitedFromCommand); 
+      // Output: [{cancelKeywords:["hello","world"]}]
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+## Handling Context Behaviors (JIDs)
+
+WhatsApp channels data according to precise JID (Jabber Identifiers) structures. Because testing might necessitate verifying group admin functions vs single-chat functions, the `ChatMock` tool allows overriding behavior on initial payload delivery:
+
+| Identifier Profile | Type | Example Payload |
+| :--- | :--- | :--- |
+| **Individual / DM** | Private Chat | `123123123@whatsapp.es` |
+| **Group Chat** | Team Channel | `123123123@g.us` |
+| **LID (Participant)** | Modern Profile | `123123123@lid` |
+| **PN (Participant)** | Legacy Profile | `123123123@whatsapp.es` |
+
+### Setting Context via Priority Rules
+
+When defining mock configuration for an incoming payload (`const chat = new ChatMock(cmd, { ...options })`), prioritization of intent behaves like this:
+
+1. `senderType` strictly overrides to whatever you enforce (`SenderType.Individual` or `SenderType.Group`)
+2. `chatId` inference (`@g.us` implies group)
+3. `Participant IDs` imply the chat originates from a group arena
+
+```javascript
+import { ChatMock, SenderType } from "whatsbotcord";
+
+const groupMock = new ChatMock(new MyCommand(), {
+    participantId_LID: "dummyId@lid",
+    participantId_PN: "dummyId@whatsapp.es",
+    // This forcibly asserts the arena context is an isolated DM despite ID bindings
+    senderType: SenderType.Individual,
+});
+
+await groupMock.StartChatSimulation();
+```
+
+## Asynchronous Input Delays
+
+If you want to simulate real user latency when performing integration unit testing, you can bake in payload delays on user enqueue:
+
+```javascript
+const waitCycle = 1350; // ms
+
+chat.EnqueueIncomingText("Kristan", { delayMilisecondsToReponse: waitCycle }); 
+chat.EnqueueIncomingText("Typescript", { delayMilisecondsToReponse: waitCycle }); 
+
+await chat.StartChatSimulation();
+```

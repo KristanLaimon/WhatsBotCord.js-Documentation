@@ -1,0 +1,124 @@
+/* ============================================
+   Whatsbotcord Custom Theme
+   Dark green WhatsApp-inspired palette
+   ============================================ */
+
+/* ---------- Light mode ---------- */
+:root {
+  --sl-color-accent-low: #0d3d1d;
+  --sl-color-accent: #1a7a3a;
+  --sl-color-accent-high: #c5f0d1;
+
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #eef4f0;
+  --sl-color-gray-2: #c2d4c8;
+  --sl-color-gray-3: #8fa898;
+  --sl-color-gray-4: #4e6b56;
+  --sl-color-gray-5: #334a3a;
+  --sl-color-gray-6: #1f3027;
+  --sl-color-black: #0e1a12;
+
+  --sl-color-text-accent: #15692f;
+}
+
+/* ---------- Dark mode ---------- */
+:root[data-theme="dark"] {
+  --sl-color-accent-low: #0b2e16;
+  --sl-color-accent: #22a34b;
+  --sl-color-accent-high: #d0f5dc;
+
+  --sl-color-white: #f0f8f2;
+  --sl-color-gray-1: #d1e3d6;
+  --sl-color-gray-2: #92b09c;
+  --sl-color-gray-3: #5e8069;
+  --sl-color-gray-4: #3a5443;
+  --sl-color-gray-5: #243830;
+  --sl-color-gray-6: #15251b;
+  --sl-color-black: #0a1610;
+
+  --sl-color-text-accent: #3dd968;
+}
+
+/* ---------- Global tweaks ---------- */
+
+/* Hero section polish */
+.hero {
+  border-bottom: 1px solid var(--sl-color-gray-5);
+  padding-bottom: 2rem;
+}
+
+/* Sidebar active link */
+nav.sidebar a[aria-current="page"],
+nav.sidebar a[aria-current="true"] {
+  background: var(--sl-color-accent-low);
+  border-left: 3px solid var(--sl-color-accent);
+  color: var(--sl-color-accent-high);
+  font-weight: 600;
+}
+
+/* Code blocks with subtle green border */
+pre {
+  border: 1px solid var(--sl-color-gray-5) !important;
+  border-left: 3px solid var(--sl-color-accent) !important;
+}
+
+/* Cards */
+.card {
+  border: 1px solid var(--sl-color-gray-5);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  border-color: var(--sl-color-accent);
+  box-shadow: 0 0 12px rgba(26, 122, 58, 0.15);
+}
+
+/* Badge / Tag accent */
+.sl-badge {
+  background: var(--sl-color-accent);
+  color: var(--sl-color-white);
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Links */
+a:not([class]) {
+  text-decoration-color: var(--sl-color-accent);
+  text-underline-offset: 0.15em;
+}
+a:not([class]):hover {
+  color: var(--sl-color-accent);
+}
+
+/* Content max-width readability */
+.content-panel {
+  max-width: 52rem;
+}
+
+/* Table styling */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th {
+  background: var(--sl-color-accent-low);
+  color: var(--sl-color-accent-high);
+  font-weight: 600;
+}
+th,
+td {
+  border: 1px solid var(--sl-color-gray-5);
+  padding: 0.5rem 0.75rem;
+}
+
+/* Aside / callout accent */
+.starlight-aside {
+  border-color: var(--sl-color-accent);
+}
+
+/* Heading anchors */
+.heading-wrapper a {
+  color: var(--sl-color-accent);
+}

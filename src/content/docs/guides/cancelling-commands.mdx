@@ -1,0 +1,45 @@
+---
+title: Cancelling Commands
+description: Allow users to gracefully abort long-running multi-step commands.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+If you have long-running command workflows (like waiting for a user to upload an image or type a long response), users can cancel them using specific **cancel words**. 
+
+By default, the cancel words are `"cancel"` (English) and `"cancelar"` (Spanish).
+
+For example, if a bot is expecting the user to send an image msg via `!forwardmsg`, but the user changes their mind and sends `"cancel"`, the command will immediately abort.
+
+## Global Config
+
+You can configure which words should act as global cancellation keywords when you first instantiate the bot:
+
+```javascript
+const bot = new WhatsbotCord({
+  commandPrefix: ["$", "!", "/", "."],
+  credentialsFolder: "./auth",
+  loggerMode: "recommended",
+  delayMilisecondsBetweenMsgs: 1,
+  // 1. Define global cancel keywords here
+  cancelKeywords: ["abort", "stop", "cancel"], 
+});
+```
+
+Now, any time your command is waiting for user input using a `Wait*` method, saying "abort", "stop", or "cancel" will exit the execution.
+
+## Local Config
+
+You can temporarily override the global cancel keywords just for a single `Wait*()` method. This is useful if a specific step requires different fallback words, or if "stop" might be a valid answer to a specific prompt!
+
+```javascript
+const imgReceived = await chat.WaitMultimedia(MsgType.Image, {
+  timeoutSeconds: 60,
+  wrongTypeFeedbackMsg: "Hey, send me an img, try again!",
+  
+  // 2. Override for this wait action only
+  cancelKeywords: ["cancelcustomword"],
+});
+```
+
+In this specific call, only `"cancelcustomword"` will abort the flow. If you use another `WaitMultimedia(...)` or `WaitMsg(...)` method later down the line without providing `cancelKeywords`, it will fall back to the global bot config (e.g., `["abort", "stop", "cancel"]`).

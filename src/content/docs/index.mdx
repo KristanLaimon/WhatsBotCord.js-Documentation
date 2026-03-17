@@ -1,40 +1,42 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash # Remove or comment out this line to display the site sidebar on this page.
+title: Whatsbotcord.js
+description: A lightweight, TypeScript-based library for building WhatsApp bots with a Discord-inspired command system.
+template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
+  tagline: Build WhatsApp bots with Discord-like commands. TypeScript-first, Baileys-powered, developer-friendly.
   image:
-    file: ../../assets/houston.webp
+    file: ../../assets/whatsbotcord_logo.png
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Get Started
+      link: /getting-started/installation/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
+    - text: View on GitHub
+      link: https://github.com/KristanLaimon/WhatsBotCord.js
       icon: external
       variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
+## Why Whatsbotcord?
 
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
-	</Card>
-	<Card title="Change page layout" icon="document">
-		Delete `template: splash` in `src/content/docs/index.mdx` to display a
-		sidebar on this page.
-	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
-	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
-	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
-	</Card>
+  <Card title="Discord-Inspired Commands" icon="rocket">
+    Create commands like `!hello` with a simple, familiar syntax inspired by Discord bots. Supports prefixes, aliases, and tags.
+  </Card>
+  <Card title="TypeScript Support" icon="seti:typescript">
+    Fully typed with TypeScript for robust development, auto-completion, and type-safe interfaces out of the box.
+  </Card>
+  <Card title="Simplified Baileys Wrapper" icon="puzzle">
+    Abstracts complex Baileys.js internals so you can focus on building features instead of fighting the WhatsApp protocol.
+  </Card>
+  <Card title="Group & Individual Messaging" icon="comment">
+    Seamlessly interact with WhatsApp groups and individual chats. Fetch group data, mention members, and more.
+  </Card>
+  <Card title="Extensible & Pluggable" icon="setting">
+    Modular middleware and plugin architecture. Add rate-limiting, permissions, or your own custom logic with ease.
+  </Card>
+  <Card title="Built-in Testing" icon="approve-check-circle">
+    Mock entire chat sessions with `ChatMock` — test your commands locally without a real WhatsApp connection.
+  </Card>
 </CardGrid>

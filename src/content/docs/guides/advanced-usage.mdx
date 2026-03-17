@@ -1,0 +1,169 @@
+---
+title: Advanced Usage
+description: Build robust commands handling multimedia and arguments.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Once you know the basics, you can build more interactive commands. This guide covers how to abstract command creation, process arguments, handle multimedia (images/videos), and send feedback reactions.
+
+## Creating Commands with `CreateCommand`
+
+While you can pass an object directly to `bot.Commands.Add(obj)`, you can also use `CreateCommand` to define commands in separate files and import them cleanly.
+
+Here is an example of a simple `!ping` command defined in a separate file:
+
+<Tabs>
+  <TabItem label="JavaScript">
+    ```javascript
+    import { CreateCommand } from "whatsbotcord";
+
+    const pingCommand = CreateCommand(
+      "ping",
+      async (ctx, api, args) => {
+        await ctx.SendText("Pong!");
+      },
+      { aliases: ["p"] }
+    );
+
+    export default pingCommand;
+    ```
+  </TabItem>
+  <TabItem label="TypeScript">
+    ```typescript
+    import type {
+      AdditionalAPI,
+      ChatContext,
+      CommandArgs,
+      ICommand,
+    } from "whatsbotcord";
+
+    class PingCommand implements ICommand {
+      name: string = "ping";
+      description: string = "replies with pong!";
+      aliases: string[] = ["p"];
+
+      async run(
+        chat: ChatContext,
+        _api: AdditionalAPI,
+        _commandArgs: CommandArgs
+      ): Promise<void> {
+        await chat.SendText("Pong!");
+      }
+    }
+
+    export default PingCommand;
+    ```
+  </TabItem>
+</Tabs>
+
+You can then add it to your bot instance:
+
+```typescript
+import pingCommand from "./Ping";
+import Whatsbotcord, { CommandType } from "whatsbotcord";
+
+const bot = new Whatsbotcord({ /* config */ });
+
+bot.Commands.Add(pingCommand, CommandType.Normal);
+```
+
+## Handling Arguments and Multimedia
+
+The following command demonstrates:
+1. Accessing arguments passed to the command (`!forwardmsg arg1 arg2`)
+2. Sending a loading reaction (`⏳`)
+3. Waiting for the user to send an image (`WaitMultimedia`)
+4. Modifying and sending the image back
+5. Sending success (`✅`) or failure (`❌`) reactions
+
+<Tabs>
+  <TabItem label="JavaScript">
+    ```javascript
+    import Whatsbotcord, { CommandType, MsgType } from "whatsbotcord";
+
+    bot.Commands.Add(
+      {
+        name: "forwardmsg",
+        description: "A simple description for my forwardmsg",
+        aliases: ["f"], // Users can use !forwardmsg or !f
+        async run(chat, api, args) {
+          /**
+           * If user uses !forwardmsg argument1 argument2 @someone
+           * args.args will be ["argument1", "argument2", "@someone"]
+           */
+          const commandArgs = args.args;
+
+          // Sends an ⏳ reaction emoji to the original msg
+          await chat.Loading();
+          
+          await chat.SendText("Send me an image:");
+          
+          // Wait for the user to send an image
+          const imgReceived = await chat.WaitMultimedia(MsgType.Image, {
+            timeoutSeconds: 60,
+            wrongTypeFeedbackMsg: "Hey, send me an img, try again!",
+          });
+
+          // If valid, `imgReceived` is a buffer
+          if (imgReceived) {
+            await chat.SendText("I've received your img, I'm going to send it back");
+            
+            // Send back with a caption
+            await chat.SendImgFromBufferWithCaption(imgReceived, ".png", "I'm a caption");
+            
+            // Sends a ✅ reaction emoji
+            await chat.Ok();
+          } else {
+            await chat.SendText("I didn't get your msg... End of command");
+            
+            // Sends a ❌ reaction emoji
+            await chat.Fail();
+          }
+        },
+      },
+      CommandType.Normal
+    );
+    ```
+  </TabItem>
+  <TabItem label="TypeScript">
+    ```typescript
+    import Whatsbotcord, {
+      type AdditionalAPI,
+      type IChatContext,
+      type CommandArgs,
+      CommandType,
+      MsgType,
+    } from "whatsbotcord";
+
+    bot.Commands.Add(
+      {
+        name: "forwardmsg",
+        aliases: ["f"],
+        async run(chat: IChatContext, _api: AdditionalAPI, args: CommandArgs) {
+          // const commandArgs: string[] = args.args;
+
+          await chat.Loading();
+          await chat.SendText("Send me an image:");
+
+          const imgReceived = await chat.WaitMultimedia(MsgType.Image, {
+            timeoutSeconds: 60,
+            wrongTypeFeedbackMsg: "Hey, send me an img, try again!",
+            cancelKeywords: ["cancelcustomword"],
+          });
+
+          if (imgReceived) {
+            await chat.SendText("I've received your img, I'm going to send it back");
+            await chat.SendImgFromBufferWithCaption(imgReceived, ".png", "I'm a caption");
+            await chat.Ok();
+          } else {
+            await chat.SendText("I didn't get your msg... End of command");
+            await chat.Fail();
+          }
+        },
+      },
+      CommandType.Normal
+    );
+    ```
+  </TabItem>
+</Tabs>

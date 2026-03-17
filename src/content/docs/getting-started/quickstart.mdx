@@ -1,0 +1,118 @@
+---
+title: Quick Start
+description: Create your first WhatsApp bot command in minutes.
+---
+
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+
+Get a bot running with a single `!ping` command in under 5 minutes.
+
+<Steps>
+
+1. **Create your project file**
+
+   Create a new file (e.g. `index.ts` or `index.js`) in your project.
+
+2. **Add the bot code**
+
+   <Tabs>
+     <TabItem label="JavaScript">
+       ```js
+       import Whatsbotcord, { CommandType } from "whatsbotcord";
+
+       const bot = new Whatsbotcord({
+         commandPrefix: "!",
+         tagCharPrefix: "@",
+         credentialsFolder: "./auth",
+         loggerMode: "recommended",
+       });
+
+       bot.Commands.Add(
+         {
+           name: "ping",
+           async run(chat, api, commandArgs) {
+             await chat.SendText("pong!");
+           },
+         },
+         CommandType.Normal
+       );
+
+       bot.Start();
+       ```
+     </TabItem>
+     <TabItem label="TypeScript">
+       ```ts
+       import Whatsbotcord, {
+         type AdditionalAPI,
+         type CommandArgs,
+         type IChatContext,
+         CommandType,
+       } from "whatsbotcord";
+
+       const bot = new Whatsbotcord({
+         commandPrefix: "!",
+         tagCharPrefix: "@",
+         credentialsFolder: "./auth",
+         loggerMode: "recommended",
+       });
+
+       bot.Commands.Add(
+         {
+           name: "ping",
+           async run(
+             chat: IChatContext,
+             _api: AdditionalAPI,
+             _commandArgs: CommandArgs
+           ): Promise<void> {
+             await chat.SendText("pong!");
+           },
+         },
+         CommandType.Normal
+       );
+
+       bot.Start();
+       ```
+     </TabItem>
+   </Tabs>
+
+3. **Run your bot**
+
+   <Tabs>
+     <TabItem label="Node.js">
+       ```shell
+       npx tsx index.ts
+       ```
+     </TabItem>
+     <TabItem label="Bun">
+       ```shell
+       bun run index.ts
+       ```
+     </TabItem>
+   </Tabs>
+
+4. **Scan the QR code**
+
+   A QR code will appear in your terminal. Open WhatsApp on your phone → **Linked Devices** → Scan the code.
+
+5. **Test it!**
+
+   Send `!ping` in any chat where the bot is present. You should receive `pong!` back.
+
+</Steps>
+
+## Configuration options
+
+The `Whatsbotcord` constructor accepts these configuration properties:
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `commandPrefix` | `string \| string[]` | Prefix(es) for commands, e.g. `"!"` or `["!", "$", "/"]` |
+| `tagCharPrefix` | `string \| string[]` | Prefix(es) for tag commands, e.g. `"@"` |
+| `credentialsFolder` | `string` | Path to store WhatsApp session credentials |
+| `loggerMode` | `string` | Logger verbosity — `"recommended"` is a good default |
+| `cancelKeywords` | `string[]` | Words that cancel a running command (default: `["cancel", "cancelar"]`) |
+| `delayMilisecondsBetweenMsgs` | `number` | Throttle delay between outgoing messages |
+
+## Next steps
+
+Learn how to build more complex commands in the [Advanced Usage](/guides/advanced-usage/) guide.
