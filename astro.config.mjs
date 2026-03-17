@@ -4,6 +4,8 @@ import starlight from "@astrojs/starlight";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://kristanlaimon.github.io",
+  base: "/whatsbotcord.js-documentation",
   integrations: [
     starlight({
       title: "Whatsbotcord.js",
@@ -34,7 +36,7 @@ export default defineConfig({
           items: [
             { label: "Installation", slug: "getting-started/installation" },
             { label: "Quick Start", slug: "getting-started/quickstart" },
-            { label: "Commands", slug: "getting-started/commands" },
+            { label: "Sending", slug: "getting-started/sending" },
             { label: "Tags", slug: "getting-started/tags" },
           ],
         },

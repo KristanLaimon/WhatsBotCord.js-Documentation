@@ -1,0 +1,499 @@
+---
+title: "Commands"
+description: "How can you create more customized commands?" 
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This far you should have your shiny new command `!ping` from the [last chapter 'Quickstart'](/getting-started/quickstart),
+but of course you'd like to do more than just "!ping". Let's dive into examples about what else you can do with your commands.
+
+# Sending
+
+We've sent text messages, but we can send all kinds of messages (all from WhatsApp of course) like:
+
+## Text Messages
+
+You can send plain text messages to the chat using `SendText`.
+
+<Tabs>
+  <TabItem label="TypeScript">
+  ```ts
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+
+  export default class HelloCommand implements ICommand {
+    name = "hello";
+    
+    public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      await ctx.SendText("Hello world!");
+    }
+  }
+  ```
+  </TabItem>
+  <TabItem label="JavaScript">
+  ```js
+  import { CreateCommand } from "whatsbotcord";
+
+  export default CreateCommand("hello", async function (ctx, api, args) {
+    await ctx.SendText("Hello world!");
+  });
+  ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** A plain text message saying "Hello world!".
+
+---
+
+## Reactions & Status
+
+You can react to messages (like the one that triggered the command) using emojis. Reactions are great for showing the user that a command is processing (`Loading`), succeeded (`Ok`), failed (`Fail`), or sending a custom emoji.
+
+<Tabs>
+  <TabItem label="TypeScript">
+  ```ts
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+
+  export default class ReactCommand implements ICommand {
+    name = "react";
+    
+    public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      // Indicate the command is starting (reacts with ⌛)
+      await ctx.Loading();
+
+      try {
+        // ... some long process ...
+        // React with a custom emoji to the original command message
+        await ctx.SendReactEmojiToInitialMsg("🔥");
+        
+        // Indicate success (reacts with ✅)
+        await ctx.Ok();
+      } catch (error) {
+        // Indicate failure (reacts with ❌)
+        await ctx.Fail();
+      }
+    }
+  }
+  ```
+  </TabItem>
+  <TabItem label="JavaScript">
+  ```js
+  import { CreateCommand } from "whatsbotcord";
+
+  export default CreateCommand("react", async function (ctx, api, args) {
+    // Indicate the command is starting (reacts with ⌛)
+    await ctx.Loading();
+
+    try {
+      // ... some long process ...
+      // React with a custom emoji to the original command message
+      await ctx.SendReactEmojiToInitialMsg("🔥");
+      
+      // Indicate success (reacts with ✅)
+      await ctx.Ok();
+    } catch (error) {
+      // Indicate failure (reacts with ❌)
+      await ctx.Fail();
+    }
+  });
+  ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** The message that triggered the command will receive a ⌛ reaction, followed by a 🔥 reaction, and finally a ✅ (or ❌ if it fails).
+
+---
+
+## Images
+
+Send images from local paths or memory buffers, with or without captions.
+
+<Tabs>
+  <TabItem label="TypeScript">
+  ```ts
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import fs from "fs";
+
+  export default class ImageCommand implements ICommand {
+    name = "image";
+    
+    public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      // Send an image from a local file path
+      await ctx.SendImg("./assets/dog.png");
+      
+      // Send an image from a local file path with a caption
+      await ctx.SendImgWithCaption("./assets/cat.jpg", "Look at this cat!");
+
+      // Send dynamically from a buffer
+      const myBuffer = fs.readFileSync("./assets/dynamic.png");
+      await ctx.SendImgFromBuffer(myBuffer, "png");
+      
+      // Send from a buffer with a caption
+      await ctx.SendImgFromBufferWithCaption(myBuffer, "png", "Dynamically generated image!");
+    }
+  }
+  ```
+  </TabItem>
+  <TabItem label="JavaScript">
+  ```js
+  import { CreateCommand } from "whatsbotcord";
+  import fs from "fs";
+
+  export default CreateCommand("image", async function (ctx, api, args) {
+    // Send an image from a local file path
+    await ctx.SendImg("./assets/dog.png");
+    
+    // Send an image from a local file path with a caption
+    await ctx.SendImgWithCaption("./assets/cat.jpg", "Look at this cat!");
+
+    // Send dynamically from a buffer
+    const myBuffer = fs.readFileSync("./assets/dynamic.png");
+    await ctx.SendImgFromBuffer(myBuffer, "png");
+    
+    // Send from a buffer with a caption
+    await ctx.SendImgFromBufferWithCaption(myBuffer, "png", "Dynamically generated image!");
+  });
+  ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** Four separate image messages: an uncaptioned dog image, a cat image with the caption "Look at this cat!", an uncaptioned dynamically loaded image, and a dynamically loaded image with the caption "Dynamically generated image!".
+
+---
+
+## Videos
+
+Similarly to images, you can send videos directly from the filesystem or from buffers.
+
+<Tabs>
+  <TabItem label="TypeScript">
+  ```ts
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import fs from "fs";
+
+  export default class VideoCommand implements ICommand {
+    name = "video";
+    
+    public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      // Direct file path (no caption)
+      await ctx.SendVideo("./media/intro.mp4");
+      
+      // Direct file path (with caption)
+      await ctx.SendVideoWithCaption("./media/tutorial.mp4", "Watch this tutorial!");
+
+      // Dynamic video from a buffer
+      const videoBuffer = fs.readFileSync("./media/clip.mov");
+      await ctx.SendVideoFromBuffer(videoBuffer, "mov");
+      
+      // Dynamic video from a buffer with caption
+      await ctx.SendVideoFromBufferWithCaption(videoBuffer, "Watch this clip!", "mov");
+    }
+  }
+  ```
+  </TabItem>
+  <TabItem label="JavaScript">
+  ```js
+  import { CreateCommand } from "whatsbotcord";
+  import fs from "fs";
+
+  export default CreateCommand("video", async function (ctx, api, args) {
+    // Direct file path (no caption)
+    await ctx.SendVideo("./media/intro.mp4");
+    
+    // Direct file path (with caption)
+    await ctx.SendVideoWithCaption("./media/tutorial.mp4", "Watch this tutorial!");
+
+    // Dynamic video from a buffer
+    const videoBuffer = fs.readFileSync("./media/clip.mov");
+    await ctx.SendVideoFromBuffer(videoBuffer, "mov");
+    
+    // Dynamic video from a buffer with caption
+    await ctx.SendVideoFromBufferWithCaption(videoBuffer, "Watch this clip!", "mov");
+  });
+  ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** Four separate video messages sent to the chat, containing the respective video files and captions.
+
+---
+
+## Audio
+
+Send audio files like voice notes or music tracks.
+
+<Tabs>
+  <TabItem label="TypeScript">
+  ```ts
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import fs from "fs";
+
+  export default class AudioCommand implements ICommand {
+    name = "audio";
+    
+    public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      // Local or remote URL
+      await ctx.SendAudio("./audios/voice.mp3");
+      await ctx.SendAudio("https://example.com/audio.mp3");
+
+      // Generate audio on the fly and send it
+      const audioBuf = fs.readFileSync("./audios/sfx.ogg");
+      await ctx.SendAudioFromBuffer(audioBuf, "ogg");
+    }
+  }
+  ```
+  </TabItem>
+  <TabItem label="JavaScript">
+  ```js
+  import { CreateCommand } from "whatsbotcord";
+  import fs from "fs";
+
+  export default CreateCommand("audio", async function (ctx, api, args) {
+    // Local or remote URL
+    await ctx.SendAudio("./audios/voice.mp3");
+    await ctx.SendAudio("https://example.com/audio.mp3");
+
+    // Generate audio on the fly and send it
+    const audioBuf = fs.readFileSync("./audios/sfx.ogg");
+    await ctx.SendAudioFromBuffer(audioBuf, "ogg");
+  });
+  ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** Playable audio messages inside the chat.
+
+---
+
+## Stickers
+
+WebP graphics can be sent as WhatsApp stickers. The source can be a local file path, a remote URL, or a Buffer.
+
+<Tabs>
+  <TabItem label="TypeScript">
+  ```ts
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import fs from "fs";
+
+  export default class StickerCommand implements ICommand {
+    name = "sticker";
+    
+    public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      // Send sticker from a public URL
+      await ctx.SendSticker("https://example.com/sticker.webp");
+
+      // Send sticker using a buffer
+      const buffer = fs.readFileSync("./stickers/dog.webp");
+      await ctx.SendSticker(buffer);
+    }
+  }
+  ```
+  </TabItem>
+  <TabItem label="JavaScript">
+  ```js
+  import { CreateCommand } from "whatsbotcord";
+  import fs from "fs";
+
+  export default CreateCommand("sticker", async function (ctx, api, args) {
+    // Send sticker from a public URL
+    await ctx.SendSticker("https://example.com/sticker.webp");
+
+    // Send sticker using a buffer
+    const buffer = fs.readFileSync("./stickers/dog.webp");
+    await ctx.SendSticker(buffer);
+  });
+  ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** The sent `.webp` media displays natively as a sticker within WhatsApp.
+
+---
+
+## Polls
+
+Send a poll with multiple selections. A minimum of 1 and maximum of 12 options can be provided.
+
+<Tabs>
+  <TabItem label="TypeScript">
+  ```ts
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+
+  export default class PollCommand implements ICommand {
+    name = "poll";
+    
+    public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      await ctx.SendPoll(
+        "What is your favorite color?", 
+        ["Red", "Blue", "Green"], 
+        { withMultiSelect: false }
+      );
+    }
+  }
+  ```
+  </TabItem>
+  <TabItem label="JavaScript">
+  ```js
+  import { CreateCommand } from "whatsbotcord";
+
+  export default CreateCommand("poll", async function (ctx, api, args) {
+    await ctx.SendPoll(
+      "What is your favorite color?", 
+      ["Red", "Blue", "Green"], 
+      { withMultiSelect: false }
+    );
+  });
+  ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** An interactive poll asking "What is your favorite color?" where users can vote.
+
+---
+
+## Location (Ubication)
+
+Share a geographic coordinate. You can optionally include a descriptive name and address.
+
+<Tabs>
+  <TabItem label="TypeScript">
+  ```ts
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+
+  export default class LocationCommand implements ICommand {
+    name = "location";
+    
+    public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      // Just coordinates
+      await ctx.SendUbication(40.785091, -73.968285);
+      
+      // Coordinates with details
+      await ctx.SendUbicationWithDescription(
+        40.785091, 
+        -73.968285, 
+        "Central Park", 
+        "New York, NY 10024"
+      );
+    }
+  }
+  ```
+  </TabItem>
+  <TabItem label="JavaScript">
+  ```js
+  import { CreateCommand } from "whatsbotcord";
+
+  export default CreateCommand("location", async function (ctx, api, args) {
+    // Just coordinates
+    await ctx.SendUbication(40.785091, -73.968285);
+    
+    // Coordinates with details
+    await ctx.SendUbicationWithDescription(
+      40.785091, 
+      -73.968285, 
+      "Central Park", 
+      "New York, NY 10024"
+    );
+  });
+  ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** A map preview snippet in the chat which, when tapped, opens the location in WhatsApp's native location viewer.
+
+---
+
+## Documents
+
+Send actual files (PDFs, ZIPs, DOCs, CSVs, etc.) as documents. The MIME type is automatically detected based on the extension or passed parameter.
+
+<Tabs>
+  <TabItem label="TypeScript">
+  ```ts
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import fs from "fs";
+
+  export default class DocumentCommand implements ICommand {
+    name = "document";
+    
+    public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      // Send a document normally
+      await ctx.SendDocument("./reports/annual.pdf");
+
+      // Send and change its displayed name
+      await ctx.SendDocumentWithCustomName("./reports/data.csv", "Sales Data");
+
+      // Send document generated in memory
+      const pdfBuffer = fs.readFileSync("./generated/report-123.pdf");
+      await ctx.SendDocumentFromBuffer(pdfBuffer, "Dynamic_Report", "pdf");
+    }
+  }
+  ```
+  </TabItem>
+  <TabItem label="JavaScript">
+  ```js
+  import { CreateCommand } from "whatsbotcord";
+  import fs from "fs";
+
+  export default CreateCommand("document", async function (ctx, api, args) {
+    // Send a document normally
+    await ctx.SendDocument("./reports/annual.pdf");
+
+    // Send and change its displayed name
+    await ctx.SendDocumentWithCustomName("./reports/data.csv", "Sales Data");
+
+    // Send document generated in memory
+    const pdfBuffer = fs.readFileSync("./generated/report-123.pdf");
+    await ctx.SendDocumentFromBuffer(pdfBuffer, "Dynamic_Report", "pdf");
+  });
+  ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** File attachments that users can download. The final example will appear as a PDF file named `Dynamic_Report.pdf`.
+
+---
+
+## Contacts (vCard)
+
+Send one or more contact cards (vCards) for users to easily save phone numbers into their device. Note that phone numbers should be in international format without the `+`.
+
+<Tabs>
+  <TabItem label="TypeScript">
+  ```ts
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+
+  export default class ContactCommand implements ICommand {
+    name = "contact";
+    
+    public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      // A single contact
+      await ctx.SendContact({ name: "Support Team", phone: "1234567890" });
+      
+      // Multiple contacts in an array
+      await ctx.SendContact([
+        { name: "Alice", phone: "1111111111" },
+        { name: "Bob", phone: "2222222222" }
+      ]);
+    }
+  }
+  ```
+  </TabItem>
+  <TabItem label="JavaScript">
+  ```js
+  import { CreateCommand } from "whatsbotcord";
+
+  export default CreateCommand("contact", async function (ctx, api, args) {
+    // A single contact
+    await ctx.SendContact({ name: "Support Team", phone: "1234567890" });
+    
+    // Multiple contacts in an array
+    await ctx.SendContact([
+      { name: "Alice", phone: "1111111111" },
+      { name: "Bob", phone: "2222222222" }
+    ]);
+  });
+  ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** Native WhatsApp contacts that prompt the user to "View contact" or "Message", or if multiple, "View all".
