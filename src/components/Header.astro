@@ -1,0 +1,35 @@
+---
+/**
+ * Custom Header override — wraps the default Starlight Header
+ * and appends the ThemePicker component.
+ */
+import type { Props } from "@astrojs/starlight/props";
+import Default from "@astrojs/starlight/components/Header.astro";
+import ThemePicker from "./ThemePicker.astro";
+---
+
+<div class="wb-header-wrap">
+  <Default {...Astro.props}><slot /></Default>
+  <div class="wb-theme-picker-slot">
+    <ThemePicker />
+  </div>
+</div>
+
+<style>
+  .wb-header-wrap {
+    position: relative;
+  }
+  .wb-theme-picker-slot {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+  /* push it left a bit to avoid overlapping the dark/light toggle area */
+  @media (min-width: 50rem) {
+    .wb-theme-picker-slot {
+      right: 12rem;
+    }
+  }
+</style>

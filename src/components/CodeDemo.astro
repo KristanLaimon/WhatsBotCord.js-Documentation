@@ -1,0 +1,260 @@
+---
+/**
+ * CodeDemo — animated code block with a typing effect.
+ * Shows a minimal bot setup in JS or TS depending on user preference.
+ * Plays on scroll via IntersectionObserver.
+ */
+---
+
+<section class="code-demo" id="code-demo">
+  <div class="cd-window">
+    <div class="cd-titlebar">
+      <span class="cd-dot cd-dot--red"></span>
+      <span class="cd-dot cd-dot--yellow"></span>
+      <span class="cd-dot cd-dot--green"></span>
+      <div class="cd-tabs">
+        <button class="cd-tab active" data-lang="js" id="cd-tab-js">index.js</button>
+        <button class="cd-tab" data-lang="ts" id="cd-tab-ts">index.ts</button>
+      </div>
+    </div>
+    <div class="cd-body">
+      <pre class="cd-code" id="cd-code-js"><code id="cd-typed-js"></code></pre>
+      <pre class="cd-code cd-hidden" id="cd-code-ts"><code id="cd-typed-ts"></code></pre>
+    </div>
+  </div>
+</section>
+
+<style>
+  .code-demo {
+    max-width: 52rem;
+    margin: 2rem auto 3rem;
+    padding-inline: 1rem;
+  }
+  .cd-window {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid var(--sl-color-gray-5);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    background: #0d1117;
+  }
+  .cd-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.65rem 1rem;
+    background: #161b22;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+  .cd-dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+  }
+  .cd-dot--red { background: #ff5f57; }
+  .cd-dot--yellow { background: #ffbd2e; }
+  .cd-dot--green { background: #28c840; }
+  .cd-tabs {
+    display: flex;
+    gap: 0.15rem;
+    margin-left: 1rem;
+  }
+  .cd-tab {
+    padding: 0.25rem 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--sl-color-gray-3);
+    font-size: 0.8rem;
+    font-family: inherit;
+    cursor: pointer;
+    border-radius: 0.35rem 0.35rem 0 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  .cd-tab:hover {
+    color: var(--sl-color-gray-1);
+  }
+  .cd-tab.active {
+    background: #0d1117;
+    color: var(--sl-color-accent-high, #d0f5dc);
+    border-bottom: 2px solid var(--sl-color-accent, #22a34b);
+  }
+  .cd-body {
+    padding: 1.25rem 1.5rem;
+    min-height: 16rem;
+  }
+  .cd-code {
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+    border: none !important;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: #c9d1d9;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .cd-code code {
+    font-family: "JetBrains Mono", "Fira Code", ui-monospace, "Cascadia Code", Menlo, monospace;
+  }
+  .cd-hidden {
+    display: none;
+  }
+
+  /* blinking cursor */
+  .cd-cursor::after {
+    content: "▎";
+    animation: blink 0.9s step-end infinite;
+    color: var(--sl-color-accent, #22a34b);
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+</style>
+
+<script>
+(function initCodeDemo() {
+  /* ---- source code (with HTML-safe syntax highlighting) ---- */
+  const jsCode = [
+    '<span style="color:#ff7b72">import</span> <span style="color:#c9d1d9">Whatsbotcord, { CommandType }</span> <span style="color:#ff7b72">from</span> <span style="color:#a5d6ff">"whatsbotcord"</span><span style="color:#c9d1d9">;</span>',
+    '',
+    '<span style="color:#ff7b72">const</span> <span style="color:#79c0ff">bot</span> <span style="color:#ff7b72">=</span> <span style="color:#ff7b72">new</span> <span style="color:#d2a8ff">Whatsbotcord</span><span style="color:#c9d1d9">({</span>',
+    '  <span style="color:#79c0ff">commandPrefix</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"!"</span><span style="color:#c9d1d9">,</span>',
+    '  <span style="color:#79c0ff">credentialsFolder</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"./auth"</span><span style="color:#c9d1d9">,</span>',
+    '<span style="color:#c9d1d9">});</span>',
+    '',
+    '<span style="color:#c9d1d9">bot.Commands.</span><span style="color:#d2a8ff">Add</span><span style="color:#c9d1d9">(</span>',
+    '  <span style="color:#c9d1d9">{</span>',
+    '    <span style="color:#79c0ff">name</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"ping"</span><span style="color:#c9d1d9">,</span>',
+    '    <span style="color:#ff7b72">async</span> <span style="color:#d2a8ff">run</span><span style="color:#c9d1d9">(chat) {</span>',
+    '      <span style="color:#ff7b72">await</span> <span style="color:#c9d1d9">chat.</span><span style="color:#d2a8ff">SendText</span><span style="color:#c9d1d9">(</span><span style="color:#a5d6ff">"pong! 🏓"</span><span style="color:#c9d1d9">);</span>',
+    '    <span style="color:#c9d1d9">},</span>',
+    '  <span style="color:#c9d1d9">},</span>',
+    '  <span style="color:#c9d1d9">CommandType.Normal</span>',
+    '<span style="color:#c9d1d9">);</span>',
+    '',
+    '<span style="color:#c9d1d9">bot.</span><span style="color:#d2a8ff">Start</span><span style="color:#c9d1d9">();</span>',
+  ];
+
+  const tsCode = [
+    '<span style="color:#ff7b72">import</span> <span style="color:#c9d1d9">Whatsbotcord, {</span>',
+    '  <span style="color:#ff7b72">type</span> <span style="color:#79c0ff">IChatContext</span><span style="color:#c9d1d9">,</span>',
+    '  <span style="color:#c9d1d9">CommandType,</span>',
+    '<span style="color:#c9d1d9">}</span> <span style="color:#ff7b72">from</span> <span style="color:#a5d6ff">"whatsbotcord"</span><span style="color:#c9d1d9">;</span>',
+    '',
+    '<span style="color:#ff7b72">const</span> <span style="color:#79c0ff">bot</span> <span style="color:#ff7b72">=</span> <span style="color:#ff7b72">new</span> <span style="color:#d2a8ff">Whatsbotcord</span><span style="color:#c9d1d9">({</span>',
+    '  <span style="color:#79c0ff">commandPrefix</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"!"</span><span style="color:#c9d1d9">,</span>',
+    '  <span style="color:#79c0ff">credentialsFolder</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"./auth"</span><span style="color:#c9d1d9">,</span>',
+    '<span style="color:#c9d1d9">});</span>',
+    '',
+    '<span style="color:#c9d1d9">bot.Commands.</span><span style="color:#d2a8ff">Add</span><span style="color:#c9d1d9">(</span>',
+    '  <span style="color:#c9d1d9">{</span>',
+    '    <span style="color:#79c0ff">name</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"ping"</span><span style="color:#c9d1d9">,</span>',
+    '    <span style="color:#ff7b72">async</span> <span style="color:#d2a8ff">run</span><span style="color:#c9d1d9">(chat</span><span style="color:#ff7b72">:</span> <span style="color:#79c0ff">IChatContext</span><span style="color:#c9d1d9">)</span><span style="color:#ff7b72">:</span> <span style="color:#79c0ff">Promise</span><span style="color:#c9d1d9">&lt;</span><span style="color:#79c0ff">void</span><span style="color:#c9d1d9">&gt; {</span>',
+    '      <span style="color:#ff7b72">await</span> <span style="color:#c9d1d9">chat.</span><span style="color:#d2a8ff">SendText</span><span style="color:#c9d1d9">(</span><span style="color:#a5d6ff">"pong! 🏓"</span><span style="color:#c9d1d9">);</span>',
+    '    <span style="color:#c9d1d9">},</span>',
+    '  <span style="color:#c9d1d9">},</span>',
+    '  <span style="color:#c9d1d9">CommandType.Normal</span>',
+    '<span style="color:#c9d1d9">);</span>',
+    '',
+    '<span style="color:#c9d1d9">bot.</span><span style="color:#d2a8ff">Start</span><span style="color:#c9d1d9">();</span>',
+  ];
+
+  let jsAnimId = null;
+  let tsAnimId = null;
+  let hasPlayed = false;
+
+  function typeLines(lines: string[], el: HTMLElement, done: (() => void) | null) {
+    el.classList.add("cd-cursor");
+    let lineIdx = 0;
+    let html = "";
+
+    function nextLine() {
+      if (lineIdx >= lines.length) {
+        el.classList.remove("cd-cursor");
+        if (done) done();
+        return;
+      }
+      html += (lineIdx > 0 ? "\n" : "") + lines[lineIdx];
+      el.innerHTML = html;
+      lineIdx++;
+      return setTimeout(nextLine, 55 + Math.random() * 40);
+    }
+    return nextLine();
+  }
+
+  function play() {
+    if (hasPlayed) return;
+    hasPlayed = true;
+
+    const jsEl = document.getElementById("cd-typed-js");
+    const tsEl = document.getElementById("cd-typed-ts");
+    if (jsEl) jsAnimId = typeLines(jsCode, jsEl, null);
+    if (tsEl) tsAnimId = typeLines(tsCode, tsEl, null);
+  }
+
+  /* Tab switching */
+  function setupTabs() {
+    const tabJs = document.getElementById("cd-tab-js");
+    const tabTs = document.getElementById("cd-tab-ts");
+    const codeJs = document.getElementById("cd-code-js");
+    const codeTs = document.getElementById("cd-code-ts");
+    if (!tabJs || !tabTs || !codeJs || !codeTs) return;
+
+    function showLang(lang: "js" | "ts") {
+      if (lang === "ts") {
+        codeJs!.classList.add("cd-hidden");
+        codeTs!.classList.remove("cd-hidden");
+        tabJs!.classList.remove("active");
+        tabTs!.classList.add("active");
+        localStorage.setItem("wb-lang", "TypeScript");
+      } else {
+        codeTs!.classList.add("cd-hidden");
+        codeJs!.classList.remove("cd-hidden");
+        tabTs!.classList.remove("active");
+        tabJs!.classList.add("active");
+        localStorage.setItem("wb-lang", "JavaScript");
+      }
+    }
+
+    tabJs.addEventListener("click", () => showLang("js"));
+    tabTs.addEventListener("click", () => showLang("ts"));
+
+    /* sync with global preference */
+    const stored = localStorage.getItem("wb-lang");
+    if (stored === "TypeScript") showLang("ts");
+  }
+
+  function boot() {
+    hasPlayed = false;
+    const jsEl = document.getElementById("cd-typed-js");
+    const tsEl = document.getElementById("cd-typed-ts");
+    if (jsEl) jsEl.innerHTML = "";
+    if (tsEl) tsEl.innerHTML = "";
+
+    setupTabs();
+
+    /* trigger animation on scroll */
+    const section = document.getElementById("code-demo");
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            play();
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(section);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+  document.addEventListener("astro:page-load", boot);
+})();
+</script>

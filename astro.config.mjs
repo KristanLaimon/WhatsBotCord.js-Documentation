@@ -11,6 +11,10 @@ export default defineConfig({
         src: "./src/assets/whatsbotcord_logo.png",
         alt: "Whatsbotcord Logo",
       },
+      components: {
+        Head: "./src/components/Head.astro",
+        Header: "./src/components/Header.astro",
+      },
       social: [
         {
           icon: "github",

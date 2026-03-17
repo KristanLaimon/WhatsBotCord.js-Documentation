@@ -75,7 +75,7 @@ import Whatsbotcord, { CommandType } from "whatsbotcord";
 
 const bot = new Whatsbotcord({
   commandPrefix: "!",
-  tagCharPrefix: "@",
+  tagPrefix: "@",
   credentialsFolder: "./auth",
   loggerMode: "recommended",
 });
@@ -98,7 +98,7 @@ import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, 
 
 const bot = new Whatsbotcord({
   commandPrefix: "!",
-  tagCharPrefix: "@",
+  tagPrefix: "@",
   credentialsFolder: "./auth",
   loggerMode: "recommended",
 });
@@ -143,7 +143,7 @@ export default pingCommand;
 const bot = new Whatsbotcord({
   //Can accept an array of prefixes or only one "!" prefix
   commandPrefix: ["$", "!", "/"],
-  tagCharPrefix: ["@"],
+  tagPrefix: ["@"],
   credentialsFolder: "./auth",
   loggerMode: "recommended",
 });
@@ -163,7 +163,10 @@ bot.Commands.Add(
       const commandArgs = args.args;
       await chat.Loading(); ///Sends an ⌛ reaction emoji to original msg that triggered this command
       await chat.SendText("Send me a image:");
-      const imgReceived = await chat.WaitMultimedia(MsgType.Image, { timeoutSeconds: 60, wrongTypeFeedbackMsg: "Hey, send me an img, try again!" });
+      const imgReceived = await chat.WaitMultimedia(MsgType.Image, {
+        timeoutSeconds: 60,
+        wrongTypeFeedbackMsg: "Hey, send me an img, try again!",
+      });
       //If user has sent the expected msg of type img, this will be a buffer
       if (imgReceived) {
         await chat.SendText("I've received your img, Im going to send it back");
@@ -186,7 +189,15 @@ bot.Start();
 ### Typescript
 
 ```ts
-import Whatsbotcord, { type AdditionalAPI, type ChatContext, type CommandArgs, type IChatContext, type ICommand, CommandType, MsgType } from "whatsbotcord";
+import Whatsbotcord, {
+  type AdditionalAPI,
+  type ChatContext,
+  type CommandArgs,
+  type IChatContext,
+  type ICommand,
+  CommandType,
+  MsgType,
+} from "whatsbotcord";
 
 // ================== Ping.ts ======================
 // A command can be created with a class implementing ICommand
@@ -204,7 +215,7 @@ export default PingCommand;
 const bot = new Whatsbotcord({
   //Can accept an array of prefixes or only one "!" prefix
   commandPrefix: ["$", "!", "/"],
-  tagCharPrefix: ["@"],
+  tagPrefix: ["@"],
   credentialsFolder: "./auth",
   loggerMode: "recommended",
 });
@@ -326,7 +337,7 @@ bot.Use(
 ## Usage with group data and tags
 
 You can use commands and make them usable as **_Tags_**, which are called with '@' by default. You can change this
-in _tagCharPrefix_ property option when creating your Bot option.
+in _tagPrefix_ property option when creating your Bot option.
 
 Here this command recreates the famous @everyone command from Discord!
 
@@ -346,8 +357,8 @@ const everyoneTag = CreateCommand(
        *  respective ID ready to quote them in msg and send. This is abstracted
        *  thanks to this library!
        */
-      const mentions = res.members.map((m) => m.asMentionFormatted);
-      const ids = res.members.map((m) => m.rawId);
+      const mentions = res.members.map(m => m.asMentionFormatted);
+      const ids = res.members.map(m => m.rawId);
       await chat.SendText(mentions.join(" "), { mentionsIds: ids });
     }
   },
@@ -358,7 +369,7 @@ const everyoneTag = CreateCommand(
 // ========================== MAIN ==============================
 const bot = new Bot({
   commandPrefix: ["$", "!", "/"],
-  tagCharPrefix: ["@"],
+  tagPrefix: ["@"],
   credentialsFolder: "./auth",
   loggerMode: "recommended",
 });
@@ -390,8 +401,8 @@ class EveryoneTag implements ICommand {
        *  respective @23423423 formatted mention and ID 234234234@lid ready to send. This is abstracted
        *  thanks to this library!
        */
-      const mentions = res.members.map((m) => m.asMentionFormatted!);
-      const ids = res.members.map((m) => m.rawId!);
+      const mentions = res.members.map(m => m.asMentionFormatted!);
+      const ids = res.members.map(m => m.rawId!);
       await chat.SendText(mentions.join(" "), { mentionsIds: ids });
     }
   }
@@ -400,7 +411,7 @@ class EveryoneTag implements ICommand {
 // ========================== MAIN ==============================
 const bot = new Bot({
   commandPrefix: ["$", "!", "/"],
-  tagCharPrefix: ["@"],
+  tagPrefix: ["@"],
   credentialsFolder: "./auth",
   loggerMode: "recommended",
 });
@@ -506,21 +517,23 @@ bot.Commands.Add(
 );
 
 // Add a command-specific middleware for permission checks
-bot.Use_OnCommandFound(async (bot, senderId_LID, senderId_PN, chatId, rawMsg, msgType, senderType, commandFound, next) => {
-  const admins = ["admin1@s.whatsapp.net", "admin2@s.whatsapp.net"];
+bot.Use_OnCommandFound(
+  async (bot, senderId_LID, senderId_PN, chatId, rawMsg, msgType, senderType, commandFound, next) => {
+    const admins = ["admin1@s.whatsapp.net", "admin2@s.whatsapp.net"];
 
-  // ✅ This code will ONLY run if a valid command is found
+    // ✅ This code will ONLY run if a valid command is found
 
-  // Check if the command is 'ban' and if the user is an admin
-  if (commandFound.name === "ban" && !admins.includes(senderId_LID)) {
-    // Block the command by not calling next() and send a feedback message
-    await bot.SendMsg.Text(chatId, "❌ You don't have permission to use the 'ban' command.");
-    return;
+    // Check if the command is 'ban' and if the user is an admin
+    if (commandFound.name === "ban" && !admins.includes(senderId_LID)) {
+      // Block the command by not calling next() and send a feedback message
+      await bot.SendMsg.Text(chatId, "❌ You don't have permission to use the 'ban' command.");
+      return;
+    }
+
+    // For all other commands, or if the user has permission, continue to execute the command.
+    await next();
   }
-
-  // For all other commands, or if the user has permission, continue to execute the command.
-  await next();
-});
+);
 ```
 
 ## Notes

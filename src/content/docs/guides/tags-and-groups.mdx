@@ -3,9 +3,9 @@ title: Tags & Groups
 description: Handle group properties, execute @mentions, and recreate Discord's @everyone.
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from "@astrojs/starlight/components";
 
-Commands can be invoked as **Tags** instead of normal prefixes. By default, tags are triggered via `@`. You can change this behavior setting the `tagCharPrefix` option when creating your Bot.
+Commands can be invoked as **Tags** instead of normal prefixes. By default, tags are triggered via `@`. You can change this behavior setting the `tagPrefix` option when creating your Bot.
 
 ## Recreating `@everyone`
 
@@ -21,7 +21,7 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
       async (chat, api, args) => {
         // Fetch properties from the current group context
         const res = await chat.FetchGroupData();
-        
+
         if (res) {
           /**
            * `res.members` contains everyone's formatted IDs
@@ -29,7 +29,7 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
            */
           const mentions = res.members.map((m) => m.asMentionFormatted);
           const ids = res.members.map((m) => m.rawId);
-          
+
           // Reply with all mentions, telling WhatsApp who to actually tag
           await chat.SendText(mentions.join(" "), { mentionsIds: ids });
         }
@@ -40,7 +40,7 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
 
     const bot = new Bot({
       commandPrefix: ["!"],
-      tagCharPrefix: ["@"],
+      tagPrefix: ["@"],
       credentialsFolder: "./auth",
     });
 
@@ -48,6 +48,7 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
     bot.Commands.Add(everyoneTag, CommandType.Tag);
     bot.Start();
     ```
+
   </TabItem>
   <TabItem label="TypeScript">
     ```typescript
@@ -57,16 +58,16 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
     class EveryoneTag implements ICommand {
       name: string = "e";
       aliases: string[] = ["test"];
-      
+
       async run(chat: ChatContext, _api: AdditionalAPI, _args: CommandArgs): Promise<void> {
         const res = await chat.FetchGroupData();
         if (res) {
           // Format: @23423423
           const mentions = res.members.map((m) => m.asMentionFormatted!);
-          
+
           // Format: 234234234@lid
           const ids = res.members.map((m) => m.rawId!);
-          
+
           await chat.SendText(mentions.join(" "), { mentionsIds: ids });
         }
       }
@@ -74,14 +75,16 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
 
     const bot = new Bot({
       commandPrefix: ["!"],
-      tagCharPrefix: ["@"],
+      tagPrefix: ["@"],
       credentialsFolder: "./auth",
     });
 
     bot.Commands.Add(new EveryoneTag(), CommandType.Tag);
     bot.Start();
     ```
+
   </TabItem>
 </Tabs>
 
 Now whenever someone sends `"@everyone"` or `"@e"`, the bot will broadcast out the mention block. (Note: the bot must have permissions/presence in that group to read group data and send messages).
+

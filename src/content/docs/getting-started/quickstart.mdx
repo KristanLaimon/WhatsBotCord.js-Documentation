@@ -15,63 +15,78 @@ Get a bot running with a single `!ping` command in under 5 minutes.
 
 2. **Add the bot code**
 
+
+
    <Tabs>
-     <TabItem label="JavaScript">
-       ```js
-       import Whatsbotcord, { CommandType } from "whatsbotcord";
+        <TabItem label="TypeScript">
+       ```ts
+        import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord";
 
-       const bot = new Whatsbotcord({
-         commandPrefix: "!",
-         tagCharPrefix: "@",
-         credentialsFolder: "./auth",
-         loggerMode: "recommended",
-       });
+        const bot = new Whatsbotcord({
+          commandPrefix: "!",
+          tagPrefix: "@",
+          credentialsFolder: "./auth",
+          loggerMode: "recommended",
+        });
 
-       bot.Commands.Add(
-         {
-           name: "ping",
-           async run(chat, api, commandArgs) {
-             await chat.SendText("pong!");
-           },
-         },
-         CommandType.Normal
-       );
+        class PingCommand implements ICommand {
+          name: string = "ping";
+          aliases?: string[] | undefined = ["p"];
+          public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+            await ctx.SendText("pong!");
+          }
+        }
 
-       bot.Start();
+        bot.Commands.Add(new PingCommand());
+
+        bot.Start();
        ```
      </TabItem>
-     <TabItem label="TypeScript">
-       ```ts
-       import Whatsbotcord, {
-         type AdditionalAPI,
-         type CommandArgs,
-         type IChatContext,
-         CommandType,
-       } from "whatsbotcord";
+     <TabItem label="JavaScript">
+      ```js
+        import Whatsbotcord, { CreateCommand } from "whatsbotcord";
 
-       const bot = new Whatsbotcord({
-         commandPrefix: "!",
-         tagCharPrefix: "@",
-         credentialsFolder: "./auth",
-         loggerMode: "recommended",
-       });
+        const bot = new Whatsbotcord();
+        const PongCommand = CreateCommand(
+          "ping",
+          async function (ctx, api, args) {
+            await ctx.SendText("pong!");
+          }, {
+            aliases: ["p"],
+          }
+        );
+        bot.Commands.Add(PongCommand);
 
-       bot.Commands.Add(
-         {
-           name: "ping",
-           async run(
-             chat: IChatContext,
-             _api: AdditionalAPI,
-             _commandArgs: CommandArgs
-           ): Promise<void> {
-             await chat.SendText("pong!");
-           },
-         },
-         CommandType.Normal
-       );
+        bot.Start();
+      ```
+     </TabItem>
 
-       bot.Start();
-       ```
+
+          <TabItem label="Typescript/Javascript with inline command creation">
+
+      ```js
+      import Whatsbotcord, { CommandType } from "whatsbotcord";
+
+      const bot = new Whatsbotcord({
+        commandPrefix: "!",
+        tagPrefix: "@",
+        credentialsFolder: "./auth",
+        loggerMode: "recommended",
+      });
+
+      bot.Commands.Add(
+        {
+          name: "ping",
+          async run(chat, api, commandArgs) {
+            await chat.SendText("pong!");
+          },
+        },
+        CommandType.Normal
+      );
+
+      bot.Start();
+      ```
+
      </TabItem>
    </Tabs>
 
@@ -107,7 +122,7 @@ The `Whatsbotcord` constructor accepts these configuration properties:
 | Property | Type | Description |
 | :--- | :--- | :--- |
 | `commandPrefix` | `string \| string[]` | Prefix(es) for commands, e.g. `"!"` or `["!", "$", "/"]` |
-| `tagCharPrefix` | `string \| string[]` | Prefix(es) for tag commands, e.g. `"@"` |
+| `tagPrefix` | `string \| string[]` | Prefix(es) for tag commands, e.g. `"@"` |
 | `credentialsFolder` | `string` | Path to store WhatsApp session credentials |
 | `loggerMode` | `string` | Logger verbosity — `"recommended"` is a good default |
 | `cancelKeywords` | `string[]` | Words that cancel a running command (default: `["cancel", "cancelar"]`) |

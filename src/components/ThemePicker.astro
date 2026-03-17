@@ -1,0 +1,185 @@
+---
+/**
+ * ThemePicker — lets users switch the site accent colour.
+ * Rendered inside a custom Header override, positioned in the top-right.
+ */
+---
+
+<div class="theme-picker" id="theme-picker" aria-label="Choose accent color">
+  <button class="tp-swatch" data-theme="green"  style="--swatch:#22a34b" title="Green (default)"></button>
+  <button class="tp-swatch" data-theme="blue"   style="--swatch:#3b82f6" title="Blue"></button>
+  <button class="tp-swatch" data-theme="purple" style="--swatch:#8b5cf6" title="Purple"></button>
+  <button class="tp-swatch" data-theme="orange" style="--swatch:#f97316" title="Orange"></button>
+  <button class="tp-swatch" data-theme="teal"   style="--swatch:#14b8a6" title="Teal"></button>
+  <button class="tp-swatch" data-theme="rose"   style="--swatch:#f43f5e" title="Rose"></button>
+</div>
+
+<style>
+  .theme-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+  }
+  .tp-swatch {
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: var(--swatch);
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    padding: 0;
+  }
+  .tp-swatch:hover {
+    transform: scale(1.25);
+  }
+  .tp-swatch.active {
+    border-color: var(--sl-color-white);
+    transform: scale(1.2);
+  }
+</style>
+
+<script>
+(function initThemePicker() {
+  const KEY = "wb-accent-theme";
+
+  /* ---- colour palettes ---- */
+  const palettes = {
+    green: {
+      light: {
+        "--sl-color-accent-low": "#0d3d1d",
+        "--sl-color-accent": "#1a7a3a",
+        "--sl-color-accent-high": "#c5f0d1",
+        "--sl-color-text-accent": "#15692f",
+      },
+      dark: {
+        "--sl-color-accent-low": "#0b2e16",
+        "--sl-color-accent": "#22a34b",
+        "--sl-color-accent-high": "#d0f5dc",
+        "--sl-color-text-accent": "#3dd968",
+      },
+    },
+    blue: {
+      light: {
+        "--sl-color-accent-low": "#172554",
+        "--sl-color-accent": "#2563eb",
+        "--sl-color-accent-high": "#bfdbfe",
+        "--sl-color-text-accent": "#1d4ed8",
+      },
+      dark: {
+        "--sl-color-accent-low": "#0f1b3d",
+        "--sl-color-accent": "#3b82f6",
+        "--sl-color-accent-high": "#dbeafe",
+        "--sl-color-text-accent": "#60a5fa",
+      },
+    },
+    purple: {
+      light: {
+        "--sl-color-accent-low": "#2e1065",
+        "--sl-color-accent": "#7c3aed",
+        "--sl-color-accent-high": "#ddd6fe",
+        "--sl-color-text-accent": "#6d28d9",
+      },
+      dark: {
+        "--sl-color-accent-low": "#1e0a45",
+        "--sl-color-accent": "#8b5cf6",
+        "--sl-color-accent-high": "#ede9fe",
+        "--sl-color-text-accent": "#a78bfa",
+      },
+    },
+    orange: {
+      light: {
+        "--sl-color-accent-low": "#431407",
+        "--sl-color-accent": "#ea580c",
+        "--sl-color-accent-high": "#fed7aa",
+        "--sl-color-text-accent": "#c2410c",
+      },
+      dark: {
+        "--sl-color-accent-low": "#2d0e05",
+        "--sl-color-accent": "#f97316",
+        "--sl-color-accent-high": "#ffedd5",
+        "--sl-color-text-accent": "#fb923c",
+      },
+    },
+    teal: {
+      light: {
+        "--sl-color-accent-low": "#042f2e",
+        "--sl-color-accent": "#0d9488",
+        "--sl-color-accent-high": "#ccfbf1",
+        "--sl-color-text-accent": "#0f766e",
+      },
+      dark: {
+        "--sl-color-accent-low": "#022825",
+        "--sl-color-accent": "#14b8a6",
+        "--sl-color-accent-high": "#ccfbf1",
+        "--sl-color-text-accent": "#2dd4bf",
+      },
+    },
+    rose: {
+      light: {
+        "--sl-color-accent-low": "#4c0519",
+        "--sl-color-accent": "#e11d48",
+        "--sl-color-accent-high": "#fecdd3",
+        "--sl-color-text-accent": "#be123c",
+      },
+      dark: {
+        "--sl-color-accent-low": "#330110",
+        "--sl-color-accent": "#f43f5e",
+        "--sl-color-accent-high": "#ffe4e6",
+        "--sl-color-text-accent": "#fb7185",
+      },
+    },
+  };
+
+  function getMode() {
+    return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+  }
+
+  function apply(name: string) {
+    const mode = getMode();
+    const p = palettes[name as keyof typeof palettes];
+    if (!p) return;
+
+    const vars = p[mode];
+    const root = document.documentElement;
+    Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
+
+    /* mark active swatch */
+    document.querySelectorAll<HTMLElement>(".tp-swatch").forEach((s) => {
+      s.classList.toggle("active", s.dataset.theme === name);
+    });
+
+    localStorage.setItem(KEY, name);
+  }
+
+  function boot() {
+    const saved = localStorage.getItem(KEY) || "green";
+    apply(saved);
+
+    document.querySelectorAll<HTMLElement>(".tp-swatch").forEach((btn) => {
+      btn.addEventListener("click", () => apply(btn.dataset.theme as string));
+    });
+
+    /* re-apply when Starlight's light/dark toggle changes */
+    const observer = new MutationObserver(() => {
+      const current = localStorage.getItem(KEY) || "green";
+      apply(current);
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+  document.addEventListener("astro:page-load", boot);
+})();
+</script>
