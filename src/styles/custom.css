@@ -19,6 +19,8 @@
   --sl-color-black: #0e1a12;
 
   --sl-color-text-accent: #15692f;
+
+  --sl-content-width: 75rem;
 }
 
 /* ---------- Dark mode ---------- */
@@ -41,13 +43,73 @@
 
 /* ---------- Global tweaks ---------- */
 
-/* Hero section polish */
-.hero {
-  border-bottom: 1px solid var(--sl-color-gray-5);
-  padding-bottom: 2rem;
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
 }
 
-/* Sidebar active link */
+/* ==============================
+   HERO SECTION — Splash page
+   ============================== */
+.hero {
+  border-bottom: 1px solid var(--sl-color-gray-5);
+  padding: 3rem 1.5rem 2.5rem;
+  background: linear-gradient(
+    160deg,
+    rgba(11, 46, 22, 0.6) 0%,
+    transparent 60%
+  );
+}
+
+/* On desktop, make the hero a side-by-side layout */
+@media (min-width: 50rem) {
+  .hero {
+    padding: 4rem 2rem 3rem;
+  }
+  .hero > img,
+  .hero .hero-html img {
+    max-height: 320px;
+    width: auto;
+  }
+}
+
+/* ==============================
+   CARD GRID — Feature cards
+   ============================== */
+
+/* 2-col on tablet, 3-col on desktop */
+@media (min-width: 50rem) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.25rem;
+  }
+}
+@media (min-width: 72rem) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1.5rem;
+  }
+}
+
+/* Cards */
+.card {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+.card:hover {
+  border-color: var(--sl-color-accent);
+  box-shadow: 0 4px 20px rgba(26, 122, 58, 0.18);
+  transform: translateY(-2px);
+}
+
+/* ==============================
+   SIDEBAR
+   ============================== */
+
+/* Active link highlight */
 nav.sidebar a[aria-current="page"],
 nav.sidebar a[aria-current="true"] {
   background: var(--sl-color-accent-low);
@@ -56,48 +118,38 @@ nav.sidebar a[aria-current="true"] {
   font-weight: 600;
 }
 
-/* Code blocks with subtle green border */
+/* ==============================
+   CODE BLOCKS
+   ============================== */
 pre {
   border: 1px solid var(--sl-color-gray-5) !important;
   border-left: 3px solid var(--sl-color-accent) !important;
+  border-radius: 0.5rem !important;
 }
 
-/* Cards */
-.card {
-  border: 1px solid var(--sl-color-gray-5);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.card:hover {
-  border-color: var(--sl-color-accent);
-  box-shadow: 0 0 12px rgba(26, 122, 58, 0.15);
-}
-
-/* Badge / Tag accent */
+/* ==============================
+   BADGE / TAG
+   ============================== */
 .sl-badge {
   background: var(--sl-color-accent);
   color: var(--sl-color-white);
 }
 
-/* Smooth scroll */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Links */
+/* ==============================
+   LINKS
+   ============================== */
 a:not([class]) {
   text-decoration-color: var(--sl-color-accent);
   text-underline-offset: 0.15em;
+  transition: color 0.2s ease;
 }
 a:not([class]):hover {
   color: var(--sl-color-accent);
 }
 
-/* Content max-width readability */
-.content-panel {
-  max-width: 52rem;
-}
-
-/* Table styling */
+/* ==============================
+   TABLES
+   ============================== */
 table {
   border-collapse: collapse;
   width: 100%;
@@ -113,12 +165,68 @@ td {
   padding: 0.5rem 0.75rem;
 }
 
-/* Aside / callout accent */
+/* ==============================
+   ASIDE / CALLOUT
+   ============================== */
 .starlight-aside {
   border-color: var(--sl-color-accent);
 }
 
-/* Heading anchors */
+/* ==============================
+   HEADING ANCHORS
+   ============================== */
 .heading-wrapper a {
   color: var(--sl-color-accent);
+}
+
+/* ==============================
+   SPLASH / LANDING PAGE LAYOUT
+   ============================== */
+
+/* On the splash page the hero's parent is the main content area */
+.hero + .sl-markdown-content {
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 2rem;
+}
+
+/* Center the "Why Whatsbotcord?" heading */
+.hero + .sl-markdown-content > .heading-wrapper {
+  text-align: center;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+}
+.hero + .sl-markdown-content > .heading-wrapper h2 {
+  font-size: 1.75rem;
+}
+
+/* ==============================
+   RESPONSIVE CONTENT LAYOUT
+   ============================== */
+
+/* On documentation pages, allow content more breathing room */
+@media (min-width: 72rem) {
+  .main-pane {
+    max-width: none;
+  }
+}
+
+/* ==============================
+   HEADER / NAV POLISH
+   ============================== */
+
+/* Slightly constrain the logo size in the header */
+header .site-title img {
+  max-height: 2rem;
+  width: auto;
+}
+
+/* ==============================
+   GLOBAL MICRO-ANIMATIONS
+   ============================== */
+.card-grid .card,
+nav.sidebar a,
+.sl-badge,
+.starlight-aside {
+  transition: all 0.25s ease;
 }
