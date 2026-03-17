@@ -30,11 +30,28 @@ export default defineConfig({
       customCss: ["./src/styles/custom.css"],
       sidebar: [
         {
-          label: "Getting Started",
+          label: "Getting Started: First steps",
           items: [
             { label: "Installation", slug: "getting-started/installation" },
             { label: "Quick Start", slug: "getting-started/quickstart" },
+            { label: "Commands", slug: "getting-started/commands" },
+            { label: "Tags", slug: "getting-started/tags" },
           ],
+        },
+        {
+          label: "Essential concepts",
+          items: [
+            { label: "Bot", slug: "essential_concepts/bot" },
+            { label: "Bot configuration", slug: "essential_concepts/bot_configuration" },
+            {
+              label: "Chat context: The way your commands talk to whatsapp chats",
+              slug: "essential_concepts/chat_context",
+            },
+          ],
+        },
+        {
+          label: "Intermediate/Advanced concepts",
+          items: [],
         },
         {
           label: "Guides",
@@ -60,17 +77,14 @@ export default defineConfig({
         },
         {
           label: "Testing",
-          items: [
-            { label: "Mocking & Testing", slug: "testing/testing" },
-          ],
+          items: [{ label: "Mocking & Testing", slug: "testing/testing" }],
         },
         {
           label: "Reference",
-          items: [
-            { label: "Contributing", slug: "reference/contributing" },
-          ],
+          items: [{ label: "Contributing", slug: "reference/contributing" }],
         },
       ],
     }),
   ],
 });
+

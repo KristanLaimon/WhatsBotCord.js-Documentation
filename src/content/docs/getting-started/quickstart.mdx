@@ -46,7 +46,13 @@ Get a bot running with a single `!ping` command in under 5 minutes.
       ```js
         import Whatsbotcord, { CreateCommand } from "whatsbotcord";
 
-        const bot = new Whatsbotcord();
+        const bot = new Whatsbotcord({
+          commandPrefix: "!",
+          tagPrefix: "@",
+          credentialsFolder: "./auth",
+          loggerMode: "recommended",
+        }));
+
         const PongCommand = CreateCommand(
           "ping",
           async function (ctx, api, args) {
@@ -111,23 +117,99 @@ Get a bot running with a single `!ping` command in under 5 minutes.
 
 5. **Test it!**
 
-   Send `!ping` in any chat where the bot is present. You should receive `pong!` back.
+   Send `!ping` in any chat where the bot is present. That includes private messaging to it, or even better, in the same
+   whatsapp group with the bot.
+   
+   You should receive `pong!` back.
 
 </Steps>
 
 ## Configuration options
 
-The `Whatsbotcord` constructor accepts these configuration properties:
+The `Whatsbotcord` constructor accepts a rich set of configuration properties. 
+You can easily configure basic prefixes, connection throttling, error handling, interactive prompt defaults, and more. 
+These are the most important ones:
 
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| `commandPrefix` | `string \| string[]` | Prefix(es) for commands, e.g. `"!"` or `["!", "$", "/"]` |
-| `tagPrefix` | `string \| string[]` | Prefix(es) for tag commands, e.g. `"@"` |
-| `credentialsFolder` | `string` | Path to store WhatsApp session credentials |
-| `loggerMode` | `string` | Logger verbosity — `"recommended"` is a good default |
-| `cancelKeywords` | `string[]` | Words that cancel a running command (default: `["cancel", "cancelar"]`) |
-| `delayMilisecondsBetweenMsgs` | `number` | Throttle delay between outgoing messages |
+<Tabs>
+  <TabItem label="TypeScript">
+    ```ts
+    import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord";
 
-## Next steps
+    const bot = new Whatsbotcord({
+      // -------------------------------------------------------------------
+      // 1. Basic Options
+      // -------------------------------------------------------------------
+      // Which characters should trigger a command? (Array or string)
+      commandPrefix: ["!", "."],
+      
+      // Which characters should trigger a tag-based command?
+      tagPrefix: ["@"],
+      
+      // Where to store the WhatsApp session authentication files (By default in local ./auth directory)
+      credentialsFolder: "./auth",
+      
+      // Console logging detail level ("silent", "error", "debug", "recommended")
+      loggerMode: "recommended",
 
-Learn how to build more complex commands in the [Advanced Usage](/guides/advanced-usage/) guide.
+      // Should the bot capture its own messages? (By default: false)
+      ignoreSelfMessage: false,
+    });
+
+    class PingCommand implements ICommand {
+      name: string = "ping";
+      aliases?: string[] | undefined = ["p"];
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.SendText("pong!");
+      }
+    }
+
+    bot.Commands.Add(new PingCommand());
+    bot.Start();
+    ```
+  </TabItem>
+  <TabItem label="JavaScript">
+    ```js
+    import Whatsbotcord from "whatsbotcord";
+
+    const bot = new Whatsbotcord({
+      // -------------------------------------------------------------------
+      // 1. Basic Options
+      // -------------------------------------------------------------------
+      // Which characters should trigger a command? (Array or string)
+      commandPrefix: ["!", "."],
+      
+      // Which characters should trigger a tag-based command?
+      tagPrefix: ["@"],
+      
+      // Where to store the WhatsApp session authentication files (By default in local ./auth directory)
+      credentialsFolder: "./auth",
+      
+      // Console logging detail level ("silent", "error", "debug", "recommended")
+      loggerMode: "recommended",
+
+      // Should the bot capture its own messages? (By default: false)
+      ignoreSelfMessage: false,
+    });
+
+    bot.Commands.Add({
+      ...
+    });
+
+    bot.Start();
+    ```
+  </TabItem>
+</Tabs>
+
+
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `commandPrefix` | `string \| string[]` | `'!'` | Character(s) used to prefix commands. Configure multiple prefixes with an array (e.g. `['!', '/']`). |
+| `tagPrefix` | `string \| string[]` | `'@'` | Character(s) used to tag the bot in messages (especially useful in group contexts). |
+| `credentialsFolder` | `string` | `"./auth"` | Path to the folder where WhatsApp session credentials are stored. |
+| `loggerMode` | `WhatsSocketLoggerMode` | `"debug"` | Logging verbosity level (e.g. `"recommended"`, `"silent"`, `"debug"`, `"error"`). |
+| `ignoreSelfMessage` | `boolean` | `true` | If true, the socket ignores messages sent by the bot itself. |
+
+
+## Want to know what else you can config?
+Check the [Bot configuration page](/essential_concepts/bot_configuration)
