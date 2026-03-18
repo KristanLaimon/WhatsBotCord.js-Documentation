@@ -4,8 +4,6 @@ import starlight from "@astrojs/starlight";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://kristanlaimon.github.io",
-  base: "/WhatsBotCord.js-Documentation",
   integrations: [
     starlight({
       title: "Whatsbotcord.js",
