@@ -13,17 +13,178 @@ Here are several generic, real-world examples demonstrating how `ChatMock` seaml
 
 When a user executes a command that strictly requires a `@user` mention, you should test that the command correctly aborts and warns the user if no relevant arguments are provided.
 
-<Tabs syncKey="packageManagers">
-  <TabItem label="npm" icon="seti:npm">
-    <Code code="npm install whatsbotcord" lang="sh" />
+
+<Tabs>
+  <TabItem label="KickCommand.ts">
+
+    ```ts
+    import type { ICommand, IChatContext, AdditionalAPI, CommandArgs } from "whatsbotcord";
+
+    export default class KickCommand implements ICommand {
+      name = "kick";
+
+      public async run(ctx: IChatContext, _api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        if (!args.args.length) {
+          await ctx.SendReactEmojiToInitialMsg("❌");
+          await ctx.SendText("You must mention a user to kick.");
+          return;
+        }
+
+        // ... Kick logic processing here
+      }
+    }
+    ```
+
   </TabItem>
-  <TabItem label="bun" icon="bun">
-    <Code code="bun i whatsbotcord" lang="sh" />
+
+  <TabItem label="KickCommand.test.ts">
+
+    ```ts
+    import { describe, expect, test } from "your-testing-framework";
+    import { ChatMock, SenderType } from "whatsbotcord";
+    import KickCommand from "./KickCommand.js";
+
+    describe("Kick Command Validation", () => {
+      test("Should prompt a failure payload when no user is mentioned", async () => {
+        // 1. Initialization: We pass an empty args array
+        const chat = new ChatMock(new KickCommand(), {
+          senderType: SenderType.Group,
+          args: [], // Simulating "!kick" with nothing else
+        });
+
+        // 2. Execution
+        await chat.StartChatSimulation();
+
+        // 3. Assertion: The bot should send exactly one text message complaining
+        expect(chat.SentFromCommand.Texts).toHaveLength(1);
+        expect(chat.SentFromCommand.Texts[0].text).toContain("You must mention a user to kick.");
+
+        // It should also drop a red cross on the user's message
+        expect(chat.SentFromCommand.ReactedEmojis[0].emoji).toBe("❌");
+      });
+    });
+    ```
+
   </TabItem>
-  <TabItem label="yarn" icon="seti:yarn">
-    <Code code="yarn add whatsbotcord" lang="sh" />
+</Tabs>
+
+---
+
+## Example 2: Parsing Predefined Confirmation Flows
+
+If a command relies on `ctx.WaitYesOrNoAnswer` to prevent destructive actions, you should validate that supplying positive string literals correctly pushes the execution flow toward the success branch.
+
+<Tabs>
+  <TabItem label="ClearDatabaseCommand.ts">
+    ```ts
+    import type { ICommand, IChatContext } from "whatsbotcord";
+
+    export default class ClearDatabaseCommand implements ICommand {
+      name = "cleardb";
+
+      public async run(ctx: IChatContext): Promise<void> {
+        await ctx.SendText("Are you absolutely sure you want to delete everything? (yes/no)");
+
+        const isConfirmed = await ctx.WaitYesOrNoAnswer({
+          timeOutMiliseconds: 15000,
+          expectedTextYes: "yes",
+          expectedTextNo: "no"
+        });
+
+        if (isConfirmed) {
+          await ctx.SendReactEmojiToInitialMsg("✅");
+          await ctx.SendText("Database has been wiped successfully.");
+        } else {
+          await ctx.SendReactEmojiToInitialMsg("❌");
+          await ctx.SendText("Action cancelled.");
+        }
+      }
+    }
+    ```
+
   </TabItem>
-  <TabItem label="pnpm" icon="pnpm">
-    <Code code="pnpm add whatsbotcord" lang="sh" />
+
+  <TabItem label="ClearDatabaseCommand.test.ts">
+    ```ts
+    import { test, expect } from "your-testing-framework";
+    import { ChatMock, SenderType } from "whatsbotcord";
+    import ClearDatabaseCommand from "./ClearDatabaseCommand.js";
+
+    test("Should execute destructive action upon explicit positive confirmation", async () => {
+      const chat = new ChatMock(new ClearDatabaseCommand(), {
+        senderType: SenderType.Individual
+      });
+
+      // We explicitly enqueue the positive response so the prompt resolves smoothly
+      chat.EnqueueIncoming_Text("yes");
+
+      await chat.StartChatSimulation();
+
+      expect(chat.SentFromCommand.Texts).toHaveLength(2);
+      expect(chat.SentFromCommand.Texts[0].text).toBe("Are you absolutely sure you want to delete everything? (yes/no)");
+      expect(chat.SentFromCommand.Texts[1].text).toContain("Database has been wiped successfully.");
+
+      expect(chat.SentFromCommand.ReactedEmojis[0].emoji).toBe("✅");
+    });
+    ```
+
+  </TabItem>
+</Tabs>
+
+---
+
+## Example 3: Simulating Faux Multimedia Uploads
+
+Sometimes commands await multimedia (like `WaitMultimedia`) to process documents, photos, or audio files. `ChatMock` accepts mock buffers simulating standard `Buffer` streams, allowing you to validate processing pipelines without actual downloads.
+
+<Tabs>
+  <TabItem label="ProcessInvoiceCommand.ts">
+    ```ts
+    import type { ICommand, IChatContext } from "whatsbotcord";
+
+    export default class ProcessInvoiceCommand implements ICommand {
+      name = "invoice";
+
+      public async run(ctx: IChatContext): Promise<void> {
+        const payload = await ctx.WaitMultimedia({ timeOutMiliseconds: 20000 });
+
+        if (payload.mimetype === "application/pdf") {
+          // Process payload.buffer here
+          await ctx.SendText("Valid PDF received. Starting evaluation process...");
+        } else {
+          await ctx.SendText("Invalid format. Please upload a PDF.");
+        }
+      }
+    }
+    ```
+
+  </TabItem>
+
+  <TabItem label="ProcessInvoiceCommand.test.ts">
+    ```ts
+    import { test, expect } from "your-testing-framework";
+    import { ChatMock, SenderType } from "whatsbotcord";
+    import ProcessInvoiceCommand from "./ProcessInvoiceCommand.js";
+
+    test("Should return a processing success response upon receiving a simulated PDF Document", async () => {
+      const chat = new ChatMock(new ProcessInvoiceCommand(), {
+        senderType: SenderType.Group,
+        participantId_LID: "12345678@lid" // Restricting the sender to a group LID ID
+      });
+
+      // We enqueue a mocked PDF Document resolving directly into a mocked Buffer array!
+      const fauxPdfBuffer = Buffer.from("fake-pdf-byte-array");
+      chat.EnqueueIncoming_Document("http://example.com/invoice.pdf", "invoice.pdf", {
+        mimeType: "application/pdf",
+        imgContentBufferMock: fauxPdfBuffer // Injects the faux buffer instantly
+      });
+
+      await chat.StartChatSimulation();
+
+      expect(chat.SentFromCommand.Texts).toHaveLength(1);
+      expect(chat.SentFromCommand.Texts[0].text).toContain("Valid PDF received. Starting evaluation process...");
+    });
+    ```
+
   </TabItem>
 </Tabs>
