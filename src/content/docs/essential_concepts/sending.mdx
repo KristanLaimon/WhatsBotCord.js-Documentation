@@ -12,7 +12,7 @@ This section covers the various methods available for dispatching messages via t
 You can send plain text messages to the chat using `SendText`.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
 
@@ -25,7 +25,7 @@ You can send plain text messages to the chat using `SendText`.
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
 
@@ -45,7 +45,7 @@ You can send plain text messages to the chat using `SendText`.
 You can react to messages (like the one that triggered the command) using emojis. Reactions are great for showing the user that a command is processing (`Loading`), succeeded (`Ok`), failed (`Fail`), or sending a custom emoji.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
 
@@ -71,7 +71,7 @@ You can react to messages (like the one that triggered the command) using emojis
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
 
@@ -104,7 +104,7 @@ You can react to messages (like the one that triggered the command) using emojis
 Send images from local paths or memory buffers, with or without captions.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
   import fs from "fs";
@@ -129,7 +129,7 @@ Send images from local paths or memory buffers, with or without captions.
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
   import fs from "fs";
@@ -161,7 +161,7 @@ Send images from local paths or memory buffers, with or without captions.
 Similarly to images, you can send videos directly from the filesystem or from buffers.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
   import fs from "fs";
@@ -186,7 +186,7 @@ Similarly to images, you can send videos directly from the filesystem or from bu
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
   import fs from "fs";
@@ -218,7 +218,7 @@ Similarly to images, you can send videos directly from the filesystem or from bu
 Send audio files like voice notes or music tracks.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
   import fs from "fs";
@@ -238,7 +238,7 @@ Send audio files like voice notes or music tracks.
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
   import fs from "fs";
@@ -265,7 +265,7 @@ Send audio files like voice notes or music tracks.
 WebP graphics can be sent as WhatsApp stickers. The source can be a local file path, a remote URL, or a Buffer.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
   import fs from "fs";
@@ -284,7 +284,7 @@ WebP graphics can be sent as WhatsApp stickers. The source can be a local file p
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
   import fs from "fs";
@@ -310,7 +310,7 @@ WebP graphics can be sent as WhatsApp stickers. The source can be a local file p
 Send a poll with multiple selections. A minimum of 1 and maximum of 12 options can be provided.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
 
@@ -327,7 +327,7 @@ Send a poll with multiple selections. A minimum of 1 and maximum of 12 options c
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
 
@@ -351,7 +351,7 @@ Send a poll with multiple selections. A minimum of 1 and maximum of 12 options c
 Share a geographic coordinate. You can optionally include a descriptive name and address.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
 
@@ -373,7 +373,7 @@ Share a geographic coordinate. You can optionally include a descriptive name and
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
 
@@ -402,7 +402,7 @@ Share a geographic coordinate. You can optionally include a descriptive name and
 Send actual files (PDFs, ZIPs, DOCs, CSVs, etc.) as documents. The MIME type is automatically detected based on the extension or passed parameter.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
   import fs from "fs";
@@ -424,7 +424,7 @@ Send actual files (PDFs, ZIPs, DOCs, CSVs, etc.) as documents. The MIME type is 
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
   import fs from "fs";
@@ -453,7 +453,7 @@ Send actual files (PDFs, ZIPs, DOCs, CSVs, etc.) as documents. The MIME type is 
 Send one or more contact cards (vCards) for users to easily save phone numbers into their device. Note that phone numbers should be in international format without the `+`.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
 
@@ -473,7 +473,7 @@ Send one or more contact cards (vCards) for users to easily save phone numbers i
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
 

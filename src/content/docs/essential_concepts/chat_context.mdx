@@ -23,7 +23,7 @@ Key immutable properties it carries:
 Commands naturally receive the `ctx` object as their very first argument in their `run` (or execution) function, alongside the [`api`](/essential_concepts/additional_api) mechanisms and [`args`](/essential_concepts/command_args) parameters. The core system generates this context whenever a valid command is detected and injects it straight into your logic.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
 
@@ -39,7 +39,7 @@ name = "example";
 
 ````
 </TabItem>
-<TabItem label="JavaScript">
+<TabItem label="JavaScript" icon="seti:javascript">
 ```js
 import { CreateCommand } from "whatsbotcord";
 

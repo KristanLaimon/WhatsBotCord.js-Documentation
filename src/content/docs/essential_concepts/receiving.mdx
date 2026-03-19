@@ -12,7 +12,7 @@ This section details how to pause command execution to await user input sequenti
 Wait for a specific type of message (e.g., text, image, document) from the original sender. If you need to know more about the available message types, you can review the examples in [Sending](/essential_concepts/sending).
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
   import { MsgType } from "whatsbotcord";
@@ -34,7 +34,7 @@ Wait for a specific type of message (e.g., text, image, document) from the origi
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand, MsgType } from "whatsbotcord";
 
@@ -62,7 +62,7 @@ Wait for a specific type of message (e.g., text, image, document) from the origi
 Waits specifically for a plain text message, simplifying the process by returning just the text string.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
 
@@ -83,7 +83,7 @@ Waits specifically for a plain text message, simplifying the process by returnin
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
 
@@ -111,7 +111,7 @@ Waits specifically for a plain text message, simplifying the process by returnin
 A specialized abstraction of `WaitText` that parses predefined affirmative and negative literals (e.g., "yes", "no"). Resolves a boolean representing the interactive matrix.
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
 
@@ -134,7 +134,7 @@ A specialized abstraction of `WaitText` that parses predefined affirmative and n
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
 
@@ -164,7 +164,7 @@ A specialized abstraction of `WaitText` that parses predefined affirmative and n
 Waits for the next multimedia message of a specified type (e.g., image, video, document, audio, sticker). The received media will be given as a `Buffer`, similarly to how you would dynamically send images or videos (see [Sending Images](/essential_concepts/sending#images) and [Sending Videos](/essential_concepts/sending#videos)).
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
   import { MsgType } from "whatsbotcord";
@@ -188,7 +188,7 @@ Waits for the next multimedia message of a specified type (e.g., image, video, d
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand, MsgType } from "whatsbotcord";
   import fs from "fs";
@@ -218,7 +218,7 @@ Waits for the next multimedia message of a specified type (e.g., image, video, d
 Waits for the next location (ubication) message from the original sender. The resulting object contains the coordinates, similar to what you would use in `SendUbication` (see [Location (Ubication)](/essential_concepts/sending#location-ubication)).
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
 
@@ -239,7 +239,7 @@ Waits for the next location (ubication) message from the original sender. The re
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
 
@@ -267,7 +267,7 @@ Waits for the next location (ubication) message from the original sender. The re
 Waits for the next contact (vCard) message from the original sender. This is the exact inverse of sending a contact card; the format is similar to the object used in `SendContact` (see [Contacts (vCard)](/essential_concepts/sending#contacts-vcard)).
 
 <Tabs>
-  <TabItem label="TypeScript">
+  <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
   import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
 
@@ -292,7 +292,7 @@ Waits for the next contact (vCard) message from the original sender. This is the
   }
   ```
   </TabItem>
-  <TabItem label="JavaScript">
+  <TabItem label="JavaScript" icon="seti:javascript">
   ```js
   import { CreateCommand } from "whatsbotcord";
 
