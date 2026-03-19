@@ -1,0 +1,94 @@
+---
+title: "What's Next?"
+description: "A recommended learning roadmap for mastering the WhatsBotCord ecosystem."
+---
+
+import { LinkCard, CardGrid } from "@astrojs/starlight/components";
+import logoSrc from "../../../assets/whatsbotcord_logo.png";
+
+# Learning Roadmap
+
+Now that you have your bot successfully running, mastering WhatsBotCord is just a matter of understanding its core architectural components.
+
+We heavily recommend reading through the documentation in the following sequence. This order ensures you grasp the foundational abstractions before moving to the advanced testing and broadcasting APIs.
+
+## Stage 1: The Core Foundation
+
+These are the fundamental building blocks of reading messages and designing robust commands.
+
+<CardGrid>
+  <LinkCard
+    title="1. Bot Configuration"
+    href="/essential_concepts/bot"
+    description="Understand the main Bot framework and its high-level lifecycle configuration."
+  />
+  <LinkCard
+    title="2. WhatsApp IDs"
+    href="/essential_concepts/whatsapp_ids"
+    description="Understand @s.whatsapp.net, @lid, and @g.us identifiers natively to route data correctly."
+  />
+  <LinkCard
+    title="3. Command Arguments"
+    href="/essential_concepts/command_args"
+    description="Learn exactly how arguments are parsed from incoming messages and injected into your code."
+  />
+  <LinkCard
+    title="4. Chat Context"
+    href="/essential_concepts/chat_context"
+    description="Master the IChatContext interface, the core wrapper isolating state within specific chat threads."
+  />
+</CardGrid>
+
+---
+
+## Stage 2: Interaction
+
+Once you understand how a command is structured and how IDs map out, learn how to interact fluidly with the users typing them.
+
+<CardGrid>
+  <LinkCard
+    title="5. Sending Methods"
+    href="/essential_concepts/sending"
+    description="Explore all available methods for dispatching rich media, raw strings, and reactions."
+  />
+  <LinkCard
+    title="6. Receiving Methods"
+    href="/essential_concepts/receiving"
+    description="Learn how to halt command execution to dynamically wait for user replies, multimedia, or confirmations."
+  />
+  <LinkCard
+    title="7. Built-in Helpers"
+    href="/essential_concepts/helpers"
+    description="Discover built-in utilities for deep WhatsApp metadata extraction without manual regex."
+  />
+</CardGrid>
+
+---
+
+## Stage 3: Advanced Architectures
+
+Ready for true production deployments? Dive into global broadcasting logic and headless execution.
+
+<CardGrid>
+  <LinkCard
+    title="8. Additional API"
+    href="/essential_concepts/additional_api"
+    description="Access the raw socket state to broadcast webhook alerts globally, entirely independent from ChatContext."
+  />
+  <LinkCard
+    title="9. Testing & ChatMock"
+    href="/essential_concepts/chat_mock"
+    description="Simulate environments systematically and validate logic offline without QR scans using mock injections."
+  />
+  <LinkCard
+    title="10. ChatMock Examples"
+    href="/essential_concepts/chat_mock_examples"
+    description="Review real-world testing suites demonstrating rigorous validation architectures."
+  />
+</CardGrid>
+
+<div style={{ textAlign: "center", marginTop: "4rem", marginBottom: "2rem" }}>
+  <h2>Thanks for using Whatsbotcord.js!</h2>
+  <img src={logoSrc.src} alt="Whatsbotcord.js Logo" style={{ width: "250px", margin: "2rem auto", display: "block" }} />
+</div>
+

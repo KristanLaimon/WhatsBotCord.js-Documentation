@@ -5,12 +5,7 @@ description: "How can you create more customized commands?"
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-This far you should have your shiny new command `!ping` from the [last chapter 'Quickstart'](/getting-started/quickstart),
-but of course you'd like to do more than just "!ping". Let's dive into examples about what else you can do with your commands.
-
-# Sending
-
-We've sent text messages, but we can send all kinds of messages (all from WhatsApp of course) like:
+This section covers the various methods available for dispatching messages via the `IChatContext` interface. The `IChatContext` object abstracts the underlying socket and provides streamlined methods for sending text, media, reactions, and interactive payloads.
 
 ## Text Messages
 

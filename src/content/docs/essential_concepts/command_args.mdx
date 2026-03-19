@@ -1,0 +1,98 @@
+---
+title: "Command Arguments"
+description: "Understanding the CommandArgs object injected into your commands."
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+When a user triggers a command in WhatsBotCord, the `run` method is executed with three main parameters: your `ctx` ([Chat Context](/essential_concepts/chat_context)), the `api` ([Additional API mechanisms](/essential_concepts/additional_api)), and the `args` array.
+
+The **`args` (`CommandArgs`)** object contains all the extracted metadata about the incoming message, the text arguments parsed from the user's input, and details about the chat and sender.
+
+```ts
+export default class MyCommand implements ICommand {
+  name = "example";
+
+  public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+    console.log(args.args); // The string array of arguments
+  }
+}
+```
+
+## Structure of CommandArgs
+
+Here is a breakdown of all properties available on the `args` object.
+
+### The Parsed Arguments Array
+
+- **`args`**: An array of strings containing the text typed after the command name.
+  - If a user types `!ban @user reason here`, the `args` array will be `["@user", "reason", "here"]`.
+
+```ts
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  if (args.args.length === 0) {
+    await ctx.SendText("Please provide the arguments required.");
+    return;
+  }
+  const firstArgument = args.args[0];
+  await ctx.SendText(`You provided: ${firstArgument}`);
+}
+```
+
+### Sender Identifiers
+
+These properties help explicitly identify who executed the command.
+
+- **`participantIdPN`**: The standard phone number format ID of the user (e.g., `1234567890@s.whatsapp.net`).
+- **`participantIdLID`**: The modern Linked Device identifier (`@lid`), if the user sent the message from WhatsApp Desktop/Web in a group.
+
+```ts
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  const userId = args.participantIdPN || args.participantIdLID;
+  if (!userId) return;
+
+  await ctx.SendText(`Command executed by: ${userId}`);
+}
+```
+
+### Chat and Message Context
+
+Contextual details about where the message landed.
+
+- **`chatId`**: The WhatsApp ID of the chat. This could be a private chat (`@s.whatsapp.net`) or a group chat (`@g.us`).
+- **`chatId_LID`**: The LID-normalized equivalent chat identifier. Only applies to individual private chats; it remains `undefined` for groups.
+- **`senderType`**: Derived from the incoming message, it specifies if it is an `Individual` or `Group` chat.
+- **`msgType`**: The format of the message that triggered the command (e.g., `Text`, `Image`, `Audio`).
+
+```ts
+import { SenderType } from "whatsbotcord";
+
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  if (args.senderType === SenderType.Group) {
+    await ctx.SendText("This command was executed in a Group Chat");
+  } else {
+    await ctx.SendText("This command was executed in a Private Chat");
+  }
+}
+```
+
+### Quoted Messages
+
+- **`quotedMsgInfo`**: An object containing information about the message the user replied to when triggering the command. Excellent for actions like `!translate` or `!quote`.
+
+```ts
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  if (args.quotedMsgInfo) {
+    const quotedDetails = args.quotedMsgInfo.msg;
+    const typeOfQuotedMessage = args.quotedMsgInfo.type;
+
+    await ctx.SendText(`You replied to a message of type: ${typeOfQuotedMessage}`);
+  }
+}
+```
+
+### Advanced Raw Access
+
+- **`originalRawMsg`**: The raw WhatsApp message payload object coming directly from Baileys. Gives full access to low-level byte and protobuf details if necessary.
+- **`botInfo`**: Provides minimal read-only [Bot configuration](/essential_concepts/bot) variables, useful if your command logic needs to scale dynamically depending on the active bot options.
+

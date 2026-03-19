@@ -1,0 +1,95 @@
+---
+title: "Additional API"
+description: "Overview of the AdditionalAPI object given to commands and how you can use the raw Bot API for cross-chat operations."
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+Every command in WhatsBotCord receives three main arguments in its `run` method: `ctx`, `api`, and `args` (which you can learn more about in the [Command Arguments](/essential_concepts/command_args) page). While your `ctx` (our robust [Chat Context wrapper](/essential_concepts/chat_context)) focuses on interacting effortlessly with the exact chat the command was triggered from, the **`api` (`AdditionalAPI`)** provides access to lower-level bot mechanics and global cross-chat capabilities.
+
+```ts
+export default class MyCommand implements ICommand {
+  name = "example";
+
+  // The second argument `api` injected here is the `AdditionalAPI` object
+  public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+    // ...
+  }
+}
+```
+
+## Structure of AdditionalAPI
+
+The `api` object provides powerful submodules:
+
+### 1. `Myself.Status`
+
+Allows the bot to post status updates (WhatsApp Stories) directly to its broadcast list.
+
+```ts
+// Upload a text status visible to the provided specific contacts
+await api.Myself.Status.UploadText(
+  "Bot is online ✅",
+  ["1234567890@s.whatsapp.net"] // WhatsApp IDs that can view your story
+);
+```
+
+### 2. `Myself.Bot`
+
+Provides read-only access to the minimal bot info. Useful if your command needs to read the current runtime configurations (like `api.Myself.Bot.Settings.commandPrefix`) or dynamically search other commands in the system (`api.Myself.Bot.Commands`).
+
+### 3. `InternalSocket`
+
+Direct access to the underlying WhatsApp socket implementation (`IWhatsSocket`).
+
+> ⚠️ **Caution**: Bypassing `ChatContext` means you are responsible for handling errors, message formatting, and safe sending.
+
+---
+
+## Global Cross-Chat Actions
+
+Inside a command, your `ChatContext` is heavily bound to the chat the command was typed in. But what if you want to react to **external system events** and broadcast messages globally across multiple groups?
+
+The main [Bot](/essential_concepts/bot) instance itself exposes direct dispatch components that can be used outside the command flow safely:
+
+- `bot.SendMsg`
+- `bot.ReceiveMsg`
+- `bot.InternalSocket`
+
+### Example use case: External Webhook Broadcaster
+
+Imagine you have an external web server (like Express) running alongside your bot. Whenever a specific HTTP endpoint is hit, you want your WhatsApp Bot to automatically alert a specific group.
+
+Because this endpoint is triggered by a web request and is not bound to a user's `ChatContext`, you can utilize the `Bot` instance globally and use `bot.SendMsg`.
+
+```ts
+import express from "express";
+import type Bot from "whatsbotcord";
+
+export function StartWebhookServer(bot: Bot) {
+  const app = express();
+  app.use(express.json());
+
+  app.post("/github-commit-webhook", async (req, res) => {
+    try {
+      const commitMessage = req.body.message;
+      
+      // Using `bot.SendMsg` directly! We specify the exact target chat manually
+      await bot.SendMsg.Text("1234567890-987654@g.us", `🛠️ New commit pushed:\n${commitMessage}`);
+      
+      res.status(200).send("Broadcasted to WhatsApp!");
+    } catch (error) {
+      console.error("Failed to broadcast:", error);
+      res.status(500).send("Error");
+    }
+  });
+
+  app.listen(8080, () => console.log("Webhook listener started on port 8080"));
+}
+```
+
+### When to use `bot.SendMsg` vs `ChatContext`?
+
+- Formulating command replies, waiting for a user input, or quoting user messages 👉 Always use **`ChatContext`**.
+- Broadcasting announcements, triggering cross-chat actions based on external database hooks, WebSockets, or file events 👉 Pass the **`Bot`** framework and use **`bot.SendMsg`**.
+

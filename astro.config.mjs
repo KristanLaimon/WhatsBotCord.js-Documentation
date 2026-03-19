@@ -30,54 +30,50 @@ export default defineConfig({
       customCss: ["./src/styles/custom.css"],
       sidebar: [
         {
-          label: "Getting Started: First steps",
+          label: "Getting Started",
           items: [
             { label: "Installation", slug: "getting-started/installation" },
             { label: "Quick Start", slug: "getting-started/quickstart" },
-            { label: "Sending", slug: "getting-started/sending" },
-            { label: "Tags", slug: "getting-started/tags" },
+            { label: "What's Next?", slug: "getting-started/whats_next" },
           ],
         },
         {
-          label: "Essential concepts",
+          label: "Essential Concepts",
           items: [
             { label: "Bot", slug: "essential_concepts/bot" },
-            { label: "Bot configuration", slug: "essential_concepts/bot_configuration" },
-            {
-              label: "Chat context: The way your commands talk to whatsapp chats",
-              slug: "essential_concepts/chat_context",
-            },
+            { label: "Command Arguments", slug: "essential_concepts/command_args" },
+            { label: "WhatsApp IDs", slug: "essential_concepts/whatsapp_ids" },
+            { label: "Built-in Helpers", slug: "essential_concepts/helpers" },
+            { label: "Sending", slug: "essential_concepts/sending" },
+            { label: "Receiving", slug: "essential_concepts/receiving" },
+            { label: "Chat Context", slug: "essential_concepts/chat_context" },
+            { label: "Additional API", slug: "essential_concepts/additional_api" },
+            { label: "Testing & ChatMock", slug: "essential_concepts/chat_mock" },
+            { label: "ChatMock Examples", slug: "essential_concepts/chat_mock_examples" },
           ],
         },
         {
-          label: "Intermediate/Advanced concepts",
-          items: [],
-        },
-        {
-          label: "Guides",
+          label: "Guides & Tutorials",
           items: [
-            { label: "Advanced Usage", slug: "guides/advanced-usage" },
-            {
-              label: "Cancelling Commands",
-              slug: "guides/cancelling-commands",
-            },
+            { label: "Receiving User Input", slug: "tutorials/waiting-input" },
+            { label: "Cancelling Commands", slug: "guides/cancelling-commands" },
+            { label: "Manipulating Chat Context", slug: "guides/chat-context" },
+            { label: "AdditionalAPI & Internal Socket", slug: "guides/additional-api" },
             { label: "Events", slug: "guides/events" },
             { label: "Middleware", slug: "guides/middleware" },
             { label: "Plugins", slug: "guides/plugins" },
             { label: "Tags & Groups", slug: "guides/tags-and-groups" },
-            {
-              label: "Manipulating Chat Context",
-              slug: "guides/chat-context",
-            },
-            {
-              label: "AdditionalAPI & Internal Socket",
-              slug: "guides/additional-api",
-            },
+            { label: "Advanced Usage", slug: "guides/advanced-usage" },
           ],
         },
         {
-          label: "Testing",
-          items: [{ label: "Mocking & Testing", slug: "testing/testing" }],
+          label: "Advanced Architecture",
+          items: [
+            { label: "Database Integration", slug: "intermediate_advanced_concepts/database-integration" },
+            { label: "Dependency Injection", slug: "intermediate_advanced_concepts/dependency-injection" },
+            { label: "Testing & Mocking", slug: "intermediate_advanced_concepts/testing-and-mocking" },
+            { label: "Unit Testing & ChatMock", slug: "testing/testing" },
+          ],
         },
         {
           label: "Reference",

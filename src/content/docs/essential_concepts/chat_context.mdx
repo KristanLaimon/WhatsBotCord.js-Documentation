@@ -1,4 +1,109 @@
 ---
 title: "Chat context"
-description: Usage, info and other useful info about the main object to interact with your chats, always given to your commands!
+description: "Everything you need to know about the IChatContext object, how it works, and what it lets you do."
 ---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+The `IChatContext` (`ctx` by convention) interface is a declarative wrapper passed to every command execution. It binds the operational scope of the socket to the specific chat thread and sender that triggered the command, abstracting low-level participant extraction, JID resolution, and protocol formatting.
+
+By maintaining stateful properties of the initial trigger event, `IChatContext` ensures standardized and reliable outbound interactions without manually tracking metadata.
+
+Key immutable properties it carries:
+
+- `FixedChatId`: The WhatsApp chat ID where this session permanently belongs to.
+- `InitialMsg`: The original message payload that started it all.
+- `FixedSenderType`: Whether the sender was a user, a group, the system, etc.
+- `FixedParticipantPN`: The phone number (JID) of the participant who triggered the session (useful for groups).
+
+---
+
+# Context Injection
+
+Commands naturally receive the `ctx` object as their very first argument in their `run` (or execution) function, alongside the [`api`](/essential_concepts/additional_api) mechanisms and [`args`](/essential_concepts/command_args) parameters. The core system generates this context whenever a valid command is detected and injects it straight into your logic.
+
+<Tabs>
+  <TabItem label="TypeScript">
+  ```ts
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+
+export default class ExampleCommand implements ICommand {
+name = "example";
+
+    // 👇 The chat context is passed first
+    public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      console.log(`Command triggered in chat: ${ctx.FixedChatId}`);
+    }
+
+}
+
+````
+</TabItem>
+<TabItem label="JavaScript">
+```js
+import { CreateCommand } from "whatsbotcord";
+
+// 👇 The chat context is passed first
+export default CreateCommand("example", async function (ctx, api, args) {
+  console.log(`Command triggered in chat: ${ctx.FixedChatId}`);
+});
+````
+
+  </TabItem>
+</Tabs>
+
+---
+
+# Capabilities Overview
+
+The context exposes a unified API designed strictly for conversational workflows.
+
+## Sending Payloads
+
+Dispatching outbound payloads via `ctx` automatically routes the message to the origin chat.
+
+- **`SendText`**: Send plain text.
+- **`SendImg` & `SendVideo`**: Send media locally or from buffers.
+- **`SendAudio` & `SendDocument`**: Send voice notes, MP3 files, and document attachments (PDFs, ZIPs).
+- **`SendSticker`**: Send WebP graphics as stickers.
+- **`SendReactEmojiToInitialMsg`**: Add an emoji reaction to the message that triggered the command.
+- **`Ok`, `Loading`, `Fail`**: Send conventional status reactions (✅, ⌛, ❌).
+- **`SendPoll`**: Send interactive polls.
+- **`SendUbication` & `SendContact`**: Send map locations and vCards.
+
+📚 **Learn more:** Check out the [Sending Messages](/essential_concepts/sending) chapter for in-depth examples!
+
+## Awaiting Interactions
+
+The context provides blocking `Wait...` methods to pause the async execution thread and capture sequential input strictly originating from the initial sender inside the bound chat identifier.
+
+- **`WaitText`**: Waits for the user to send a raw text message.
+- **`WaitYesOrNoAnswer`**: Waits for positive/negative confirmations ("yes", "no").
+- **`WaitMultimedia`**: Waits for images, videos, audio, stickers, or documents explicitly.
+- **`WaitUbication` & `WaitContact`**: Waits for the user to share a location or a contact.
+- **`WaitMsg`**: Waits for a specific raw message type.
+
+📚 **Learn more:** Check out the [Receiving Messages](/essential_concepts/receiving) chapter for examples!
+
+## Cloning the Context
+
+The `Clone...` methods facilitate context-forking for parallel execution logic or targeted state mutations without interfering the initial scope context.
+
+- **`Clone`**: Creates an exact, independent copy of the current context. Useful for parallel async operations without sharing state mutations.
+- **`CloneButTargetedToIndividualChat`**: Retargets the context to a specific private chat using a JID. Great for proactively messaging someone.
+- **`CloneButTargetedToGroupChat`**: Retargets the context to a group chat. You can specify a particular participant within that group too.
+- **`CloneButTargetedToWithInitialMsg`**: Forks a completely new context using another WhatsApp message as an anchor. This is the most reliable way to jump to another context because it accurately infers the sender, chat, and IDs.
+
+Example: Replying privately to a user who triggered the command inside a group thread:
+
+```ts
+// Suppose args[0] is the JID of the group member you want to text privately
+const privateCtx = ctx.CloneButTargetedToIndividualChat({
+  userChatId: ctx.FixedParticipantPN!,
+});
+
+await privateCtx.SendText("Hello there! Here is the private response you requested.");
+```
+
+This flexibility ensures `IChatContext` is the only abstraction you need to perform powerful, context-aware operations!
+

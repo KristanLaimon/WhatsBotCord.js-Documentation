@@ -1,0 +1,89 @@
+---
+title: "Dependency Injection"
+description: "How to use Dependency Injection to manage your database, file systems, and commands."
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+# Dependency Injection Pattern
+
+To complement the Abstract Base Command architecture (seen in the previous chapter), we need a way to pass the dependencies (like our database or file system) to the commands when they are registered in the bot.
+
+We strongly recommend using a Dependency Injection (DI) container like `tsyringe`. This allows you to define what database implementation to use depending on if the bot is running in **Production** or **Testing**.
+
+## Production vs Testing Setup
+
+Instead of importing implementations directly, we register them as singletons or transients in the container.
+
+### Production Loader
+In production, we want to connect to our real database (e.g., Drizzle ORM) and the actual physical file system (Node.js `fs`).
+
+```ts
+import { type DependencyContainer } from "tsyringe";
+
+export async function PRELOAD_DI_Production(container: DependencyContainer) {
+  // We use dynamic imports so we don't load heavy ORMs during tests
+  const { default: PlayerRepoDrizzle } = await import("./Player.repository.drizzle.js");
+  
+  // Register Real File System
+  container.registerSingleton("IFileSystem", RealFileSystem);
+
+  // Register Real Repositories
+  container.registerSingleton("Repo_Player", PlayerRepoDrizzle);
+
+  // Register wrapping Database object
+  container.registerSingleton("IDatabase", RealDatabase);
+}
+```
+
+### Testing Loader
+For tests, we swap the heavy dependencies with in-memory RAM equivalents and Mock File Systems. This ensures tests run blazingly fast and isolated. Using `Lifecycle.Transient` guarantees a new fresh database for each test.
+
+```ts
+import { type DependencyContainer, Lifecycle } from "tsyringe";
+
+export function PRELOAD_DI_Testing(container: DependencyContainer) {
+  // Register RAM Mock File System
+  container.register("IFileSystem", MockFileSystem, { lifecycle: Lifecycle.Transient });
+
+  // Register RAM Mock Repositories
+  container.register("Repo_Player", PlayerRepoRAM, { lifecycle: Lifecycle.Transient });
+
+  // Register wrapping Database object
+  container.register("IDatabase", MockDatabase, { lifecycle: Lifecycle.Transient });
+}
+```
+
+## Injecting Commands into the Bot
+
+When it's time to start the bot, we initialize our container and then magically resolve our commands with their dependencies instantly using `container.resolve()`.
+
+To keep code clean, we can create a proxy shortcut `$` for `container.resolve.bind(container)`.
+
+```ts
+import "reflect-metadata";
+import { container } from "tsyringe";
+import Whatsbotcord from "whatsbotcord";
+
+// 1. Inject real dependencies
+await PRELOAD_DI_Production(container);
+
+// 2. Shortcut proxy abstraction
+export const $ = container.resolve.bind(container);
+
+// 3. Create bot
+const bot = new Whatsbotcord({
+  commandPrefix: ["!"],
+  loggerMode: "recommended",
+});
+
+// 4. Add commands MAGICALLY resolving their DB/FS dependencies!
+bot.Commands.Add($(GroupInfoCommand));
+bot.Commands.Add($(ProfileCommand));
+bot.Commands.Add($(HelpCommand));
+bot.Commands.Add($(SearchCommand));
+
+bot.Start();
+```
+
+Thanks to `tsyringe`, commands like `ProfileCommand` and `SearchCommand` will automatically receive the `IDatabase` and `IFileSystem` instances they require in their constructors without us manually typing `new ProfileCommand(db, fs)`.

@@ -17,19 +17,37 @@ import ThemePicker from "./ThemePicker.astro";
 
 <style>
   .wb-header-wrap {
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
   }
+  
   .wb-theme-picker-slot {
-    position: absolute;
-    top: 50%;
-    right: 1rem;
-    transform: translateY(-50%);
-    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--sl-color-gray-5);
+    background-color: var(--sl-color-bg-nav);
+    width: 100%;
   }
-  /* push it left a bit to avoid overlapping the dark/light toggle area */
+
+  /* On desktop, restore it to absolutely float securely to the left of the search bar */
   @media (min-width: 50rem) {
+    .wb-header-wrap {
+      display: block;
+      position: relative;
+    }
     .wb-theme-picker-slot {
-      right: 12rem;
+      position: absolute;
+      top: 50%;
+      right: 16rem; /* Ensures it stays left of the Search/Social icons */
+      transform: translateY(-50%);
+      padding: 0;
+      border-top: none;
+      background-color: transparent;
+      width: auto;
+      z-index: 10;
     }
   }
 </style>

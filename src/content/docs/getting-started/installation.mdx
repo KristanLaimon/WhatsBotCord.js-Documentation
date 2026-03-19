@@ -3,7 +3,8 @@ title: Installation
 description: Install Whatsbotcord.js and set up your project.
 ---
 
-import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
+import { Aside } from "@astrojs/starlight/components";
+import InstallTabs from "../../../components/InstallTabs.astro";
 
 ## Prerequisites
 
@@ -17,48 +18,19 @@ import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 
 ## Install the package
 
-<Tabs>
-  <TabItem label="npm">
-
-    ```shell
-    npm install whatsbotcord
-    ```
-
-  </TabItem>
-  <TabItem label="bun">
-
-    ```shell
-    bun i whatsbotcord
-    ```
-
-  </TabItem>
-  <TabItem label="yarn">
-
-    ```shell
-    yarn add whatsbotcord
-    ```
-
-  </TabItem>
-  <TabItem label="pnpm">
-
-    ```shell
-    pnpm add whatsbotcord
-    ```
-
-  </TabItem>
-</Tabs>
+<InstallTabs />
 
 ## What's included
 
 Once installed, you get access to the full Whatsbotcord API:
 
-| Feature               | Description                                                |
-| :-------------------- | :--------------------------------------------------------- |
-| **Command System**    | Discord-style `!command` and `@tag` support with aliases   |
-| **TypeScript types**  | Full type definitions for every API surface                |
-| **Middleware**        | Express-like middleware pipeline for messages and commands |
-| **Plugins**           | Official and third-party plugin support                    |
-| **Testing utilities** | `ChatMock` for local command testing without WhatsApp      |
+| Feature               | Description                                                                                                                  |
+| :-------------------- | :--------------------------------------------------------------------------------------------------------------------------- |
+| **Command System**    | Discord-style `!command` and `@tag` support with aliases ([Command Arguments](/essential_concepts/command_args))             |
+| **TypeScript types**  | Full type definitions for every API surface                                                                                  |
+| **Middleware**        | Express-like [middleware pipeline](/guides/middleware) for messages and commands                                             |
+| **Plugins**           | Official and third-party [plugin support](/guides/plugins)                                                                   |
+| **Testing utilities** | `ChatMock` for local command testing without WhatsApp ([Mocking Guide](/intermediate_advanced_concepts/testing-and-mocking)) |
 
 ## Next steps
 

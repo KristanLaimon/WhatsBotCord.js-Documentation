@@ -1,0 +1,71 @@
+---
+title: "WhatsApp IDs"
+description: "Understanding how WhatsApp identifies users, groups, and linked devices."
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+WhatsApp API uses specific suffixes to differentiate between a private chat message, a group message, or a message sent from a linked device (WhatsApp Web/Desktop).
+
+WhatsBotCord provides built-in utilities in `Helpers.Whatsapp` to easily extract, format, and understand these identifiers without manual regex parsing.
+
+## The Three Suffixes
+
+You will mostly encounter these three post-fixes when dealing with Raw WhatsApp IDs:
+
+1. **`@s.whatsapp.net`** (Individual User)
+   The standard identifier for a private chat with a regular phone number.
+   _Example: `1234567890@s.whatsapp.net`_
+
+2. **`@g.us`** (Group Chat)
+   The identifier for a WhatsApp Group.
+   _Example: `1234567890-987654@g.us`_
+
+3. **`@lid`** (Linked Device)
+   A modern identifier used when a user sends a message from a linked device (like WhatsApp Desktop) inside a group. Messages **cannot** be sent directly to a `@lid`, they must be mapped to their real phone number (`@s.whatsapp.net`) or the bot must reply gracefully using `ChatContext`.
+
+You have reference to these exact suffix strings inside `Helpers.Whatsapp.IdentifiersPostfixes`.
+
+## Extracting Info from a Raw Message
+
+When receiving a raw message from Baileys, it can be tricky to know who sent what. `WhatsappHelper_ExtractWhatsappInfoInfoFromSenderRawMsg` safely extracts the sender's phone number information from standard individual messages AND linked device group messages.
+
+```ts
+import { Helpers } from "whatsbotcord";
+import type { WhatsappIDInfo } from "whatsbotcord";
+
+bot.Use(async (bot, senderLID, senderPN, chatId, rawMsg, msgType, senderType, next) => {
+  const phoneInfo: WhatsappIDInfo = Helpers.Whatsapp.GetWhatsInfoFromSenderMsg(rawMsg);
+
+  console.log("Raw ID:", phoneInfo.rawId); // "12345@s.whatsapp.net" or "9999@lid"
+  console.log("Mention String:", phoneInfo.asMentionFormatted); // "@12345"
+  console.log("Type:", phoneInfo.WhatsappIdType); // "pn" or "lid"
+
+  await next();
+});
+```
+
+## Parsing Mentions
+
+When users mention each other in a group (e.g., `@12345`), the text arrives as a string formatted with an `@`. You can easily parse this string back into a manageable `WhatsappIDInfo` object:
+
+```ts
+// Suppose the command was: !ban @123456789
+const arg = args[0]; // "@123456789"
+
+const info = Helpers.Whatsapp.GetWhatsInfoFromMentionStr(arg);
+if (info) {
+  console.log(info.rawId); // "123456789@lid" (or appropriate type)
+}
+```
+
+## Validation Helpers
+
+You can quickly validate string formats using our boolean checkers to assert your command logic constraints:
+
+- `Helpers.Whatsapp.IsPNId("123@s.whatsapp.net")` 👉 Returns `true`
+- `Helpers.Whatsapp.IsLIDId("9876@lid")` 👉 Returns `true`
+- `Helpers.Whatsapp.IsMentionString("@123456")` 👉 Returns `true`
+
+Understanding these IDs will prevent errors when trying to dispatch messages directly via `bot.SendMsg` utilizing incorrect ID formats!
+

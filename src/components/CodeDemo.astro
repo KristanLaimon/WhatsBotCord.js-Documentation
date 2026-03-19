@@ -13,13 +13,13 @@
       <span class="cd-dot cd-dot--yellow"></span>
       <span class="cd-dot cd-dot--green"></span>
       <div class="cd-tabs">
-        <button class="cd-tab active" data-lang="js" id="cd-tab-js">index.js</button>
-        <button class="cd-tab" data-lang="ts" id="cd-tab-ts">index.ts</button>
+        <button class="cd-tab" data-lang="js" id="cd-tab-js">index.js</button>
+        <button class="cd-tab active" data-lang="ts" id="cd-tab-ts">index.ts</button>
       </div>
     </div>
     <div class="cd-body">
-      <pre class="cd-code" id="cd-code-js"><code id="cd-typed-js"></code></pre>
-      <pre class="cd-code cd-hidden" id="cd-code-ts"><code id="cd-typed-ts"></code></pre>
+      <pre class="cd-code cd-hidden" id="cd-code-js"><code id="cd-typed-js"></code></pre>
+      <pre class="cd-code" id="cd-code-ts"><code id="cd-typed-ts"></code></pre>
     </div>
   </div>
 </section>
@@ -136,25 +136,24 @@
 
   const tsCode = [
     '<span style="color:#ff7b72">import</span> <span style="color:#c9d1d9">Whatsbotcord, {</span>',
+    '  <span style="color:#ff7b72">type</span> <span style="color:#79c0ff">ICommand</span><span style="color:#c9d1d9">,</span>',
     '  <span style="color:#ff7b72">type</span> <span style="color:#79c0ff">IChatContext</span><span style="color:#c9d1d9">,</span>',
     '  <span style="color:#c9d1d9">CommandType,</span>',
     '<span style="color:#c9d1d9">}</span> <span style="color:#ff7b72">from</span> <span style="color:#a5d6ff">"whatsbotcord"</span><span style="color:#c9d1d9">;</span>',
+    '',
+    '<span style="color:#ff7b72">class</span> <span style="color:#79c0ff">PingCommand</span> <span style="color:#ff7b72">implements</span> <span style="color:#79c0ff">ICommand</span> <span style="color:#c9d1d9">{</span>',
+    '  <span style="color:#79c0ff">name</span> <span style="color:#ff7b72">=</span> <span style="color:#a5d6ff">"ping"</span><span style="color:#c9d1d9">;</span>',
+    '  <span style="color:#ff7b72">public</span> <span style="color:#ff7b72">async</span> <span style="color:#d2a8ff">run</span><span style="color:#c9d1d9">(chat</span><span style="color:#ff7b72">:</span> <span style="color:#79c0ff">IChatContext</span><span style="color:#c9d1d9">)</span><span style="color:#ff7b72">:</span> <span style="color:#79c0ff">Promise</span><span style="color:#c9d1d9">&lt;</span><span style="color:#79c0ff">void</span><span style="color:#c9d1d9">&gt; {</span>',
+    '    <span style="color:#ff7b72">await</span> <span style="color:#c9d1d9">chat.</span><span style="color:#d2a8ff">SendText</span><span style="color:#c9d1d9">(</span><span style="color:#a5d6ff">"pong! 🏓"</span><span style="color:#c9d1d9">);</span>',
+    '  <span style="color:#c9d1d9">}</span>',
+    '<span style="color:#c9d1d9">}</span>',
     '',
     '<span style="color:#ff7b72">const</span> <span style="color:#79c0ff">bot</span> <span style="color:#ff7b72">=</span> <span style="color:#ff7b72">new</span> <span style="color:#d2a8ff">Whatsbotcord</span><span style="color:#c9d1d9">({</span>',
     '  <span style="color:#79c0ff">commandPrefix</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"!"</span><span style="color:#c9d1d9">,</span>',
     '  <span style="color:#79c0ff">credentialsFolder</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"./auth"</span><span style="color:#c9d1d9">,</span>',
     '<span style="color:#c9d1d9">});</span>',
     '',
-    '<span style="color:#c9d1d9">bot.Commands.</span><span style="color:#d2a8ff">Add</span><span style="color:#c9d1d9">(</span>',
-    '  <span style="color:#c9d1d9">{</span>',
-    '    <span style="color:#79c0ff">name</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"ping"</span><span style="color:#c9d1d9">,</span>',
-    '    <span style="color:#ff7b72">async</span> <span style="color:#d2a8ff">run</span><span style="color:#c9d1d9">(chat</span><span style="color:#ff7b72">:</span> <span style="color:#79c0ff">IChatContext</span><span style="color:#c9d1d9">)</span><span style="color:#ff7b72">:</span> <span style="color:#79c0ff">Promise</span><span style="color:#c9d1d9">&lt;</span><span style="color:#79c0ff">void</span><span style="color:#c9d1d9">&gt; {</span>',
-    '      <span style="color:#ff7b72">await</span> <span style="color:#c9d1d9">chat.</span><span style="color:#d2a8ff">SendText</span><span style="color:#c9d1d9">(</span><span style="color:#a5d6ff">"pong! 🏓"</span><span style="color:#c9d1d9">);</span>',
-    '    <span style="color:#c9d1d9">},</span>',
-    '  <span style="color:#c9d1d9">},</span>',
-    '  <span style="color:#c9d1d9">CommandType.Normal</span>',
-    '<span style="color:#c9d1d9">);</span>',
-    '',
+    '<span style="color:#c9d1d9">bot.Commands.</span><span style="color:#d2a8ff">Add</span><span style="color:#c9d1d9">(</span><span style="color:#ff7b72">new</span> <span style="color:#d2a8ff">PingCommand</span><span style="color:#c9d1d9">(), CommandType.Normal);</span>',
     '<span style="color:#c9d1d9">bot.</span><span style="color:#d2a8ff">Start</span><span style="color:#c9d1d9">();</span>',
   ];
 
@@ -220,7 +219,8 @@
 
     /* sync with global preference */
     const stored = localStorage.getItem("wb-lang");
-    if (stored === "TypeScript") showLang("ts");
+    if (stored === "JavaScript") showLang("js");
+    else showLang("ts");
   }
 
   function boot() {
