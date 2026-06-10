@@ -43,7 +43,7 @@
   }
 </style>
 
-<script>
+<script is:inline>
 (function initThemePicker() {
   const KEY = "wb-accent-theme";
 
@@ -139,9 +139,9 @@
     return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
   }
 
-  function apply(name: string) {
+  function apply(name) {
     const mode = getMode();
-    const p = palettes[name as keyof typeof palettes];
+    const p = palettes[name];
     if (!p) return;
 
     const vars = p[mode];
@@ -149,29 +149,27 @@
     Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
 
     /* mark active swatch */
-    document.querySelectorAll<HTMLElement>(".tp-swatch").forEach((s) => {
-      s.classList.toggle("active", s.dataset.theme === name);
+    document.querySelectorAll(".tp-swatch").forEach((s) => {
+      if (s.dataset.theme === name) {
+        s.classList.add("active");
+      } else {
+        s.classList.remove("active");
+      }
     });
 
     localStorage.setItem(KEY, name);
   }
 
+  // 1. Apply synchronously immediately to prevent FOUC on hard reload
+  apply(localStorage.getItem(KEY) || "green");
+
+  // 2. Boot function to attach click events when DOM is fully ready
   function boot() {
-    const saved = localStorage.getItem(KEY) || "green";
-    apply(saved);
+    apply(localStorage.getItem(KEY) || "green");
 
-    document.querySelectorAll<HTMLElement>(".tp-swatch").forEach((btn) => {
-      btn.addEventListener("click", () => apply(btn.dataset.theme as string));
-    });
-
-    /* re-apply when Starlight's light/dark toggle changes */
-    const observer = new MutationObserver(() => {
-      const current = localStorage.getItem(KEY) || "green";
-      apply(current);
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
+    document.querySelectorAll(".tp-swatch").forEach((btn) => {
+      // Use onclick to prevent duplicate listeners
+      btn.onclick = () => apply(btn.dataset.theme);
     });
   }
 
@@ -180,6 +178,28 @@
   } else {
     boot();
   }
+
+  // 3. Re-apply synchronously right after Astro swaps the page content (avoids transition flash)
+  document.addEventListener("astro:after-swap", () => {
+    apply(localStorage.getItem(KEY) || "green");
+  });
+
+  // 4. Re-attach event listeners after Astro finishes the view transition
   document.addEventListener("astro:page-load", boot);
+
+  // 5. Re-apply when Starlight's light/dark toggle changes
+  const observer = new MutationObserver(() => {
+    const current = localStorage.getItem(KEY) || "green";
+    apply(current);
+  });
+  
+  // Make sure we only observe once if the script gets re-executed
+  if (!window.__themePickerObserverSet) {
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    window.__themePickerObserverSet = true;
+  }
 })();
 </script>
