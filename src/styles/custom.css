@@ -261,9 +261,13 @@ header .site-title img {
 
 /* Make search bar longer/wider on desktop */
 @media (min-width: 50rem) {
+  .custom-search-group {
+    flex-grow: 1;
+    max-width: 30rem;
+  }
   site-search button[data-open-modal] {
-    width: 25rem !important;
-    max-width: 35rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
 
