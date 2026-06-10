@@ -15,20 +15,4 @@ import ThemePicker from "./ThemePicker.astro";
   <Default {...Astro.props}><slot /></Default>
 </div>
 
-<style>
-  .custom-theme-group {
-    display: flex;
-    align-items: center;
-  }
-  
-  .desktop-theme-picker {
-    display: none;
-  }
 
-  @media (min-width: 50rem) {
-    .desktop-theme-picker {
-      display: block;
-      margin-right: 0.75rem;
-    }
-  }
-</style>
