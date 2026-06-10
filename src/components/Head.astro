@@ -7,5 +7,10 @@ import type { Props } from "@astrojs/starlight/props";
 import Default from "@astrojs/starlight/components/Head.astro";
 ---
 
+<script is:inline>
+  if (typeof localStorage !== "undefined" && !localStorage.getItem("starlight-theme")) {
+    localStorage.setItem("starlight-theme", "light");
+  }
+</script>
 <Default {...Astro.props}><slot /></Default>
 <script src="../scripts/preferences.js"></script>

@@ -1,4 +1,7 @@
 ---
+import jsLogo from "../assets/javascript_logo.png";
+import tsLogo from "../assets/typescript_logo.png";
+
 /**
  * CodeDemo — animated code block with a typing effect.
  * Shows a minimal bot setup in JS or TS depending on user preference.
@@ -13,13 +16,24 @@
       <span class="cd-dot cd-dot--yellow"></span>
       <span class="cd-dot cd-dot--green"></span>
       <div class="cd-tabs">
-        <button class="cd-tab" data-lang="js" id="cd-tab-js">index.js</button>
-        <button class="cd-tab active" data-lang="ts" id="cd-tab-ts">index.ts</button>
+        <button class="cd-tab" data-lang="js" id="cd-tab-js" style="display: flex; flex-direction: row; gap: 0.5rem;">
+          <img src={jsLogo.src} alt="JS" class="cd-tab-icon" />
+          <p style="color: #979797; margin: 0; padding-top: 0.5rem; padding-bottom: 0.5rem;">index.js</p>
+        </button>
+        <button
+          class="cd-tab active"
+          data-lang="ts"
+          id="cd-tab-ts"
+          style="display: flex; flex-direction: row; gap: 0.5rem; margin: 0;"
+        >
+          <img src={tsLogo.src} alt="TS" class="cd-tab-icon" />
+          <p style="color: #9e9e9e; margin: 0; padding-top: 0.5rem; padding-bottom: 0.5rem;">index.ts</p>
+        </button>
       </div>
     </div>
     <div class="cd-body">
-      <pre class="cd-code cd-hidden" id="cd-code-js"><code id="cd-typed-js"></code></pre>
-      <pre class="cd-code" id="cd-code-ts"><code id="cd-typed-ts"></code></pre>
+      <pre class="cd-code cd-hidden" id="cd-code-js"><code id="cd-typed-js" /></pre>
+      <pre class="cd-code" id="cd-code-ts"><code id="cd-typed-ts" /></pre>
     </div>
   </div>
 </section>
@@ -50,9 +64,15 @@
     height: 0.6rem;
     border-radius: 50%;
   }
-  .cd-dot--red { background: #ff5f57; }
-  .cd-dot--yellow { background: #ffbd2e; }
-  .cd-dot--green { background: #28c840; }
+  .cd-dot--red {
+    background: #ff5f57;
+  }
+  .cd-dot--yellow {
+    background: #ffbd2e;
+  }
+  .cd-dot--green {
+    background: #28c840;
+  }
   .cd-tabs {
     display: flex;
     gap: 0.15rem;
@@ -67,7 +87,17 @@
     font-family: inherit;
     cursor: pointer;
     border-radius: 0.35rem 0.35rem 0 0;
-    transition: background 0.15s, color 0.15s;
+    transition:
+      background 0.15s,
+      color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .cd-tab-icon {
+    width: 1rem;
+    height: 1rem;
+    object-fit: contain;
   }
   .cd-tab:hover {
     color: var(--sl-color-gray-1);
@@ -106,155 +136,157 @@
     color: var(--sl-color-accent, #22a34b);
   }
   @keyframes blink {
-    50% { opacity: 0; }
+    50% {
+      opacity: 0;
+    }
   }
 </style>
 
 <script>
-(function initCodeDemo() {
-  /* ---- source code (with HTML-safe syntax highlighting) ---- */
-  const jsCode = [
-    '<span style="color:#ff7b72">import</span> <span style="color:#c9d1d9">Whatsbotcord, { CommandType }</span> <span style="color:#ff7b72">from</span> <span style="color:#a5d6ff">"whatsbotcord"</span><span style="color:#c9d1d9">;</span>',
-    '',
-    '<span style="color:#ff7b72">const</span> <span style="color:#79c0ff">bot</span> <span style="color:#ff7b72">=</span> <span style="color:#ff7b72">new</span> <span style="color:#d2a8ff">Whatsbotcord</span><span style="color:#c9d1d9">({</span>',
-    '  <span style="color:#79c0ff">commandPrefix</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"!"</span><span style="color:#c9d1d9">,</span>',
-    '  <span style="color:#79c0ff">credentialsFolder</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"./auth"</span><span style="color:#c9d1d9">,</span>',
-    '<span style="color:#c9d1d9">});</span>',
-    '',
-    '<span style="color:#c9d1d9">bot.Commands.</span><span style="color:#d2a8ff">Add</span><span style="color:#c9d1d9">(</span>',
-    '  <span style="color:#c9d1d9">{</span>',
-    '    <span style="color:#79c0ff">name</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"ping"</span><span style="color:#c9d1d9">,</span>',
-    '    <span style="color:#ff7b72">async</span> <span style="color:#d2a8ff">run</span><span style="color:#c9d1d9">(chat) {</span>',
-    '      <span style="color:#ff7b72">await</span> <span style="color:#c9d1d9">chat.</span><span style="color:#d2a8ff">SendText</span><span style="color:#c9d1d9">(</span><span style="color:#a5d6ff">"pong! 🏓"</span><span style="color:#c9d1d9">);</span>',
-    '    <span style="color:#c9d1d9">},</span>',
-    '  <span style="color:#c9d1d9">},</span>',
-    '  <span style="color:#c9d1d9">CommandType.Normal</span>',
-    '<span style="color:#c9d1d9">);</span>',
-    '',
-    '<span style="color:#c9d1d9">bot.</span><span style="color:#d2a8ff">Start</span><span style="color:#c9d1d9">();</span>',
-  ];
+  (function initCodeDemo() {
+    /* ---- source code (with HTML-safe syntax highlighting) ---- */
+    const jsCode = [
+      '<span style="color:#ff7b72">import</span> <span style="color:#c9d1d9">Whatsbotcord, { CommandType }</span> <span style="color:#ff7b72">from</span> <span style="color:#a5d6ff">"whatsbotcord"</span><span style="color:#c9d1d9">;</span>',
+      "",
+      '<span style="color:#ff7b72">const</span> <span style="color:#79c0ff">bot</span> <span style="color:#ff7b72">=</span> <span style="color:#ff7b72">new</span> <span style="color:#d2a8ff">Whatsbotcord</span><span style="color:#c9d1d9">({</span>',
+      '  <span style="color:#79c0ff">commandPrefix</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"!"</span><span style="color:#c9d1d9">,</span>',
+      '  <span style="color:#79c0ff">credentialsFolder</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"./auth"</span><span style="color:#c9d1d9">,</span>',
+      '<span style="color:#c9d1d9">});</span>',
+      "",
+      '<span style="color:#c9d1d9">bot.Commands.</span><span style="color:#d2a8ff">Add</span><span style="color:#c9d1d9">(</span>',
+      '  <span style="color:#c9d1d9">{</span>',
+      '    <span style="color:#79c0ff">name</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"ping"</span><span style="color:#c9d1d9">,</span>',
+      '    <span style="color:#ff7b72">async</span> <span style="color:#d2a8ff">run</span><span style="color:#c9d1d9">(chat) {</span>',
+      '      <span style="color:#ff7b72">await</span> <span style="color:#c9d1d9">chat.</span><span style="color:#d2a8ff">SendText</span><span style="color:#c9d1d9">(</span><span style="color:#a5d6ff">"pong! 🏓"</span><span style="color:#c9d1d9">);</span>',
+      '    <span style="color:#c9d1d9">},</span>',
+      '  <span style="color:#c9d1d9">},</span>',
+      '  <span style="color:#c9d1d9">CommandType.Normal</span>',
+      '<span style="color:#c9d1d9">);</span>',
+      "",
+      '<span style="color:#c9d1d9">bot.</span><span style="color:#d2a8ff">Start</span><span style="color:#c9d1d9">();</span>',
+    ];
 
-  const tsCode = [
-    '<span style="color:#ff7b72">import</span> <span style="color:#c9d1d9">Whatsbotcord, {</span>',
-    '  <span style="color:#ff7b72">type</span> <span style="color:#79c0ff">ICommand</span><span style="color:#c9d1d9">,</span>',
-    '  <span style="color:#ff7b72">type</span> <span style="color:#79c0ff">IChatContext</span><span style="color:#c9d1d9">,</span>',
-    '  <span style="color:#c9d1d9">CommandType,</span>',
-    '<span style="color:#c9d1d9">}</span> <span style="color:#ff7b72">from</span> <span style="color:#a5d6ff">"whatsbotcord"</span><span style="color:#c9d1d9">;</span>',
-    '',
-    '<span style="color:#ff7b72">class</span> <span style="color:#79c0ff">PingCommand</span> <span style="color:#ff7b72">implements</span> <span style="color:#79c0ff">ICommand</span> <span style="color:#c9d1d9">{</span>',
-    '  <span style="color:#79c0ff">name</span> <span style="color:#ff7b72">=</span> <span style="color:#a5d6ff">"ping"</span><span style="color:#c9d1d9">;</span>',
-    '  <span style="color:#ff7b72">public</span> <span style="color:#ff7b72">async</span> <span style="color:#d2a8ff">run</span><span style="color:#c9d1d9">(chat</span><span style="color:#ff7b72">:</span> <span style="color:#79c0ff">IChatContext</span><span style="color:#c9d1d9">)</span><span style="color:#ff7b72">:</span> <span style="color:#79c0ff">Promise</span><span style="color:#c9d1d9">&lt;</span><span style="color:#79c0ff">void</span><span style="color:#c9d1d9">&gt; {</span>',
-    '    <span style="color:#ff7b72">await</span> <span style="color:#c9d1d9">chat.</span><span style="color:#d2a8ff">SendText</span><span style="color:#c9d1d9">(</span><span style="color:#a5d6ff">"pong! 🏓"</span><span style="color:#c9d1d9">);</span>',
-    '  <span style="color:#c9d1d9">}</span>',
-    '<span style="color:#c9d1d9">}</span>',
-    '',
-    '<span style="color:#ff7b72">const</span> <span style="color:#79c0ff">bot</span> <span style="color:#ff7b72">=</span> <span style="color:#ff7b72">new</span> <span style="color:#d2a8ff">Whatsbotcord</span><span style="color:#c9d1d9">({</span>',
-    '  <span style="color:#79c0ff">commandPrefix</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"!"</span><span style="color:#c9d1d9">,</span>',
-    '  <span style="color:#79c0ff">credentialsFolder</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"./auth"</span><span style="color:#c9d1d9">,</span>',
-    '<span style="color:#c9d1d9">});</span>',
-    '',
-    '<span style="color:#c9d1d9">bot.Commands.</span><span style="color:#d2a8ff">Add</span><span style="color:#c9d1d9">(</span><span style="color:#ff7b72">new</span> <span style="color:#d2a8ff">PingCommand</span><span style="color:#c9d1d9">(), CommandType.Normal);</span>',
-    '<span style="color:#c9d1d9">bot.</span><span style="color:#d2a8ff">Start</span><span style="color:#c9d1d9">();</span>',
-  ];
+    const tsCode = [
+      '<span style="color:#ff7b72">import</span> <span style="color:#c9d1d9">Whatsbotcord, {</span>',
+      '  <span style="color:#ff7b72">type</span> <span style="color:#79c0ff">ICommand</span><span style="color:#c9d1d9">,</span>',
+      '  <span style="color:#ff7b72">type</span> <span style="color:#79c0ff">IChatContext</span><span style="color:#c9d1d9">,</span>',
+      '  <span style="color:#c9d1d9">CommandType,</span>',
+      '<span style="color:#c9d1d9">}</span> <span style="color:#ff7b72">from</span> <span style="color:#a5d6ff">"whatsbotcord"</span><span style="color:#c9d1d9">;</span>',
+      "",
+      '<span style="color:#ff7b72">class</span> <span style="color:#79c0ff">PingCommand</span> <span style="color:#ff7b72">implements</span> <span style="color:#79c0ff">ICommand</span> <span style="color:#c9d1d9">{</span>',
+      '  <span style="color:#79c0ff">name</span> <span style="color:#ff7b72">=</span> <span style="color:#a5d6ff">"ping"</span><span style="color:#c9d1d9">;</span>',
+      '  <span style="color:#ff7b72">public</span> <span style="color:#ff7b72">async</span> <span style="color:#d2a8ff">run</span><span style="color:#c9d1d9">(chat</span><span style="color:#ff7b72">:</span> <span style="color:#79c0ff">IChatContext</span><span style="color:#c9d1d9">)</span><span style="color:#ff7b72">:</span> <span style="color:#79c0ff">Promise</span><span style="color:#c9d1d9">&lt;</span><span style="color:#79c0ff">void</span><span style="color:#c9d1d9">&gt; {</span>',
+      '    <span style="color:#ff7b72">await</span> <span style="color:#c9d1d9">chat.</span><span style="color:#d2a8ff">SendText</span><span style="color:#c9d1d9">(</span><span style="color:#a5d6ff">"pong! 🏓"</span><span style="color:#c9d1d9">);</span>',
+      '  <span style="color:#c9d1d9">}</span>',
+      '<span style="color:#c9d1d9">}</span>',
+      "",
+      '<span style="color:#ff7b72">const</span> <span style="color:#79c0ff">bot</span> <span style="color:#ff7b72">=</span> <span style="color:#ff7b72">new</span> <span style="color:#d2a8ff">Whatsbotcord</span><span style="color:#c9d1d9">({</span>',
+      '  <span style="color:#79c0ff">commandPrefix</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"!"</span><span style="color:#c9d1d9">,</span>',
+      '  <span style="color:#79c0ff">credentialsFolder</span><span style="color:#c9d1d9">:</span> <span style="color:#a5d6ff">"./auth"</span><span style="color:#c9d1d9">,</span>',
+      '<span style="color:#c9d1d9">});</span>',
+      "",
+      '<span style="color:#c9d1d9">bot.Commands.</span><span style="color:#d2a8ff">Add</span><span style="color:#c9d1d9">(</span><span style="color:#ff7b72">new</span> <span style="color:#d2a8ff">PingCommand</span><span style="color:#c9d1d9">(), CommandType.Normal);</span>',
+      '<span style="color:#c9d1d9">bot.</span><span style="color:#d2a8ff">Start</span><span style="color:#c9d1d9">();</span>',
+    ];
 
-  let jsAnimId = null;
-  let tsAnimId = null;
-  let hasPlayed = false;
+    let jsAnimId = null;
+    let tsAnimId = null;
+    let hasPlayed = false;
 
-  function typeLines(lines: string[], el: HTMLElement, done: (() => void) | null) {
-    el.classList.add("cd-cursor");
-    let lineIdx = 0;
-    let html = "";
+    function typeLines(lines: string[], el: HTMLElement, done: (() => void) | null) {
+      el.classList.add("cd-cursor");
+      let lineIdx = 0;
+      let html = "";
 
-    function nextLine() {
-      if (lineIdx >= lines.length) {
-        el.classList.remove("cd-cursor");
-        if (done) done();
-        return;
+      function nextLine() {
+        if (lineIdx >= lines.length) {
+          el.classList.remove("cd-cursor");
+          if (done) done();
+          return;
+        }
+        html += (lineIdx > 0 ? "\n" : "") + lines[lineIdx];
+        el.innerHTML = html;
+        lineIdx++;
+        return setTimeout(nextLine, 55 + Math.random() * 40);
       }
-      html += (lineIdx > 0 ? "\n" : "") + lines[lineIdx];
-      el.innerHTML = html;
-      lineIdx++;
-      return setTimeout(nextLine, 55 + Math.random() * 40);
-    }
-    return nextLine();
-  }
-
-  function play() {
-    if (hasPlayed) return;
-    hasPlayed = true;
-
-    const jsEl = document.getElementById("cd-typed-js");
-    const tsEl = document.getElementById("cd-typed-ts");
-    if (jsEl) jsAnimId = typeLines(jsCode, jsEl, null);
-    if (tsEl) tsAnimId = typeLines(tsCode, tsEl, null);
-  }
-
-  /* Tab switching */
-  function setupTabs() {
-    const tabJs = document.getElementById("cd-tab-js");
-    const tabTs = document.getElementById("cd-tab-ts");
-    const codeJs = document.getElementById("cd-code-js");
-    const codeTs = document.getElementById("cd-code-ts");
-    if (!tabJs || !tabTs || !codeJs || !codeTs) return;
-
-    function showLang(lang: "js" | "ts") {
-      if (lang === "ts") {
-        codeJs!.classList.add("cd-hidden");
-        codeTs!.classList.remove("cd-hidden");
-        tabJs!.classList.remove("active");
-        tabTs!.classList.add("active");
-        localStorage.setItem("wb-lang", "TypeScript");
-      } else {
-        codeTs!.classList.add("cd-hidden");
-        codeJs!.classList.remove("cd-hidden");
-        tabTs!.classList.remove("active");
-        tabJs!.classList.add("active");
-        localStorage.setItem("wb-lang", "JavaScript");
-      }
+      return nextLine();
     }
 
-    tabJs.addEventListener("click", () => showLang("js"));
-    tabTs.addEventListener("click", () => showLang("ts"));
+    function play() {
+      if (hasPlayed) return;
+      hasPlayed = true;
 
-    /* sync with global preference */
-    const stored = localStorage.getItem("wb-lang");
-    if (stored === "JavaScript") showLang("js");
-    else showLang("ts");
-  }
+      const jsEl = document.getElementById("cd-typed-js");
+      const tsEl = document.getElementById("cd-typed-ts");
+      if (jsEl) jsAnimId = typeLines(jsCode, jsEl, null);
+      if (tsEl) tsAnimId = typeLines(tsCode, tsEl, null);
+    }
 
-  function boot() {
-    hasPlayed = false;
-    const jsEl = document.getElementById("cd-typed-js");
-    const tsEl = document.getElementById("cd-typed-ts");
-    if (jsEl) jsEl.innerHTML = "";
-    if (tsEl) tsEl.innerHTML = "";
+    /* Tab switching */
+    function setupTabs() {
+      const tabJs = document.getElementById("cd-tab-js");
+      const tabTs = document.getElementById("cd-tab-ts");
+      const codeJs = document.getElementById("cd-code-js");
+      const codeTs = document.getElementById("cd-code-ts");
+      if (!tabJs || !tabTs || !codeJs || !codeTs) return;
 
-    setupTabs();
+      function showLang(lang: "js" | "ts") {
+        if (lang === "ts") {
+          codeJs!.classList.add("cd-hidden");
+          codeTs!.classList.remove("cd-hidden");
+          tabJs!.classList.remove("active");
+          tabTs!.classList.add("active");
+          localStorage.setItem("wb-lang", "TypeScript");
+        } else {
+          codeTs!.classList.add("cd-hidden");
+          codeJs!.classList.remove("cd-hidden");
+          tabTs!.classList.remove("active");
+          tabJs!.classList.add("active");
+          localStorage.setItem("wb-lang", "JavaScript");
+        }
+      }
 
-    /* trigger animation on scroll */
-    const section = document.getElementById("code-demo");
-    if (!section) return;
+      tabJs.addEventListener("click", () => showLang("js"));
+      tabTs.addEventListener("click", () => showLang("ts"));
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            play();
-            observer.disconnect();
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-    observer.observe(section);
-  }
+      /* sync with global preference */
+      const stored = localStorage.getItem("wb-lang");
+      if (stored === "JavaScript") showLang("js");
+      else showLang("ts");
+    }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
-  document.addEventListener("astro:page-load", boot);
-})();
+    function boot() {
+      hasPlayed = false;
+      const jsEl = document.getElementById("cd-typed-js");
+      const tsEl = document.getElementById("cd-typed-ts");
+      if (jsEl) jsEl.innerHTML = "";
+      if (tsEl) tsEl.innerHTML = "";
+
+      setupTabs();
+
+      /* trigger animation on scroll */
+      const section = document.getElementById("code-demo");
+      if (!section) return;
+
+      const observer = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              play();
+              observer.disconnect();
+            }
+          });
+        },
+        { threshold: 0.3 }
+      );
+      observer.observe(section);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", boot);
+    } else {
+      boot();
+    }
+    document.addEventListener("astro:page-load", boot);
+  })();
 </script>

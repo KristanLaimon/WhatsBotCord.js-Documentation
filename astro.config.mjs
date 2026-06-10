@@ -7,6 +7,9 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "Whatsbotcord.js",
+      expressiveCode: {
+        themes: ["github-dark"],
+      },
       logo: {
         src: "./src/assets/whatsbotcord_logo.png",
         alt: "Whatsbotcord Logo",
@@ -15,6 +18,7 @@ export default defineConfig({
         Head: "./src/components/Head.astro",
         Search: "./src/components/Search.astro",
         ThemeSelect: "./src/components/ThemeSelect.astro",
+        Icon: "./src/components/Icon.astro",
       },
       social: [
         {
