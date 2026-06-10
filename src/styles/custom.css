@@ -25,7 +25,7 @@
 
 /* ---------- Dark mode ---------- */
 :root[data-theme="dark"] {
-  --sl-color-accent-low: #0b2e16;
+  --sl-color-accent-low: #161716;
   --sl-color-accent: #22a34b;
   --sl-color-accent-high: #d0f5dc;
 
@@ -33,8 +33,8 @@
   --sl-color-gray-1: #d1e3d6;
   --sl-color-gray-2: #92b09c;
   --sl-color-gray-3: #5e8069;
-  --sl-color-gray-4: #3a5443;
-  --sl-color-gray-5: #243830;
+  --sl-color-gray-4: #80a48d;
+  --sl-color-gray-5: #215540;
   --sl-color-gray-6: #15251b;
   --sl-color-black: #0a1610;
 

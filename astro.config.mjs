@@ -13,7 +13,8 @@ export default defineConfig({
       },
       components: {
         Head: "./src/components/Head.astro",
-        Header: "./src/components/Header.astro",
+        Search: "./src/components/Search.astro",
+        ThemeSelect: "./src/components/ThemeSelect.astro",
       },
       social: [
         {

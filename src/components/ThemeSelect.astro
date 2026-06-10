@@ -1,0 +1,34 @@
+---
+/**
+ * Custom ThemeSelect override
+ * Shows the ThemePicker on desktop (min-width: 50rem)
+ */
+import type { Props } from "@astrojs/starlight/props";
+import Default from "@astrojs/starlight/components/ThemeSelect.astro";
+import ThemePicker from "./ThemePicker.astro";
+---
+
+<div class="custom-theme-group">
+  <div class="desktop-theme-picker">
+    <ThemePicker />
+  </div>
+  <Default {...Astro.props}><slot /></Default>
+</div>
+
+<style>
+  .custom-theme-group {
+    display: flex;
+    align-items: center;
+  }
+  
+  .desktop-theme-picker {
+    display: none;
+  }
+
+  @media (min-width: 50rem) {
+    .desktop-theme-picker {
+      display: block;
+      margin-right: 0.75rem;
+    }
+  }
+</style>
