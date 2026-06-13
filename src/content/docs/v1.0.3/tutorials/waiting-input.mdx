@@ -1,0 +1,65 @@
+---
+title: Receiving User Input
+description: A tutorial on how to wait for messages using different approaches.
+slug: v1.0.3/tutorials/waiting-input
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+<Steps>
+  1. **Define your command and prompt the user**
+
+     First, you'll need to create your command structure and send the initial prompts to the user.
+
+     ```ts
+     import {
+       type AdditionalAPI,
+       type CommandArgs,
+       type IChatContext,
+       type ICommand,
+       type WhatsappMessage,
+       Helpers,
+       MsgType,
+     } from "whatsbotcord";
+
+     export default class WaitingAText implements ICommand {
+       name: string = "receivemytext";
+       public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+         await ctx.Loading();
+
+         await ctx.SendText("Tell me your name:");
+         let userName: string;
+     ```
+
+  2. **Approach 1: Waiting for raw messages**
+
+     There are a few ways to accomplish the same thing, from worst to better. Here is the first approach using `WaitMsg`. By default it waits 30 seconds. If it returns `null`, the wait timed out.
+
+     ```ts
+         const literalWhatsappMsg: WhatsappMessage | null = await ctx.WaitMsg(MsgType.Text); 
+         
+         if (literalWhatsappMsg === null) {
+           await ctx.SendText("you took much time to respond, try again");
+           return;
+         }
+
+         const originalMsg: string | null = Helpers.Msg.FullMsg_GetText(literalWhatsappMsg);
+         if (originalMsg) userName = originalMsg;
+     ```
+
+  3. **Approach 2: Using the built-in helper**
+
+     Of course that's too bloated for something so common as requesting texts in a text based chat like whatsapp! This library offers an easy way to handle this instead using `WaitText`:
+
+     ```ts
+         const name: string | null = await ctx.WaitText();
+         if (name) userName = name;
+       }
+     }
+     ```
+
+     **Why might the returning text be `null`?**
+     WhatsApp theoretically doesn't always guarantee you can retrieve the text of a message because there are many types of messages. What happens if it's an image only message? It doesn't have text!
+
+     In the case of this second approach, it could also be due to internet problems, or problems with the WhatsApp API. But 99% of the time, it will always return the text the user sent to you.
+</Steps>

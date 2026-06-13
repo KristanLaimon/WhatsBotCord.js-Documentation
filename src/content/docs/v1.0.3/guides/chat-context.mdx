@@ -1,0 +1,111 @@
+---
+title: Manipulating the Chat Context
+description: Clone contexts to reply privately, switch groups, or spin off parallel tasks.
+slug: v1.0.3/guides/chat-context
+---
+
+The `IChatContext` object (`ctx`) is your primary tool for interacting with a chat. By default, it's tied to the chat where a command was triggered. However, you can seamlessly **clone** or **retarget** it to perform actions in other chats, execute background logic, or reply to a group user privately in their DMs.
+
+<hr />
+
+## 1. Replying Privately to a Group Command
+
+The most reliable way to transition a conversation from a grouped arena to a private user chat.
+
+**The Pattern:**
+
+1. Send an "anchor" message right to the user's private DM using the low-level `api.InternalSocket`.
+2. Generate a new context aimed at that private chat by cloning the original context using `CloneButTargetedToWithInitialMsg()`.
+
+```typescript
+import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord";
+
+class PrivateReplyCommand implements ICommand {
+  name = "myinfo";
+
+  public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+    // 1. Send an anchor message directly to the targeted user.
+    const privateMsg = await api.InternalSocket.Send.Text(
+      args.participantIdPN!, // The user's phone number ID
+      "Replying privately as you requested..."
+    );
+
+    // 2. Create the new context targeting their private chat using the anchor message.
+    const privateCtx = ctx.CloneButTargetedToWithInitialMsg({ initialMsg: privateMsg! });
+
+    // 3. Now, all instructions sent via `privateCtx` strictly hit their DMs! 🤫
+    await privateCtx.SendText(`Hi ${args.originalRawMsg.pushName}, here is your private info!`);
+  }
+}
+```
+
+<hr />
+
+## 2. Targeting a New Conversation
+
+Sometimes you possess a raw ID (like a user or an announcements group) and just want to send a standalone message.
+
+### Messaging a Private Chat by ID
+
+Use `CloneButTargetedToIndividualChat` when aiming at a strict Phone Number ID (`@whatsapp.es`).
+
+```typescript
+class StartPrivateChatCommand implements ICommand {
+  name = "contactme";
+
+  public async run(ctx: IChatContext, _api: AdditionalAPI, args: CommandArgs): Promise<void> {
+    // Generate private targeted context
+    const privateCtx = ctx.CloneButTargetedToIndividualChat({
+      userChatId: args.participantIdPN!, // e.g. 234234234@whatsapp.es
+    });
+
+    await privateCtx.SendText("Hello! You asked me to contact you.");
+  }
+}
+```
+
+### Messaging Another Group by ID
+
+If you need your bot to broadcast across groups, utilize `CloneButTargetedToGroupChat`.
+
+```typescript
+class AnnounceCommand implements ICommand {
+  name = "announce";
+
+  public async run(ctx: IChatContext, _api: AdditionalAPI, args: CommandArgs): Promise<void> {
+    const announcement = args.args.join(" ");
+    const targetGroupId = "1234567890@g.us"; 
+
+    // Target the auxiliary group
+    const announcementCtx = ctx.CloneButTargetedToGroupChat({ groupChatId: targetGroupId });
+
+    // Send payload
+    await announcementCtx.SendText(`📢 Announcement: ${announcement}`);
+    await ctx.SendText("I've posted your message in the announcements group!");
+  }
+}
+```
+
+<hr />
+
+## 3. Creating a Simple Parallel Clone
+
+If you want to maintain the same target parameters but require an independent tracker object (e.g. spinning off a `setTimeout` payload), utilize the simple `Clone()`.
+
+```typescript
+class ParallelTaskCommand implements ICommand {
+  name = "starttask";
+
+  public async run(ctx: IChatContext, _api: AdditionalAPI, _args: CommandArgs): Promise<void> {
+    await ctx.SendText("Starting a background task for you now...");
+
+    // Spawn identical independent clone
+    const clonedCtx = ctx.Clone();
+
+    // The original context flow isn't interrupted by background waits.
+    setTimeout(async () => {
+      await clonedCtx.SendText("Background task finished! ✅");
+    }, 10000);
+  }
+}
+```

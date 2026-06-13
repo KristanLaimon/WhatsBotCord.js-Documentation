@@ -5,7 +5,7 @@
  * This ensures it remains visible in the header on both mobile and desktop.
  */
 import type { Props } from "@astrojs/starlight/props";
-import Default from "@astrojs/starlight/components/Search.astro";
+import VersionSearch from "starlight-versions/components/VersionSearch.astro";
 import ThemePicker from "./ThemePicker.astro";
 ---
 
@@ -13,8 +13,8 @@ import ThemePicker from "./ThemePicker.astro";
   <div class="mobile-theme-picker">
     <ThemePicker />
   </div>
-  <!-- Starlight's default Search component -->
-  <Default {...Astro.props}><slot /></Default>
+  <!-- Starlight-versions custom Search component -->
+  <VersionSearch {...Astro.props}><slot /></VersionSearch>
 </div>
 
 <style>

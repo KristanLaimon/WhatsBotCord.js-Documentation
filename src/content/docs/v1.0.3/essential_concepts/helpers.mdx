@@ -1,0 +1,94 @@
+---
+title: Built-in Helpers
+description: A comprehensive guide on WhatsBotCord utility functions for
+  seamless message and ID parsing.
+slug: v1.0.3/essential_concepts/helpers
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+WhatsBotCord exports a global `Helpers` object containing robust utilities that simplify traversing deep Baileys structures, identifying media types, and debugging.
+
+You can import them directly from the main package:
+
+```ts
+import { Helpers, MsgType, SenderType } from "whatsbotcord";
+```
+
+## Messages (`Helpers.Msg`)
+
+Functions tailored for manipulating and extracting data from incoming `WhatsappMessage` objects.
+
+* **`FullMsg_GetText(rawMsg)`**: Safely extracts the main text content, no matter if it's a standard text message, an extended conversation, or an image/video with a caption! Returns `null` if the message has no text.
+* **`FullMsg_GetMsgType(rawMsg)`**: Determines what kind of message arrived, mapping the raw structure into the clean `MsgType` enum (e.g. `MsgType.Text`, `MsgType.Image`).
+* **`FullMsg_GetSenderType(rawMsg)`**: Detects whether the message was sent inside an individual private chat (`SenderType.Individual`) or a group (`SenderType.Group`).
+* **`FullMsg_GetQuotedMsg(rawMsg)`**: Returns the original message that the user replied (quoted) to.
+* **`FullMsg_GetQuotedMsgText(rawMsg)`**: Extracts the text purely from the quoted message, ideal for `!translate` commands.
+
+```ts
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  const incomingMsgType = Helpers.Msg.FullMsg_GetMsgType(args.originalRawMsg);
+  const coreText = Helpers.Msg.FullMsg_GetText(args.originalRawMsg);
+
+  if (incomingMsgType === MsgType.Image && !coreText) {
+    await ctx.SendText("Nice image, but please add a caption text so I know what to do!");
+    return;
+  }
+
+  // Did the user reply to a specific text?
+  const repliedText = Helpers.Msg.FullMsg_GetQuotedMsgText(args.originalRawMsg);
+  if (repliedText) {
+    await ctx.SendText(`You quoted: ${repliedText}`);
+  }
+}
+```
+
+## WhatsApp Identifiers (`Helpers.Whatsapp`)
+
+Functions for managing Identifiers (JIDs, LIDs, Mention strings). For a deeper explanation on these prefixes, see [WhatsApp IDs](/v1.0.3/essential_concepts/whatsapp_ids).
+
+* **`GetWhatsInfoFromSenderMsg(rawMsg)`**: Fetches precise sender information (`@g.us`, `@lid`, `@s.whatsapp.net`) directly from the raw incoming Baileys payload.
+* **`GetWhatsInfoFromWhatsappID(idStr)`**: Parses standard raw suffix IDs.
+* **`IsPNId(id)` / `IsLIDId(id)` / `IsMentionString(str)`**: Boolean validators that quickly assert if a string meets the required ID properties.
+* **`IdentifiersPostfixes`**: Object holding constants dictating suffixes (`Group_Suffix_ID`, `LID_Suffix_ID`, `PhoneNumber_Suffix_ID`).
+
+```ts
+const userMentionedStr = args.args[0]; // "@1234567890"
+
+if (Helpers.Whatsapp.IsMentionString(userMentionedStr)) {
+  const formattedInfo = Helpers.Whatsapp.GetWhatsInfoFromMentionStr(userMentionedStr);
+  console.log("Raw ID output:", formattedInfo?.rawId); // Returns specific system ID
+}
+```
+
+## Debugging & Utilities
+
+### Event Interception Dump
+
+When developing new features (like interactive buttons or new media types), you may want to see the exact raw JSON structure that Baileys drops in. Calling `Helpers.Debugging.StoreMsgInHistoryJson` will dump the `rawMsg` payload into a `.json` file locally on your disk.
+
+```ts
+bot.Use(async (bot, senderLID, senderPN, chatId, rawMsg, msgType, senderType, next) => {
+  if (senderPN === "1234567890@s.whatsapp.net") {
+    // Saves rawMsg safely without crashing your console!
+    Helpers.Debugging.StoreMsgInHistoryJson(rawMsg);
+  }
+  await next();
+});
+```
+
+### Timeout/Aborts validation
+
+If you use Wait methods inside your core [Chat Context waiting flows](/v1.0.3/essential_concepts/receiving), an internal error will be thrown to interrupt execution if the user cancels or the prompt timeouts. You can safely verify if the error was a user interaction error or a system crash by using `Helpers.ChatContext_IsWaitError`.
+
+```ts
+try {
+  await ctx.WaitText({ timeoutSeconds: 30 });
+} catch (error) {
+  if (Helpers.ChatContext_IsWaitError(error)) {
+    console.log("User didn't answer in 30 seconds or they cancelled the prompt.");
+  } else {
+    console.error("Critical server error occurred!");
+  }
+}
+```

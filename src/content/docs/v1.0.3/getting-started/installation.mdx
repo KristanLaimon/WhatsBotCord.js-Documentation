@@ -1,0 +1,38 @@
+---
+title: Installation
+description: Install Whatsbotcord.js and set up your project.
+slug: v1.0.3/getting-started/installation
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import InstallTabs from "../../../../components/InstallTabs.astro";
+
+## Prerequisites
+
+* **Node.js** 18 or later (or [Bun.js](https://bun.sh))
+* **WhatsApp Account** — you need an active WhatsApp account on a mobile device to scan a QR code for Web Device Login
+
+<Aside type="caution">
+  Whatsbotcord uses the unofficial WhatsApp Web protocol via Baileys.js. It is **not** an official WhatsApp Business API
+  integration.
+</Aside>
+
+## Install the package
+
+<InstallTabs />
+
+## What's included
+
+Once installed, you get access to the full Whatsbotcord API:
+
+| Feature               | Description                                                                                                                  |
+| :-------------------- | :--------------------------------------------------------------------------------------------------------------------------- |
+| **Command System**    | Discord-style `!command` and `@tag` support with aliases ([Command Arguments](/v1.0.3/essential_concepts/command_args))             |
+| **TypeScript types**  | Full type definitions for every API surface                                                                                  |
+| **Middleware**        | Express-like [middleware pipeline](/v1.0.3/guides/middleware) for messages and commands                                             |
+| **Plugins**           | Official and third-party [plugin support](/v1.0.3/guides/plugins)                                                                   |
+| **Testing utilities** | `ChatMock` for local command testing without WhatsApp ([Mocking Guide](/v1.0.3/intermediate_advanced_concepts/testing-and-mocking)) |
+
+## Next steps
+
+Ready to build your first bot? Head to the [Quick Start](/v1.0.3/getting-started/quickstart/) guide.

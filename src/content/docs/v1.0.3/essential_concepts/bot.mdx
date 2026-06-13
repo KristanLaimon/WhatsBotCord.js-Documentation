@@ -1,0 +1,121 @@
+---
+title: The Bot Instance
+description: "The core Whatsbotcord instance: Initialization, main components,
+  and complete configuration options."
+slug: v1.0.3/essential_concepts/bot
+---
+
+import { Tabs, TabItem, Aside, Steps } from "@astrojs/starlight/components";
+
+The `Bot` (or `Whatsbotcord`) instance is the absolute core of your application. It manages the underlying WhatsApp socket connection, orchestrates the middleware pipeline, handles incoming events, and serves as the registry for all your commands.
+
+***
+
+## Minimal Initialization
+
+To get your bot up and running, you only need to instantiate it and call `.Start()`.
+
+> \[!NOTE]
+> Even though this code starts the bot and connects it to WhatsApp, **it won't actually do anything when users message it yet!** The bot relies entirely on commands and event listeners to interact.
+>
+> To learn how to create your first command, check out the [Quick Start](/v1.0.3/getting-started/quickstart) guide or explore the [Guides & Tutorials](/v1.0.3/tutorials/waiting-input) section.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```ts
+    import Whatsbotcord from "whatsbotcord";
+
+    const bot = new Whatsbotcord({
+      commandPrefix: "!",
+      loggerMode: "recommended",
+    });
+
+    bot.Start();
+    ```
+  </TabItem>
+
+  <TabItem label="JavaScript" icon="seti:javascript">
+    ```js
+    import Whatsbotcord from "whatsbotcord";
+
+    const bot = new Whatsbotcord({
+      commandPrefix: "!",
+      loggerMode: "recommended",
+    });
+
+    bot.Start();
+    ```
+  </TabItem>
+</Tabs>
+
+***
+
+## Core Components
+
+The Bot instance exposes several powerful modules that you will use to shape your application.
+
+* **`bot.Commands`**: The built-in command registry. Use `bot.Commands.Add(myCommand)` to register new commands. The arguments you receive there are fully detailed in our [Command Arguments](/v1.0.3/essential_concepts/command_args) page.
+* **`bot.Use(...)`**: The middleware pipeline manager. You can seamlessly intercept messages before they reach commands by learning about our [Middleware pipeline](/v1.0.3/guides/middleware).
+* **`bot.Events`**: The global event emitter. Subscribe to socket events or command lifecycle hooks in the [Events system](/v1.0.3/guides/events).
+* **`bot.SendMsg` & `bot.ReceiveMsg`**: Direct access to the internal sending and receiving managers for advanced cross-chat broadcasting available inside the [Additional API global tools](/v1.0.3/essential_concepts/additional_api).
+
+***
+
+## Configuration Reference
+
+The `Whatsbotcord` constructor accepts an extensive set of configuration properties to fine-tune prefixes, connection throttling, error handling, interactive prompt defaults, and more.
+
+### Basic Options
+
+The main options you should always set or at least be aware of.
+
+| Property            | Type                    | Default    | Description                                                                                          |
+| :------------------ | :---------------------- | :--------- | :--------------------------------------------------------------------------------------------------- |
+| `commandPrefix`     | `string \| string[]`    | `'!'`      | Character(s) used to prefix commands. Configure multiple prefixes with an array (e.g. `['!', '/']`). |
+| `tagPrefix`         | `string \| string[]`    | `'@'`      | Character(s) used to tag the bot in messages (especially useful in group contexts).                  |
+| `credentialsFolder` | `string`                | `"./auth"` | Path to the folder where WhatsApp session credentials are stored.                                    |
+| `loggerMode`        | `WhatsSocketLoggerMode` | `"debug"`  | Logging verbosity level (e.g. `"recommended"`, `"silent"`, `"debug"`, `"error"`).                    |
+| `ignoreSelfMessage` | `boolean`               | `true`     | If true, the bot ignores messages sent by its own account to prevent infinite loops.                 |
+
+### Connection & Throttling Options
+
+Tweak these options if you experience high concurrency messaging or encounter problems with WhatsApp rate-limiting your bot.
+
+| Property                      | Type     | Default | Description                                                                                    |
+| :---------------------------- | :------- | :------ | :--------------------------------------------------------------------------------------------- |
+| `maxReconnectionRetries`      | `number` | `5`     | Maximum number of reconnection attempts if the socket drops unexpectedly.                      |
+| `senderQueueMaxLimit`         | `number` | `20`    | Maximum number of messages queued globally. Buffers pending output to avoid dropping messages. |
+| `delayMilisecondsBetweenMsgs` | `number` | `100`   | Delay between sending queued messages to prevent spamming/flooding the WhatsApp API.           |
+
+### Command Error Handling
+
+Configure how the bot reacts when a command crashes or throws an unhandled exception.
+
+> \[!TIP]
+> Keeping `enableCommandSafeNet` enabled is highly recommended for production to prevent your entire script from fatally crashing if a single command errors out.
+
+| Property                                     | Type             | Default     | Description                                                                                            |
+| :------------------------------------------- | :--------------- | :---------- | :----------------------------------------------------------------------------------------------------- |
+| `enableCommandSafeNet`                       | `boolean`        | `true`      | Caught internal errors won't crash the entire bot.               |
+| `defaultEmojiToSendReactionOnFailureCommand` | `string \| null` | `undefined` | Emoji to react with on the triggering message if a command fails unexpectedly (e.g. `"⚠️"` or `"❌"`). |
+| `sendErrorToChatOnFailureCommand_debug`      | `boolean`        | `false`     | Sends a JSON representation of the caught error to the chat. Excellent for real-time debugging!        |
+
+### Context & Interaction Defaults
+
+These defaults define the behavior of `ChatContext` methods like `WaitYesOrNoAnswer()`. Setting them here saves you from configuring them manually on every command.
+
+| Property                | Type       | Default  | Description                                                                                        |
+| :---------------------- | :--------- | :------- | :------------------------------------------------------------------------------------------------- |
+| `cancelKeywords`        | `string[]` | *Varies* | Words that correctly cancel a running command or interactive prompt.                                                     |
+| `positiveAnswerOptions` | `string[]` | *Varies* | Keywords interpreted as an affirmative ("yes") response in `WaitYesOrNoAnswer` (case-insensitive). |
+| `negativeAnswerOptions` | `string[]` | *Varies* | Keywords interpreted as a negative ("no") response in `WaitYesOrNoAnswer` (case-insensitive).      |
+| `timeoutSeconds`        | `number`   | `30`     | Default time limit for awaiting user input during interactive commands.                            |
+
+### Advanced Injection (Testing)
+
+These options are primarily intended for maintainers or advanced users writing automated integration tests. Incorrect usage can break the bot's standard behavior.
+
+| Property                                | Type                         | Description                                                      |
+| :-------------------------------------- | :--------------------------- | :--------------------------------------------------------------- |
+| `ownWhatsSocketImplementation_Internal` | `IWhatsSocket`               | Replaces the built-in WhatsApp socket implementation.            |
+| `ownChatContextCreationHook_Internal`   | `() => IChatContext \| null` | Replaces the default `ChatContext` that is sent to all commands. |

@@ -1,0 +1,209 @@
+---
+title: Quick Start
+description: Create your first WhatsApp bot command in minutes.
+slug: v1.0.3/getting-started/quickstart
+---
+
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+
+Initialize a functional bot instance and register a fundamental command in minutes.
+
+<Steps>
+  1. **Create your project file**
+
+     Create a new file (e.g. `index.ts` or `index.js`) in your project.
+
+  2. **Add the bot code**
+
+     <Tabs>
+       <TabItem label="TypeScript" icon="seti:typescript">
+         ```ts
+          import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord";
+
+          const bot = new Whatsbotcord({
+            commandPrefix: "!",
+            tagPrefix: "@",
+            credentialsFolder: "./auth",
+            loggerMode: "recommended",
+          });
+
+          class PingCommand implements ICommand {
+            name: string = "ping";
+            aliases?: string[] | undefined = ["p"];
+            public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+              await ctx.SendText("pong!");
+            }
+          }
+
+          bot.Commands.Add(new PingCommand());
+
+          bot.Start();
+         ```
+       </TabItem>
+
+       <TabItem label="JavaScript" icon="seti:javascript">
+         ```js
+           import Whatsbotcord, { CreateCommand } from "whatsbotcord";
+
+           const bot = new Whatsbotcord({
+             commandPrefix: "!",
+             tagPrefix: "@",
+             credentialsFolder: "./auth",
+             loggerMode: "recommended",
+           }));
+
+           const PongCommand = CreateCommand(
+             "ping",
+             async function (ctx, api, args) {
+               await ctx.SendText("pong!");
+             }, {
+               aliases: ["p"],
+             }
+           );
+           bot.Commands.Add(PongCommand);
+
+           bot.Start();
+         ```
+       </TabItem>
+
+       <TabItem label="Typescript/Javascript with inline command creation">
+         ```js
+         import Whatsbotcord, { CommandType } from "whatsbotcord";
+
+         const bot = new Whatsbotcord({
+           commandPrefix: "!",
+           tagPrefix: "@",
+           credentialsFolder: "./auth",
+           loggerMode: "recommended",
+         });
+
+         bot.Commands.Add(
+           {
+             name: "ping",
+             async run(chat, api, commandArgs) {
+               await chat.SendText("pong!");
+             },
+           },
+           CommandType.Normal
+         );
+
+         bot.Start();
+         ```
+       </TabItem>
+     </Tabs>
+
+  3. **Run your bot**
+
+     <Tabs>
+       <TabItem label="Node.js">
+         ```shell
+         npx tsx index.ts
+         ```
+       </TabItem>
+
+       <TabItem label="Bun">
+         ```shell
+         bun run index.ts
+         ```
+       </TabItem>
+     </Tabs>
+
+  4. **Scan the QR code**
+
+     A QR code will appear in your terminal. Open WhatsApp on your phone → **Linked Devices** → Scan the code.
+
+  5. **Test implementation**
+
+     Dispatch the `!ping` command in any WhatsApp chat involving the bot's account (either a direct message or a group).
+
+     The bot will acknowledge the trigger and return a `pong!` text payload.
+</Steps>
+
+## Configuration options
+
+The `Whatsbotcord` [Bot constructor](/v1.0.3/essential_concepts/bot) accepts a rich set of configuration properties.
+You can easily configure basic prefixes, connection throttling, error handling, interactive prompt defaults, and more.
+These are the most important ones:
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```ts
+    import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord";
+
+    const bot = new Whatsbotcord({
+      // -------------------------------------------------------------------
+      // 1. Basic Options
+      // -------------------------------------------------------------------
+      // Which characters should trigger a command? (Array or string)
+      commandPrefix: ["!", "."],
+      
+      // Which characters should trigger a tag-based command?
+      tagPrefix: ["@"],
+      
+      // Where to store the WhatsApp session authentication files (By default in local ./auth directory)
+      credentialsFolder: "./auth",
+      
+      // Console logging detail level ("silent", "error", "debug", "recommended")
+      loggerMode: "recommended",
+
+      // Should the bot capture its own messages? (By default: false)
+      ignoreSelfMessage: false,
+    });
+
+    class PingCommand implements ICommand {
+      name: string = "ping";
+      aliases?: string[] | undefined = ["p"];
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.SendText("pong!");
+      }
+    }
+
+    bot.Commands.Add(new PingCommand());
+    bot.Start();
+    ```
+  </TabItem>
+
+  <TabItem label="JavaScript" icon="seti:javascript">
+    ```js
+    import Whatsbotcord from "whatsbotcord";
+
+    const bot = new Whatsbotcord({
+      // -------------------------------------------------------------------
+      // 1. Basic Options
+      // -------------------------------------------------------------------
+      // Which characters should trigger a command? (Array or string)
+      commandPrefix: ["!", "."],
+      
+      // Which characters should trigger a tag-based command?
+      tagPrefix: ["@"],
+      
+      // Where to store the WhatsApp session authentication files (By default in local ./auth directory)
+      credentialsFolder: "./auth",
+      
+      // Console logging detail level ("silent", "error", "debug", "recommended")
+      loggerMode: "recommended",
+
+      // Should the bot capture its own messages? (By default: false)
+      ignoreSelfMessage: false,
+    });
+
+    bot.Commands.Add({
+      ...
+    });
+
+    bot.Start();
+    ```
+  </TabItem>
+</Tabs>
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `commandPrefix` | `string \| string[]` | `'!'` | Character(s) used to prefix commands. Configure multiple prefixes with an array (e.g. `['!', '/']`). |
+| `tagPrefix` | `string \| string[]` | `'@'` | Character(s) used to tag the bot in messages (especially useful in group contexts). |
+| `credentialsFolder` | `string` | `"./auth"` | Path to the folder where WhatsApp session credentials are stored. |
+| `loggerMode` | `WhatsSocketLoggerMode` | `"debug"` | Logging verbosity level (e.g. `"recommended"`, `"silent"`, `"debug"`, `"error"`). |
+| `ignoreSelfMessage` | `boolean` | `true` | If true, the socket ignores messages sent by the bot itself. |
+
+## Want to know what else you can config?
+
+Check the [Bot page](/v1.0.3/essential_concepts/bot)

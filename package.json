@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@astrojs/starlight": "0.38.1",
+    "@vercel/analytics": "^2.0.1",
     "astro": "6.0.1",
     "sharp": "0.34.2",
-    "starlight-theme-galaxy": "0.7.0"
+    "starlight-theme-galaxy": "0.7.0",
+    "starlight-versions": "^0.9.0"
   }
 }

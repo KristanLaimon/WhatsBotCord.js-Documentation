@@ -1,0 +1,327 @@
+---
+title: Receiving messages
+description: How to wait for user input dynamically
+slug: v1.0.3/essential_concepts/receiving
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This section details how to pause command execution to await user input sequentially. The `IChatContext` interface exposes asynchronous methods to trap specific message types, user replies, or conversational interactions directly from the triggering sender.
+
+## WaitMsg
+
+Wait for a specific type of message (e.g., text, image, document) from the original sender. If you need to know more about the available message types, you can review the examples in [Sending](/v1.0.3/essential_concepts/sending).
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```ts
+    import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+    import { MsgType } from "whatsbotcord";
+
+    export default class WaitMsgCommand implements ICommand {
+      name = "waitmsg";
+      
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.SendText("Please send any text message within 30 seconds.");
+        
+        const message = await ctx.WaitMsg(MsgType.Text, { timeoutSeconds: 30 });
+        
+        if (message) {
+          await ctx.SendText(`Received message object! ID: ${message.key.id}`);
+        } else {
+          await ctx.SendText("No message received within the timeout.");
+        }
+      }
+    }
+    ```
+  </TabItem>
+
+  <TabItem label="JavaScript" icon="seti:javascript">
+    ```js
+    import { CreateCommand, MsgType } from "whatsbotcord";
+
+    export default CreateCommand("waitmsg", async function (ctx, api, args) {
+      await ctx.SendText("Please send any text message within 30 seconds.");
+      
+      const message = await ctx.WaitMsg(MsgType.Text, { timeoutSeconds: 30 });
+      
+      if (message) {
+        await ctx.SendText(`Received message object! ID: ${message.key.id}`);
+      } else {
+        await ctx.SendText("No message received within the timeout.");
+      }
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+**Expected Functionality:** Stalls execution for up to 30 seconds awaiting a text submission, resolving the Promise with the full `WhatsappMessage` payload, or `null` upon timeout.
+
+***
+
+## WaitText
+
+Waits specifically for a plain text message, simplifying the process by returning just the text string.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```ts
+    import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+
+    export default class WaitTextCommand implements ICommand {
+      name = "waittext";
+      
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.SendText("What is your name?");
+        
+        const name = await ctx.WaitText({ timeoutSeconds: 20 });
+        
+        if (name) {
+          await ctx.SendText(`Hello, ${name}!`);
+        } else {
+          await ctx.SendText("You didn't tell me your name in time.");
+        }
+      }
+    }
+    ```
+  </TabItem>
+
+  <TabItem label="JavaScript" icon="seti:javascript">
+    ```js
+    import { CreateCommand } from "whatsbotcord";
+
+    export default CreateCommand("waittext", async function (ctx, api, args) {
+      await ctx.SendText("What is your name?");
+      
+      const name = await ctx.WaitText({ timeoutSeconds: 20 });
+      
+      if (name) {
+        await ctx.SendText(`Hello, ${name}!`);
+      } else {
+        await ctx.SendText("You didn't tell me your name in time.");
+      }
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+**Expected Functionality:** Emits a request and resolves the subsequent incoming payload directly to its plain `string` primitive value. Returns `null` if the timeout threshold is exceeded.
+
+***
+
+## WaitYesOrNoAnswer
+
+A specialized abstraction of `WaitText` that parses predefined affirmative and negative literals (e.g., "yes", "no"). Resolves a boolean representing the interactive matrix.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```ts
+    import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+
+    export default class WaitYesOrNoCommand implements ICommand {
+      name = "confirm";
+      
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.SendText("Do you want to continue? (yes/no)");
+        
+        const answer = await ctx.WaitYesOrNoAnswer({ normalConfig: { timeoutSeconds: 30 } });
+        
+        if (answer === true) {
+          await ctx.SendText("Proceeding with the operation...");
+        } else if (answer === false) {
+          await ctx.SendText("Operation cancelled.");
+        } else {
+          await ctx.SendText("No valid response received in time.");
+        }
+      }
+    }
+    ```
+  </TabItem>
+
+  <TabItem label="JavaScript" icon="seti:javascript">
+    ```js
+    import { CreateCommand } from "whatsbotcord";
+
+    export default CreateCommand("confirm", async function (ctx, api, args) {
+      await ctx.SendText("Do you want to continue? (yes/no)");
+      
+      const answer = await ctx.WaitYesOrNoAnswer({ normalConfig: { timeoutSeconds: 30 } });
+      
+      if (answer === true) {
+        await ctx.SendText("Proceeding with the operation...");
+      } else if (answer === false) {
+        await ctx.SendText("Operation cancelled.");
+      } else {
+        await ctx.SendText("No valid response received in time.");
+      }
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** Returns `true` for a positive answer, `false` for a negative answer, or `null` if the user's response is ambiguous, they cancel, or the wait times out.
+
+***
+
+## WaitMultimedia
+
+Waits for the next multimedia message of a specified type (e.g., image, video, document, audio, sticker). The received media will be given as a `Buffer`, similarly to how you would dynamically send images or videos (see [Sending Images](/v1.0.3/essential_concepts/sending#images) and [Sending Videos](/v1.0.3/essential_concepts/sending#videos)).
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```ts
+    import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+    import { MsgType } from "whatsbotcord";
+    import fs from "fs";
+
+    export default class WaitMultimediaCommand implements ICommand {
+      name = "waitimage";
+      
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.SendText("Please send me a profile picture (Image).");
+        
+        const imageBuffer = await ctx.WaitMultimedia(MsgType.Image, { timeoutSeconds: 60 });
+        
+        if (imageBuffer) {
+          fs.writeFileSync("./saved_profile.webp", imageBuffer);
+          await ctx.SendText("Image received and saved successfully!");
+        } else {
+          await ctx.SendText("No image was received.");
+        }
+      }
+    }
+    ```
+  </TabItem>
+
+  <TabItem label="JavaScript" icon="seti:javascript">
+    ```js
+    import { CreateCommand, MsgType } from "whatsbotcord";
+    import fs from "fs";
+
+    export default CreateCommand("waitimage", async function (ctx, api, args) {
+      await ctx.SendText("Please send me a profile picture (Image).");
+      
+      const imageBuffer = await ctx.WaitMultimedia(MsgType.Image, { timeoutSeconds: 60 });
+      
+      if (imageBuffer) {
+        fs.writeFileSync("./saved_profile.webp", imageBuffer);
+        await ctx.SendText("Image received and saved successfully!");
+      } else {
+        await ctx.SendText("No image was received.");
+      }
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** Resolves with a `Buffer` containing the media (in this case, an image), allowing you to save it or process it further. Returns `null` on timeout.
+
+***
+
+## WaitUbication
+
+Waits for the next location (ubication) message from the original sender. The resulting object contains the coordinates, similar to what you would use in `SendUbication` (see [Location (Ubication)](/v1.0.3/essential_concepts/sending#location-ubication)).
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```ts
+    import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+
+    export default class WaitLocationCommand implements ICommand {
+      name = "waitlocation";
+      
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.SendText("Please share your current location.");
+        
+        const location = await ctx.WaitUbication({ timeoutSeconds: 45 });
+        
+        if (location) {
+          await ctx.SendText(`Received location! Latitude: ${location.degreesLatitude}, Longitude: ${location.degreesLongitude}`);
+        } else {
+          await ctx.SendText("No location was received.");
+        }
+      }
+    }
+    ```
+  </TabItem>
+
+  <TabItem label="JavaScript" icon="seti:javascript">
+    ```js
+    import { CreateCommand } from "whatsbotcord";
+
+    export default CreateCommand("waitlocation", async function (ctx, api, args) {
+      await ctx.SendText("Please share your current location.");
+      
+      const location = await ctx.WaitUbication({ timeoutSeconds: 45 });
+      
+      if (location) {
+        await ctx.SendText(`Received location! Latitude: ${location.degreesLatitude}, Longitude: ${location.degreesLongitude}`);
+      } else {
+        await ctx.SendText("No location was received.");
+      }
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** Resolves with an object containing location coordinates (latitude and longitude) and optionally a thumbnail, or `null` if no message is received.
+
+***
+
+## WaitContact
+
+Waits for the next contact (vCard) message from the original sender. This is the exact inverse of sending a contact card; the format is similar to the object used in `SendContact` (see [Contacts (vCard)](/v1.0.3/essential_concepts/sending#contacts-vcard)).
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```ts
+    import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+
+    export default class WaitContactCommand implements ICommand {
+      name = "waitcontact";
+      
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.SendText("Please send me a contact card.");
+        
+        const contactData = await ctx.WaitContact({ timeoutSeconds: 30 });
+        
+        if (contactData) {
+          // Handle single or multiple contacts
+          const contacts = Array.isArray(contactData) ? contactData : [contactData];
+          const contactNames = contacts.map(c => c.name).join(", ");
+          
+          await ctx.SendText(`Received contacts: ${contactNames}`);
+        } else {
+          await ctx.SendText("No contact was received.");
+        }
+      }
+    }
+    ```
+  </TabItem>
+
+  <TabItem label="JavaScript" icon="seti:javascript">
+    ```js
+    import { CreateCommand } from "whatsbotcord";
+
+    export default CreateCommand("waitcontact", async function (ctx, api, args) {
+      await ctx.SendText("Please send me a contact card.");
+      
+      const contactData = await ctx.WaitContact({ timeoutSeconds: 30 });
+      
+      if (contactData) {
+        // Handle single or multiple contacts
+        const contacts = Array.isArray(contactData) ? contactData : [contactData];
+        const contactNames = contacts.map(c => c.name).join(", ");
+        
+        await ctx.SendText(`Received contacts: ${contactNames}`);
+      } else {
+        await ctx.SendText("No contact was received.");
+      }
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+**Expected Output:** Resolves with an object (or an array of objects) containing the contact's name, number, and full WhatsApp ID, or `null` if no message is received.
+
+***

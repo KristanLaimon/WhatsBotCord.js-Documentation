@@ -1,0 +1,40 @@
+---
+title: Plugins
+description: Extend your bot with official and custom plugins.
+slug: v1.0.3/guides/plugins
+---
+
+Whatsbotcord uses a pluggable architecture allowing you to dynamically improve your bot. You can use official plugins maintained by the project or build your own custom extensions.
+
+## Official Plugins
+
+### One Command Per User at a Time
+
+By default, if you have a long, multi-step command workflow, a user can trigger the command again in the chat while their first request is still executing. This can lead to unexpected state issues.
+
+If your use case requires it, you can lock execution using the official **One Command Per User At A Time** plugin.
+
+```javascript
+import WhatsbotCord, { 
+  OfficialPlugin_OneCommandPerUserAtATime 
+} from "whatsbotcord";
+
+const bot = new WhatsbotCord({
+  /* bot config */
+});
+
+// Add your commands
+// bot.Commands.Add(...)
+
+// Enforce the plugin natively
+bot.Use(
+  OfficialPlugin_OneCommandPerUserAtATime({
+    // Feedback message sent if user interrupts
+    msgToSend: (info, lastCommand, actualCommand) => {
+      return `❌ You can't use !${actualCommand.name}. Wait until you finish the previous command !${lastCommand.name}!`;
+    },
+    // The timeout lock resets after 5 minutes
+    timeoutSecondsToForgetThem: 60 * 5,
+  })
+);
+```

@@ -1,0 +1,80 @@
+---
+title: AdditionalAPI & Internal Socket
+description: Break out of the sandbox and access the raw WhatsApp web protocol.
+slug: v1.0.3/guides/additional-api
+---
+
+Each command receives an `api: AdditionalAPI` object alongside `ctx`.
+
+While `ctx` is your high-level, per-chat conversational helper (handling 95% of usecases), `api.InternalSocket` provides raw access to the underlying Baileys socket. Use it to configure custom metrics, tap analytics streams, upload statuses, or force arbitrary payload deliveries.
+
+## When to reach for InternalSocket
+
+* Sending payloads across disjoint groups without context bridging
+* Subscribing to raw socket events for telemetry/logging
+* Publishing stories/statuses using `api.Myself.Status.UploadText(...)`
+* Calling core WhatsApp features not yet abstracted by the library
+
+<hr />
+
+## Sending to Arbitrary Chats
+
+The `InternalSocket.Send.*` endpoint mirrors the syntax of `ChatContext.Send*`, but demands explicit target JIDs (WhatsApp Internal IDs), rather than inferring them from the command scope.
+
+* **Private Chats**: Append `@whatsapp.es` (e.g., `123456789@whatsapp.es`)
+* **Groups**: Append `@g.us` (e.g., `987654321@g.us`)
+
+```typescript
+import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord";
+
+class Broadcast implements ICommand {
+  name = "broadcast";
+
+  async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+    const groups = ["123456789@g.us", "987654321@g.us"];
+    const text = args.args.join(" ") || "Hello everyone!";
+
+    for (const chatId of groups) {
+      // Fire payload to hardcoded JIDs globally
+      await api.InternalSocket.Send.Text(chatId, `📢 ${text}`);
+    }
+
+    await ctx.SendText("Sent your message to all configured groups.");
+  }
+}
+```
+
+*Note:* Standard broadcasts flow through a safety-queue to prevent WhatsApp from terminating your account due to rate-limiting. Bypassing this queue is strictly disallowed unless deliberately toggled using `sendRawWithoutEnqueue: true`.
+
+<hr />
+
+## Listening to Raw Socket Events
+
+Occasionally you will need to peek beneath the surface of commands and inspect raw socket emissions (such as `onIncomingMsg`).
+
+```typescript
+import { MsgType } from "whatsbotcord";
+
+class TapRawStream implements ICommand {
+  name = "tapprobe";
+
+  async run(ctx: IChatContext, api: AdditionalAPI): Promise<void> {
+    const handler = (senderLID, chatId, _rawMsg, msgType) => {
+      console.log(`[raw] ${chatId} from ${senderLID ?? "unknown"}:`, MsgType[msgType]);
+    };
+
+    // Attach listener
+    api.InternalSocket.onIncomingMsg.Subscribe(handler);
+    await ctx.SendText("Subscribed to raw incoming messages! 🕵️");
+
+    // Remember to detach to prevent memory leaks in hot-reload scenarios!
+    // api.InternalSocket.onIncomingMsg.Unsubscribe(handler);
+  }
+}
+```
+
+## InternalSocket Best Practices
+
+1. **Prefer `ChatContext`:** Always lean on your `ctx` payload for strictly-scoped command interactions. Internal scope guarantees isolation; the socket leaks scope intentionally.
+2. **Correct JIDs:** Always rigorously test your Target JID's suffix (`@whatsapp.es` / `@g.us`). A malformed target will blindly fail payload transmission.
+3. **Queue Awareness:** Lean on the queued infrastructure! Hard-sending 50 socket packets unconditionally is the fastest way to get your bot's phone number blacklisted by WhatsApp.

@@ -1,0 +1,93 @@
+---
+title: Middleware
+description: Inspect and intercept traffic with a robust middleware pipeline.
+slug: v1.0.3/guides/middleware
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Your bot supports optional middleware, similar to how it works in popular web frameworks like [Express.js](https://expressjs.com/). There are two types of middleware you can use to intercept traffic and add pre-execution hooks.
+
+<hr />
+
+## 1. General Middleware (`bot.Use()`)
+
+This is the main middleware that runs on **every** raw incoming message, checking it before the bot even decides if it's a valid command or just a regular conversation.
+
+* Middlewares are executed in the exact order they are added.
+* Each middleware receives the full context of the incoming message and decides whether to continue the chain by calling `next()`.
+
+Use this for features that need to inspect all traffic, such as:
+
+* Global logging and analytics
+* Spam protection / Rate limiting
+* Blocking users across the entire bot
+
+```typescript
+const bot = new WhatsbotCord({
+  commandPrefix: ["!"],
+  credentialsFolder: "./auth",
+});
+
+// Add a general middleware for logging
+bot.Use((bot, senderId_LID, senderId_PN, chatId, rawMsg, msgType, senderType, next) => {
+  // ✅ This code runs for EVERY incoming message
+  console.log(`Incoming message from ${senderId_LID} in ${chatId}`);
+
+  // Continue to the next middleware (or to command parsing)
+  next();
+});
+```
+
+<hr />
+
+## 2. Command-Specific Middleware (`bot.Use_OnCommandFound()`)
+
+This is targeted middleware that runs **only after a valid command is found**, but *before* that command’s `run()` method is executed. This applies to both regular Commands and Tags.
+
+This makes it the perfect place for logic that should only apply to intentional bot interactions, such as:
+
+* **Permission Checks**: Is the user an admin? Do they have a specific role?
+* **Command-Specific Logging**: Tracking who uses what command.
+* **Cooldowns**: Preventing spam on intensive commands.
+
+The function signature includes an extra `commandFound` object carrying the command's profile.
+
+```typescript
+// Register an admin-only command
+bot.Commands.Add(
+  {
+    name: "ban",
+    async run(ctx) {
+      await ctx.SendText("Banning user...");
+    },
+  },
+  CommandType.Normal
+);
+
+// Add middleware for permission checks
+bot.Use_OnCommandFound(async (bot, senderId_LID, senderId_PN, chatId, rawMsg, msgType, senderType, commandFound, next) => {
+  const admins = ["admin1@s.whatsapp.net", "admin2@s.whatsapp.net"];
+
+  // ✅ This code ONLY runs if a valid !command is triggered
+
+  // Check if command is 'ban' and if the user is an admin
+  if (commandFound.name === "ban" && !admins.includes(senderId_LID)) {
+    // Block the command and send feedback
+    await bot.SendMsg.Text(chatId, "❌ You don't have permission to use the 'ban' command.");
+    
+    // IMPORTANT: Return without calling next() to halt execution
+    return;
+  }
+
+  // Allow execution to continue and actually trigger the run() method
+  await next();
+});
+```
+
+### Important Notes
+
+If you don't call `next()`, the middleware chain **stops dead in its tracks**.
+
+* In a **general middleware**, the message will not be evaluated for commands.
+* In a **command-specific middleware**, the command's `run()` method **will not be executed**.

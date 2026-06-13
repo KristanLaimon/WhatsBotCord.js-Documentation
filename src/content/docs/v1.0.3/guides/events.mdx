@@ -1,0 +1,41 @@
+---
+title: Events
+description: Subscribe to lifecycle events and incoming WhatsApp data flow.
+slug: v1.0.3/guides/events
+---
+
+Whatsbotcord provides a curated list of events you can subscribe to. This allows you to hook into WhatsApp's background activity, command lifecycles, and group updates.
+
+## Subscribing to Events
+
+You can access events through the `bot.Events` object:
+
+```javascript
+const bot = new Bot({ /* config */ });
+
+bot.Events.onGroupEnter.Subscribe((groupMetadata) => {
+  console.log(`Bot joined a new group: ${groupMetadata.subject}`);
+});
+
+bot.Events.onCommandNotFound.Subscribe((ctx, commandNameStrNotFound) => {
+  ctx.SendText(`Couldn't find command '!${commandNameStrNotFound}'. Try again.`);
+});
+```
+
+## Available Events
+
+Here are all the events you can listen to:
+
+| Event | Description |
+| :--- | :--- |
+| `onGroupEnter` | Triggered when the bot is added to or joins a new group. |
+| `onGroupUpdate` | Triggered when a group updates its name, description, or members count. |
+| `onIncomingMsg` | Triggered when *any* message arrives. This is the most raw way to hook into incoming data. |
+| `onRestart` | Triggered when the bot restarts itself in the event of an error or connection drop. |
+| `onSentMessage` | Triggered immediately following a successful outgoing message. |
+| `onStartupAllGroupsIn` | Triggered during boot when the bot syncs all the groups it is currently a part of. |
+| `onUpdateMsg` | Triggered on message edits, like someone reacting to an existing message with an emoji. |
+| `onCommandNotFound` | Triggered when a user tries to execute a command that is not registered. |
+| `onMiddlewareEnd` | Triggered after all middleware layers execute successfully (if defined). |
+| `onCommandFound` | Triggered when a valid command is parsed and matched, right *before* it gets executed. |
+| `onCommandFoundAfterItsExecution` | Triggered *after* a valid command finishes running (whether it succeeded or threw an error). |
