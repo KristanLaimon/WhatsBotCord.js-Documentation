@@ -5,6 +5,8 @@
  */
 import type { Props } from "@astrojs/starlight/props";
 import Default from "@astrojs/starlight/components/Head.astro";
+
+const isV1 = Astro.url.pathname.includes('/v1.0.3');
 ---
 
 <script>
@@ -26,4 +28,48 @@ import Default from "@astrojs/starlight/components/Head.astro";
   }
 </script>
 <Default {...Astro.props}><slot /></Default>
+
+{isV1 && (
+  <style is:inline>
+    /* Restaurar el tema verde antiguo específicamente para la documentación v1.0.3 */
+    :root[data-theme="dark"] {
+      --sl-color-accent-low: #161716 !important;
+      --sl-color-accent: #22a34b !important;
+      --sl-color-accent-high: #d0f5dc !important;
+
+      --sl-color-white: #f0f8f2 !important;
+      --sl-color-gray-1: #d1e3d6 !important;
+      --sl-color-gray-2: #92b09c !important;
+      --sl-color-gray-3: #5e8069 !important;
+      --sl-color-gray-4: #80a48d !important;
+      --sl-color-gray-5: #215540 !important;
+      --sl-color-gray-6: #15251b !important;
+      --sl-color-black: #0a1610 !important;
+
+      --sl-color-text-accent: #3dd968 !important;
+      --hero-gradient-start: rgba(11, 46, 22, 0.6) !important;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --sl-color-accent-low: #161716 !important;
+        --sl-color-accent: #22a34b !important;
+        --sl-color-accent-high: #d0f5dc !important;
+
+        --sl-color-white: #f0f8f2 !important;
+        --sl-color-gray-1: #d1e3d6 !important;
+        --sl-color-gray-2: #92b09c !important;
+        --sl-color-gray-3: #5e8069 !important;
+        --sl-color-gray-4: #80a48d !important;
+        --sl-color-gray-5: #215540 !important;
+        --sl-color-gray-6: #15251b !important;
+        --sl-color-black: #0a1610 !important;
+
+        --sl-color-text-accent: #3dd968 !important;
+        --hero-gradient-start: rgba(11, 46, 22, 0.6) !important;
+      }
+    }
+  </style>
+)}
+
 <script src="../scripts/preferences.js"></script>

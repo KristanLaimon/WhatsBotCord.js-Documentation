@@ -1,0 +1,373 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { Card, CardGrid } from "@astrojs/starlight/components";
+import CodeDemo from "../components/CodeDemo.astro";
+
+import { Image } from "astro:assets";
+
+import HeroBackground from "../assets/home/home-bg.png";
+import FoxRockWhats from "../assets/home/foxrocklogo.png";
+import Spyral from "../assets/home/spiral.png";
+import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
+---
+
+<StarlightPage
+  frontmatter={{
+    title: "Whatsbotcord.js",
+    template: "splash",
+    head: [
+      {
+        // (1) Resetting star-light CSS (This page only)
+        tag: "style",
+        content:
+          ".content-panel:has(#_top) { display: none !important; } .sl-container, .content-panel { max-width: none !important; padding: 0 !important; margin: 0 !important; } :root[data-theme='dark'] { --sl-color-black: #140f25 !important; } @media (prefers-color-scheme: dark) { :root:not([data-theme='light']) { --sl-color-black: #140f25 !important; } }",
+      },
+    ],
+  }}
+  hasSidebar={false}
+>
+  <!-- 2. Aquí va el resto de tu contenido, con estilos custom para centrarlo si quieres -->
+
+  <!-- Hero section -->
+  <section id="hero-section">
+    <Image src={HeroBackground} alt="hero-background" class="hero-bg" />
+    <Image src={FoxRockWhats} alt="fox-rock-whats-img" class="fox-img" />
+    <Image src={Spyral} alt="spyral-img" class="spyral-img" />
+
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1>Whatsbotcord.js</h1>
+        <p>
+          Build WhatsApp bots with Discord-like commands.<br />
+          TypeScript-first. By developers, for developers.
+        </p>
+        <div class="hero-buttons">
+          <a href="/getting-started/quickstart" class="btn-primary">Get Started →</a>
+          <a href="https://github.com/KristanLaimon" class="btn-secondary" target="_blank" rel="noopener">
+            Source-code
+          </a>
+        </div>
+      </div>
+      <Image src={WhatsbotcordLogo} alt="whatsbotcord-logo" class="whatsbotcord-logo" />
+    </div>
+  </section>
+
+  <!-- Rest of page -->
+  <main>
+    <h2 style="color: white;">Get started in seconds</h2>
+
+    <CodeDemo />
+
+    <h2>Why Whatsbotcord?</h2>
+
+    <CardGrid stagger>
+      <Card title="Discord-Inspired Commands" icon="rocket">
+        Create commands like `!hello` with a simple, familiar syntax inspired by Discord bots. Supports prefixes,
+        aliases, and tags.
+      </Card>
+      <Card title="TypeScript Support" icon="laptop">
+        Fully typed with TypeScript for robust development, auto-completion, and type-safe interfaces out of the box.
+      </Card>
+      <Card title="Simplified Baileys Wrapper" icon="puzzle">
+        Abstracts complex Baileys.js internals so you can focus on building features instead of fighting the WhatsApp
+        protocol.
+      </Card>
+      <Card title="Group & Individual Messaging" icon="comment">
+        Seamlessly interact with WhatsApp groups and individual chats. Fetch group data, mention members, and more.
+      </Card>
+      <Card title="Extensible & Pluggable" icon="bars">
+        Modular middleware and plugin architecture. Add rate-limiting, permissions, or your own custom logic with ease.
+      </Card>
+      <Card title="Built-in Testing" icon="approve-check-circle">
+        Mock entire chat sessions with `ChatMock` — test your commands locally without a real WhatsApp connection.
+      </Card>
+    </CardGrid>
+
+    <hr class="separator" />
+
+    <div class="footer-credits">
+      <p>
+        Proudly built and maintained by <strong>
+          <a href="https://github.com/KristanLaimon">@KristanLaimon</a>
+        </strong>
+      </p>
+      <a href="https://github.com/KristanLaimon">
+        <img
+          src="https://github.com/KristanLaimon.png"
+          alt="KristanLaimon"
+          width="90"
+          height="90"
+          class="mx-auto avatar"
+        />
+      </a>
+    </div>
+  </main>
+</StarlightPage>
+
+<style>
+  #hero-section {
+    --var-header-height-starlight: 4rem;
+    width: 100%;
+    height: calc(100vh - var(--var-header-height-starlight));
+    position: relative;
+    overflow: hidden;
+    /* Fijo en oscuro para que los PNG transparentes no se mezclen con blanco en Light Mode */
+    background-color: #140f25; 
+
+    img {
+      object-fit: cover;
+    }
+
+    .hero-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.7; /* Subimos la opacidad para que la imagen luzca genial donde es transparente */
+    }
+
+    .spyral-img {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 120%; /* Un poco más grande en móvil */
+      height: auto;
+      z-index: 2; /* Subimos a 2 para estar encima del degradado */
+      opacity: 0.8;
+
+      @media (min-width: 640px) {
+        width: 100%;
+      }
+      @media (min-width: 768px) {
+        width: 90%;
+        opacity: 42%;
+      }
+      @media (min-width: 1024px) {
+        width: 80%;
+      }
+      @media (min-width: 1280px) {
+        width: 70%;
+      }
+    }
+
+    .whatsbotcord-logo {
+      width: 53%; /* Tamaño adecuado para móvil */
+      height: auto;
+      z-index: 3;
+      /* Sombra oscura ligera en su contorno */
+      filter: drop-shadow(0 0 25px rgba(0, 0, 0, 0.95));
+
+      @media (min-width: 640px) {
+        width: 45%;
+      }
+      @media (min-width: 768px) {
+        width: 30%;
+      }
+      @media (min-width: 1024px) {
+        width: 20%;
+      }
+      @media (min-width: 1280px) {
+        width: 18%; /* Ligeramente más grande (antes 15%) */
+      }
+      @media (min-width: 1536px) {
+        width: 20%; /* Removimos el scale y usamos un width real para evitar la desbalanza */
+      }
+    }
+
+    .fox-img {
+      position: absolute;
+      right: -10px;
+      bottom: -10px;
+      width: 85%; /* En móvil el zorro se ve mejor más grande */
+      height: auto;
+      z-index: 4;
+
+      @media (min-width: 640px) {
+        width: 70%;
+      }
+      @media (min-width: 768px) {
+        width: 55%;
+      }
+      @media (min-width: 1024px) {
+        width: 45%;
+      }
+      @media (min-width: 1280px) {
+        width: 40%;
+      }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      /* Compensamos el solapamiento del main para centrar el contenido en el espacio visible */
+      padding: 0 2rem 10rem 2rem; /* Mayor compensación por el solapamiento de 10rem en móviles */
+      box-sizing: border-box;
+
+      @media (min-width: 768px) {
+        padding-bottom: 15rem;
+      }
+
+      @media (min-width: 1024px) {
+        flex-direction: row;
+        gap: 6rem;
+        padding-bottom: 20rem; /* En desktop compensamos los 20rem */
+      }
+
+      .hero-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1.5rem;
+
+        @media (min-width: 1024px) {
+          align-items: flex-start;
+          text-align: left;
+        }
+
+        h1,
+        p {
+          margin: 0;
+          color: #ffffff;
+          text-shadow:
+            0 2px 10px rgba(0, 0, 0, 0.8),
+            0 0 25px rgba(0, 0, 0, 0.95);
+        }
+
+        h1 {
+          @media (min-width: 1280px) {
+            font-size: 3.4rem; /* Título más grande en xl */
+          }
+          @media (min-width: 1536px) {
+            font-size: 4rem; /* Aún más grande en 2xl */
+          }
+        }
+
+        p {
+          font-size: 1.25rem;
+          /* Sombra mucho más intensa (y un borde de brillo negro) para móviles, 
+             para que el texto no se pierda con el zorro de fondo */
+          text-shadow:
+            0 0 4px rgba(0, 0, 0, 1),
+            0 0 12px rgba(0, 0, 0, 1),
+            0 2px 10px rgba(0, 0, 0, 1),
+            0 0 25px rgba(0, 0, 0, 1);
+
+          @media (min-width: 1024px) {
+            /* En desktop, que ya no estorba el zorro igual, devolvemos la sombra normal */
+            text-shadow:
+              0 2px 10px rgba(0, 0, 0, 0.8),
+              0 0 25px rgba(0, 0, 0, 0.95);
+          }
+        }
+
+        .hero-buttons {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+          justify-content: center;
+
+          @media (min-width: 1024px) {
+            justify-content: flex-start;
+          }
+
+          a {
+            text-decoration: none;
+            /* 1. Ajusta el padding: debe ser mucho más ancho a los lados (horizontal) que arriba/abajo (vertical) */
+            padding: 0.75rem 1.5rem;
+            /* 2. EL SECRETO: Usa un valor absoluto en píxeles muy alto en lugar de % */
+            border-radius: 9999px;
+            color: var(--sl-color-white); /* Color adaptable al light/dark mode */
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem; /* Espacio entre el texto y la flecha/icono */
+            font-weight: 500;
+            transition: all 0.2s ease;
+          }
+
+          a.btn-primary {
+            background-color: var(--sl-color-accent);
+            /* Opcional: El botón tiene un ligero resplandor neón */
+            box-shadow: 0 0 9px var(--sl-color-accent);
+            color: #ffffff !important; /* Siempre blanco porque el fondo primario es oscuro en ambos temas */
+          }
+
+          a.btn-primary:hover {
+            background-color: var(--sl-color-text-accent);
+            box-shadow: 0 0 20px var(--sl-color-text-accent);
+            color: #000000 !important; /* Texto oscuro para mejor contraste al brillar */
+          }
+
+          a.btn-secondary {
+            /* En tu imagen de referencia, el botón secundario no tiene fondo sólido, es solo texto */
+            background-color: var(--sl-color-gray-5);
+            color: var(--sl-color-white); /* Oscuro en light mode, blanco en dark mode */
+          }
+
+          a.btn-secondary:hover {
+            color: var(--sl-color-gray-2);
+          }
+        }
+      }
+    }
+  }
+
+  main {
+    max-width: 960px;
+    margin: -10rem auto 0; /* Mayor solapamiento en móviles (antes -5rem) */
+    padding: 0 2rem;
+    position: relative;
+    z-index: 100;
+
+    @media (min-width: 768px) {
+      margin-top: -15rem; /* Transición suave en tablets */
+    }
+
+    @media (min-width: 1024px) {
+      margin-top: -20rem; /* Tu valor de 20rem se mantiene en pantallas grandes */
+    }
+
+    h2 {
+      margin-top: 3rem;
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+
+      /* Contorno negro intenso para mejorar contraste en móviles por el solapamiento */
+      text-shadow:
+        0 0 4px rgba(0, 0, 0, 1),
+        0 0 12px rgba(0, 0, 0, 1),
+        0 2px 10px rgba(0, 0, 0, 1),
+        0 0 25px rgba(0, 0, 0, 1);
+
+      @media (min-width: 768px) {
+        text-shadow: none; /* Quitamos el contorno en desktop/tablets como pediste */
+      }
+    }
+
+    .separator {
+      margin-top: 4rem;
+      margin-bottom: 2rem;
+      border-color: var(--sl-color-gray-5);
+    }
+
+    .footer-credits {
+      text-align: center;
+      margin-top: 2rem;
+
+      .avatar {
+        border-radius: 50%;
+        margin: 1rem auto;
+        display: block;
+      }
+    }
+  }
+</style>

@@ -24,41 +24,41 @@
 
 /* Base (Dark mode default) */
 :root {
-  --sl-color-accent-low: #161716;
-  --sl-color-accent: #22a34b;
-  --sl-color-accent-high: #d0f5dc;
+  --sl-color-accent-low: #1a1433;
+  --sl-color-accent: #5e4ec2;
+  --sl-color-accent-high: #e2dfff;
 
-  --sl-color-white: #f0f8f2;
-  --sl-color-gray-1: #d1e3d6;
-  --sl-color-gray-2: #92b09c;
-  --sl-color-gray-3: #5e8069;
-  --sl-color-gray-4: #80a48d;
-  --sl-color-gray-5: #215540;
-  --sl-color-gray-6: #15251b;
-  --sl-color-black: #0a1610;
+  --sl-color-white: #f5f4fa;
+  --sl-color-gray-1: #d8d4ec;
+  --sl-color-gray-2: #a9a1cf;
+  --sl-color-gray-3: #7b72ab;
+  --sl-color-gray-4: #544b82;
+  --sl-color-gray-5: #32285e;
+  --sl-color-gray-6: #1f1839; /* Color principal de barra/fondo solicitado */
+  --sl-color-black: #030712; /* Fondo principal para la app/docs en darkmode */
 
-  --sl-color-text-accent: #3dd968;
+  --sl-color-text-accent: #8979e8;
   --sl-content-width: 75rem;
-  --hero-gradient-start: rgba(11, 46, 22, 0.6);
+  --hero-gradient-start: rgba(31, 24, 57, 0.6);
 }
 
 /* ---------- Dark mode ---------- */
 :root[data-theme="dark"] {
-  --sl-color-accent-low: #161716;
-  --sl-color-accent: #22a34b;
-  --sl-color-accent-high: #d0f5dc;
+  --sl-color-accent-low: #1a1433;
+  --sl-color-accent: #5e4ec2;
+  --sl-color-accent-high: #e2dfff;
 
-  --sl-color-white: #f0f8f2;
-  --sl-color-gray-1: #d1e3d6;
-  --sl-color-gray-2: #92b09c;
-  --sl-color-gray-3: #5e8069;
-  --sl-color-gray-4: #80a48d;
-  --sl-color-gray-5: #215540;
-  --sl-color-gray-6: #15251b;
-  --sl-color-black: #0a1610;
+  --sl-color-white: #f5f4fa;
+  --sl-color-gray-1: #d8d4ec;
+  --sl-color-gray-2: #a9a1cf;
+  --sl-color-gray-3: #7b72ab;
+  --sl-color-gray-4: #544b82;
+  --sl-color-gray-5: #32285e;
+  --sl-color-gray-6: #1f1839;
+  --sl-color-black: #030712;
 
-  --sl-color-text-accent: #3dd968;
-  --hero-gradient-start: rgba(11, 46, 22, 0.6);
+  --sl-color-text-accent: #8979e8;
+  --hero-gradient-start: rgba(31, 24, 57, 0.6);
 }
 
 /* ---------- Global tweaks ---------- */
@@ -129,6 +129,8 @@ html {
 
 /* Cards */
 .card {
+  background-color: var(--sl-color-gray-6); /* Color adaptativo para las tarjetas */
+  color: var(--sl-color-white); /* Texto oscuro en light, claro en dark */
   border: 1px solid var(--sl-color-gray-5);
   border-radius: 0.75rem;
   padding: 1.5rem;
@@ -326,3 +328,5 @@ nav.sidebar a,
   border-color: var(--sl-color-white);
   transform: scale(1.2);
 }
+
+
