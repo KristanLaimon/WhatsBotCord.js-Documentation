@@ -11,7 +11,15 @@ export default defineConfig({
       expressiveCode: {
         themes: ["github-dark"],
       },
-      plugins: [starlightVersionsPlugin({ versions: [{ slug: "v1.0.3" }] })],
+      plugins: [
+        starlightVersionsPlugin({
+          versions: [
+            { slug: "v1.0.3", redirect: "same-page" },
+            // { slug: "v2.x.x", label: "v2.0.0-rc.1", redirect: "same-page" },
+          ],
+          current: { label: "Latest (v2.0.0-rc.1)", redirect: "same-page" },
+        }),
+      ],
       logo: {
         src: "./src/assets/whatsbotcord_logo.png",
         alt: "Whatsbotcord Logo",
@@ -30,7 +38,7 @@ export default defineConfig({
           href: "https://github.com/KristanLaimon/WhatsBotCord.js",
         },
         {
-          icon: "discord",
+          icon: "npm",
           label: "npm",
           href: "https://www.npmjs.com/package/whatsbotcord",
         },

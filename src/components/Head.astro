@@ -12,6 +12,14 @@ import Default from "@astrojs/starlight/components/Head.astro";
   inject();
 </script>
 
+<style is:inline>
+  /* Fix FOUC for Version Select Widget */
+  starlight-version-select select {
+    width: fit-content;
+    min-width: 10rem !important;
+  }
+</style>
+
 <script is:inline>
   if (typeof localStorage !== "undefined" && !localStorage.getItem("starlight-theme")) {
     localStorage.setItem("starlight-theme", "light");
