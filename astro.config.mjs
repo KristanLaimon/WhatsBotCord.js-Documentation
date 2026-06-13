@@ -5,6 +5,7 @@ import starlightVersionsPlugin from "starlight-versions";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://whatsbotcord.sbs/",
   integrations: [
     starlight({
       title: "Whatsbotcord.js",
@@ -21,7 +22,7 @@ export default defineConfig({
         }),
       ],
       logo: {
-        src: "./src/assets/whatsbotcord_logo.png",
+        src: "./src/assets/favicon.svg",
         alt: "Whatsbotcord Logo",
       },
       components: {

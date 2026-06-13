@@ -19,46 +19,54 @@
   --sl-color-black: #ffffff;
 
   --sl-color-text-accent: #15692f;
+  --sl-color-bg-sidebar: var(--sl-color-gray-6);
+  --sl-color-bg-nav: var(--sl-color-gray-6);
   --hero-gradient-start: rgba(26, 122, 58, 0.15);
 }
 
 /* Base (Dark mode default) */
 :root {
-  --sl-color-accent-low: #1a1433;
-  --sl-color-accent: #5e4ec2;
-  --sl-color-accent-high: #e2dfff;
+  --sl-color-accent-low: #0a3518;
+  --sl-color-accent: #25d366;
+  --sl-color-accent-high: #c2f0d1;
 
-  --sl-color-white: #f5f4fa;
-  --sl-color-gray-1: #d8d4ec;
-  --sl-color-gray-2: #a9a1cf;
-  --sl-color-gray-3: #7b72ab;
-  --sl-color-gray-4: #544b82;
-  --sl-color-gray-5: #32285e;
-  --sl-color-gray-6: #1f1839; /* Color principal de barra/fondo solicitado */
-  --sl-color-black: #030712; /* Fondo principal para la app/docs en darkmode */
+  --sl-color-white: #f0f4f2;
+  --sl-color-gray-1: #c8d1cc;
+  --sl-color-gray-2: #9ba6a0;
+  --sl-color-gray-3: #727d77;
+  --sl-color-gray-4: #4d5751;
+  --sl-color-gray-5: #323c36;
+  --sl-color-gray-6: #232a27; /* Sidebar / secondary background */
+  --sl-color-black: #17181c; /* Fondo principal para la app/docs en darkmode */
 
-  --sl-color-text-accent: #8979e8;
+  --sl-color-bg-sidebar: #232a27;
+  --sl-color-bg-nav: #232a27;
+
+  --sl-color-text-accent: #4ade80;
   --sl-content-width: 75rem;
-  --hero-gradient-start: rgba(31, 24, 57, 0.6);
+  --hero-gradient-start: rgba(37, 211, 102, 0.15);
 }
 
 /* ---------- Dark mode ---------- */
 :root[data-theme="dark"] {
-  --sl-color-accent-low: #1a1433;
-  --sl-color-accent: #5e4ec2;
-  --sl-color-accent-high: #e2dfff;
+  --sl-color-accent-low: #0a3518;
+  --sl-color-accent: #25d366;
+  --sl-color-accent-high: #c2f0d1;
 
-  --sl-color-white: #f5f4fa;
-  --sl-color-gray-1: #d8d4ec;
-  --sl-color-gray-2: #a9a1cf;
-  --sl-color-gray-3: #7b72ab;
-  --sl-color-gray-4: #544b82;
-  --sl-color-gray-5: #32285e;
-  --sl-color-gray-6: #1f1839;
-  --sl-color-black: #030712;
+  --sl-color-white: #f0f4f2;
+  --sl-color-gray-1: #c8d1cc;
+  --sl-color-gray-2: #9ba6a0;
+  --sl-color-gray-3: #727d77;
+  --sl-color-gray-4: #4d5751;
+  --sl-color-gray-5: #323c36;
+  --sl-color-gray-6: #232a27;
+  --sl-color-black: #17181c;
 
-  --sl-color-text-accent: #8979e8;
-  --hero-gradient-start: rgba(31, 24, 57, 0.6);
+  --sl-color-bg-sidebar: #232a27;
+  --sl-color-bg-nav: #232a27;
+
+  --sl-color-text-accent: #4ade80;
+  --hero-gradient-start: rgba(37, 211, 102, 0.15);
 }
 
 /* ---------- Global tweaks ---------- */
@@ -329,4 +337,18 @@ nav.sidebar a,
   transform: scale(1.2);
 }
 
+/* ==============================
+   DOCS CONTENT POLISH (Text Legibility)
+   ============================== */
+/* Hace que el texto principal de los documentos sea más blanco y legible en dark mode */
+:root[data-theme="dark"] .sl-markdown-content {
+  --sl-color-text: #f0f4f2;
+  color: #f0f4f2;
+}
 
+:root[data-theme="dark"] .sl-markdown-content p,
+:root[data-theme="dark"] .sl-markdown-content li,
+:root[data-theme="dark"] .sl-markdown-content td,
+:root[data-theme="dark"] .sl-markdown-content ul {
+  color: #f0f4f2;
+}

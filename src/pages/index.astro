@@ -19,8 +19,22 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
       {
         // (1) Resetting star-light CSS (This page only)
         tag: "style",
-        content:
-          ".content-panel:has(#_top) { display: none !important; } .sl-container, .content-panel { max-width: none !important; padding: 0 !important; margin: 0 !important; } :root[data-theme='dark'] { --sl-color-black: #140f25 !important; } @media (prefers-color-scheme: dark) { :root:not([data-theme='light']) { --sl-color-black: #140f25 !important; } }",
+        content: `
+          .content-panel:has(#_top) { display: none !important; }
+          .sl-container, .content-panel { max-width: none !important; padding: 0 !important; margin: 0 !important; }
+          :root[data-theme='dark'] {
+            --sl-color-black: #140f25 !important;
+            --sl-color-bg-nav: #140f25 !important;
+            --sl-color-accent: #5e4ec2 !important;
+          }
+          @media (prefers-color-scheme: dark) {
+            :root:not([data-theme='light']) {
+              --sl-color-black: #140f25 !important;
+              --sl-color-bg-nav: #140f25 !important;
+              --sl-color-accent: #5e4ec2 !important;
+            }
+          }
+        `,
       },
     ],
   }}
