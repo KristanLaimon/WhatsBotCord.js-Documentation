@@ -43,3 +43,66 @@ const imgReceived = await chat.WaitMultimedia(MsgType.Image, {
 ```
 
 In this specific call, only `"cancelcustomword"` will abort the flow. If you use another `WaitMultimedia(...)` or `WaitMsg(...)` method later down the line without providing `cancelKeywords`, it will fall back to the global bot config (e.g., `["abort", "stop", "cancel"]`).
+
+## Full Example: An Abortable Command
+
+Here is a complete example of a command that asks for a profile photo. If the user decides they don't want to change their photo anymore and replies with `"cancel"`, the command halts automatically without executing any further code.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { type AdditionalAPI, type IChatContext, type CommandArgs, type ICommand, MsgType } from "whatsbotcord";
+
+    export class UpdatePhotoCommand implements ICommand {
+      public name: string = "updatephoto";
+      
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.Loading();
+        await ctx.SendText("📸 Send me your new profile photo! (Or type 'cancel' to abort)");
+        
+        // The command will pause here.
+        // If the user sends "cancel" (or any registered keyword), the command is killed instantly.
+        const imgBuffer = await ctx.WaitMultimedia(MsgType.Image, { timeoutSeconds: 60 });
+        
+        if (!imgBuffer) {
+           await ctx.SendText("You took too long!");
+           return;
+        }
+
+        // This line will NEVER execute if the user sent "cancel".
+        await ctx.SendText("✅ Photo updated successfully!");
+        await ctx.Ok();
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### Testing Cancellations with ChatMock
+
+You can easily verify that your commands correctly abort using `ChatMock`:
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { test, expect } from "bun:test";
+    import { ChatMock, SenderType } from "whatsbotcord";
+    import { UpdatePhotoCommand } from "./UpdatePhotoCommand.js";
+
+    test("User cancels the photo update", async () => {
+      const chat = new ChatMock(new UpdatePhotoCommand(), { senderType: SenderType.Individual });
+
+      // Simulate the user sending the cancel keyword
+      chat.EnqueueIncoming_Text("cancel");
+
+      await chat.StartChatSimulation();
+
+      // Assert that the bot ONLY sent the initial prompt and nothing else!
+      expect(chat.SentFromCommand.Texts).toHaveLength(1);
+      expect(chat.SentFromCommand.Texts[0].text).toContain("Send me your new profile photo!");
+      
+      // The "Photo updated successfully!" text is never sent because execution aborted.
+    });
+    ```
+  </TabItem>
+</Tabs>

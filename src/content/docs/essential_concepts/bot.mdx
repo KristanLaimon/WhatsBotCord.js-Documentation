@@ -13,10 +13,11 @@ The `Bot` (or `Whatsbotcord`) instance is the absolute core of your application.
 
 To get your bot up and running, you only need to instantiate it and call `.Start()`. 
 
-> [!NOTE]
-> Even though this code starts the bot and connects it to WhatsApp, **it won't actually do anything when users message it yet!** The bot relies entirely on commands and event listeners to interact.
-> 
-> To learn how to create your first command, check out the [Quick Start](/getting-started/quickstart) guide or explore the [Guides & Tutorials](/tutorials/waiting-input) section.
+<Aside type="note">
+Even though this code starts the bot and connects it to WhatsApp, **it won't actually do anything when users message it yet!** The bot relies entirely on commands and event listeners to interact.
+
+To learn how to create your first command, check out the [Quick Start](/getting-started/quickstart) guide or explore the [Guides & Tutorials](/tutorials/waiting-input) section.
+</Aside>
 
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
@@ -28,7 +29,7 @@ To get your bot up and running, you only need to instantiate it and call `.Start
       loggerMode: "recommended",
     });
 
-    bot.Start();
+    await bot.Start();
     ```
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
@@ -40,7 +41,7 @@ To get your bot up and running, you only need to instantiate it and call `.Start
       loggerMode: "recommended",
     });
 
-    bot.Start();
+    await bot.Start();
     ```
   </TabItem>
 </Tabs>
@@ -51,16 +52,62 @@ To get your bot up and running, you only need to instantiate it and call `.Start
 
 The Bot instance exposes several powerful modules that you will use to shape your application.
 
-- **`bot.Commands`**: The built-in command registry. Use `bot.Commands.Add(myCommand)` to register new commands. The arguments you receive there are fully detailed in our [Command Arguments](/essential_concepts/command_args) page.
-- **`bot.Use(...)`**: The middleware pipeline manager. You can seamlessly intercept messages before they reach commands by learning about our [Middleware pipeline](/guides/middleware).
-- **`bot.Events`**: The global event emitter. Subscribe to socket events or command lifecycle hooks in the [Events system](/guides/events).
-- **`bot.SendMsg` & `bot.ReceiveMsg`**: Direct access to the internal sending and receiving managers for advanced cross-chat broadcasting available inside the [Additional API global tools](/essential_concepts/additional_api).
+- **`bot.Commands`**: The built-in command registry. Use `bot.Commands.Add(myCommand)` to register new commands.
+- **`bot.Use(...)`**: The middleware pipeline manager. You can seamlessly intercept messages before they reach commands or apply official plugins.
+- **`bot.Events`**: The global event emitter. Subscribe to socket events or command lifecycle hooks.
+- **`bot.Settings`**: Access or mutate the bot's runtime settings dynamically.
+
+Here is an example demonstrating how these core components fit together:
+
+```ts
+import Whatsbotcord, { CommandType, OfficialPlugin_OneCommandPerUserAtATime } from "whatsbotcord";
+import { PingCommand, SendPrivately } from "./commands";
+
+const bot = new Whatsbotcord({
+  commandPrefix: ["!", "/"],
+  credentialsFolder: "./auth",
+});
+
+// 1. Add Commands
+bot.Commands.Add(new PingCommand(), CommandType.Normal);
+bot.Commands.Add(new SendPrivately(), CommandType.Normal);
+
+// 2. Use Middleware & Plugins
+bot.Use(
+  OfficialPlugin_OneCommandPerUserAtATime({
+    msgToSend: (info, lastCommand, actualCommand) => {
+      return `You ${info.pushName} have already started command !${lastCommand.name}, you can't use !${actualCommand.name} yet.`;
+    },
+    timeoutSecondsToForgetThem: 60 * 5,
+  })
+);
+
+// 3. Mutate Runtime Settings dynamically
+bot.Settings.defaultEmojiToSendReactionOnFailureCommand = "🦊";
+
+// 4. Start the bot
+await bot.Start();
+```
 
 ---
 
 ## Configuration Reference
 
 The `Whatsbotcord` constructor accepts an extensive set of configuration properties to fine-tune prefixes, connection throttling, error handling, interactive prompt defaults, and more.
+
+Here is an example of a bot initialized with custom configuration values:
+
+```ts
+const bot = new Whatsbotcord({
+  commandPrefix: ["$", "!", "/", "."],
+  tagPrefix: ["@"],
+  credentialsFolder: process.env.NODE_ENV === "development" ? "auth_canary" : "./auth",
+  loggerMode: "recommended",
+  delayMilisecondsBetweenMsgs: 1,
+  cancelKeywords: ["cancelcustom"],
+  defaultEmojiToSendReactionOnFailureCommand: "🦊",
+});
+```
 
 ### Basic Options
 
@@ -88,8 +135,9 @@ Tweak these options if you experience high concurrency messaging or encounter pr
 
 Configure how the bot reacts when a command crashes or throws an unhandled exception.
 
-> [!TIP]
-> Keeping `enableCommandSafeNet` enabled is highly recommended for production to prevent your entire script from fatally crashing if a single command errors out.
+<Aside type="tip">
+Keeping `enableCommandSafeNet` enabled is highly recommended for production to prevent your entire script from fatally crashing if a single command errors out.
+</Aside>
 
 | Property                                     | Type             | Default     | Description                                                                                            |
 | :------------------------------------------- | :--------------- | :---------- | :----------------------------------------------------------------------------------------------------- |

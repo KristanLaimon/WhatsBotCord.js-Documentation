@@ -10,7 +10,7 @@ import logoSrc from "../../../assets/whatsbotcord_logo.png";
 
 Now that you have your bot successfully running, mastering WhatsBotCord is just a matter of understanding its core architectural components.
 
-We heavily recommend reading through the documentation in the following sequence. This order ensures you grasp the foundational abstractions before moving to the advanced testing and broadcasting APIs.
+We heavily recommend reading through the documentation in the following sequence. This order ensures you grasp the foundational abstractions before moving to the advanced testing, broadcasting APIs, and enterprise architecture patterns.
 
 ## Stage 1: The Core Foundation
 
@@ -65,9 +65,38 @@ Once you understand how a command is structured and how IDs map out, learn how t
 
 ---
 
-## Stage 3: Advanced Architectures
+## Stage 2.5: Explore Real Command Examples
 
-Ready for true production deployments? Dive into global broadcasting logic and headless execution.
+If you prefer to learn by reading actual code, jump straight into these hands-on command examples to see how everything ties together:
+
+<CardGrid>
+  <LinkCard
+    title="Receiving User Input Example"
+    href="/tutorials/waiting-input"
+    description="Step-by-step tutorial on building a command that waits for a user to reply with an image."
+  />
+  <LinkCard
+    title="Cancelling Commands Example"
+    href="/guides/cancelling-commands"
+    description="Examples showing how to gracefully handle cancellations when waiting for inputs."
+  />
+  <LinkCard
+    title="Commands Examples"
+    href="/guides/commands-examples"
+    description="Real world examples showing how to build interactive commands using text, multimedia, and selections."
+  />
+  <LinkCard
+    title="ChatMock Examples"
+    href="/essential_concepts/chat_mock_examples"
+    description="Review real-world testing suites demonstrating rigorous validation architectures for your commands."
+  />
+</CardGrid>
+
+---
+
+## Stage 3: Advanced APIs & Testing
+
+Ready to break out of simple text commands? Dive into global broadcasting logic and headless execution.
 
 <CardGrid>
   <LinkCard
@@ -80,10 +109,53 @@ Ready for true production deployments? Dive into global broadcasting logic and h
     href="/essential_concepts/chat_mock"
     description="Simulate environments systematically and validate logic offline without QR scans using mock injections."
   />
+</CardGrid>
+
+---
+
+## Stage 4: Practical Guides & Tutorials
+
+When you are ready to build real-world applications, these guides cover common scenarios and powerful middleware interceptors.
+
+<CardGrid>
   <LinkCard
-    title="10. ChatMock Examples"
-    href="/essential_concepts/chat_mock_examples"
-    description="Review real-world testing suites demonstrating rigorous validation architectures."
+    title="Events & Lifecycle"
+    href="/guides/events"
+    description="Hook into the socket's lifecycle to detect connections, disconnections, and command errors."
+  />
+  <LinkCard
+    title="Middleware & Plugins"
+    href="/guides/middleware"
+    description="Intercept messages before they reach commands to apply global rate limits, bans, or logging."
+  />
+  <LinkCard
+    title="Tags & Groups"
+    href="/guides/tags-and-groups"
+    description="Learn how to target specific users in groups and handle administrative operations."
+  />
+</CardGrid>
+
+---
+
+## Stage 5: Enterprise Architecture
+
+For massive deployments and large teams, adhering to these decoupled architectural patterns is essential.
+
+<CardGrid>
+  <LinkCard
+    title="Database Integration"
+    href="/intermediate_advanced_concepts/database-integration"
+    description="Learn the Abstract Command Bridge pattern to inject secure database connections into your commands."
+  />
+  <LinkCard
+    title="Dependency Injection"
+    href="/intermediate_advanced_concepts/dependency-injection"
+    description="Use DI containers (like tsyringe) to dynamically swap Production DBs for isolated RAM instances."
+  />
+  <LinkCard
+    title="Testing Architecture"
+    href="/intermediate_advanced_concepts/testing-and-mocking"
+    description="Combine DI with ChatMock to achieve blazing fast, deterministic unit tests."
   />
 </CardGrid>
 

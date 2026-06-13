@@ -1,0 +1,40 @@
+---
+/**
+ * BgPicker — lets users switch the background color (only in dark mode).
+ * Rendered inside custom Header override, alongside ThemePicker.
+ */
+---
+
+<div class="bg-picker" id="bg-picker" aria-label="Choose background color" style="display: none;">
+  <button class="bg-swatch" data-bg="green" style="--swatch:#17181c" title="Dark Green"></button>
+  <button class="bg-swatch" data-bg="purple" style="--swatch:#120e1f" title="Dark Purple (default)"></button>
+</div>
+
+<style>
+.bg-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  background: var(--sl-color-gray-6);
+  border: 1px solid var(--sl-color-gray-5);
+}
+.bg-swatch {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: var(--swatch);
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  padding: 0;
+}
+.bg-swatch:hover {
+  transform: scale(1.25);
+}
+.bg-swatch.active {
+  border-color: var(--sl-color-text-accent);
+  transform: scale(1.2);
+}
+</style>

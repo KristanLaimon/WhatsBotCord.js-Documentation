@@ -52,24 +52,32 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
   </TabItem>
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    import type { AdditionalAPI, ChatContext, CommandArgs, ICommand } from "whatsbotcord";
-    import Bot, { CommandType } from "whatsbotcord";
+    import type { AdditionalAPI, ChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
+    import Bot, { CommandType, SenderType } from "whatsbotcord";
 
     class EveryoneTag implements ICommand {
-      name: string = "e";
-      aliases: string[] = ["test"];
+      name: string = "everyone";
+      aliases: string[] = ["e"];
 
-      async run(chat: ChatContext, _api: AdditionalAPI, _args: CommandArgs): Promise<void> {
-        const res = await chat.FetchGroupData();
-        if (res) {
-          // Format: @23423423
-          const mentions = res.members.map((m) => m.asMentionFormatted!);
-
-          // Format: 234234234@lid
-          const ids = res.members.map((m) => m.rawId!);
-
-          await chat.SendText(mentions.join(" "), { mentionsIds: ids });
+      async run(ctx: ChatContext, _api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        if (args.senderType === SenderType.Individual) {
+          await ctx.SendText("This command can only be used in groups!");
+          return;
         }
+
+        const groupData = await ctx.FetchGroupData();
+        if (!groupData) {
+          await ctx.SendText("There was an error trying to get the group data!...");
+          return;
+        }
+
+        // Format: 234234234@lid
+        const allIds = groupData.members.map((m) => m.rawId!);
+        
+        // Format: @23423423
+        const allMentionsIds: string[] = groupData.members.map((m) => m.asMentionFormatted!);
+
+        await ctx.SendText(allMentionsIds.join(" "), { mentionsIds: allIds });
       }
     }
 

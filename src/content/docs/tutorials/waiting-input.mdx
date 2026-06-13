@@ -1,66 +1,113 @@
 ---
 title: "Receiving User Input"
-description: "A tutorial on how to wait for messages using different approaches."
+description: "A comprehensive guide on how to halt commands and wait for user replies dynamically."
 ---
 
-import { Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
 
-<Steps>
+One of the most powerful features of WhatsBotCord is the ability to halt command execution and wait for the user to reply. This allows you to build highly interactive, multi-step flows without managing complex external states.
 
-1.  **Define your command and prompt the user**
+Instead of splitting the code into fragmented pieces, here is a complete, production-ready example of how to wait for user input robustly.
 
-    First, you'll need to create your command structure and send the initial prompts to the user.
+## The Production Pattern: Validation Loops
 
-    ```ts
+When receiving input, users might send invalid data, the wrong media type, or simply take too long. The best practice is to wrap the wait logic inside a `while (true)` loop. This allows you to reject bad input and ask again without cancelling the entire command.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
     import {
       type AdditionalAPI,
       type CommandArgs,
       type IChatContext,
       type ICommand,
-      type WhatsappMessage,
-      Helpers,
-      MsgType,
     } from "whatsbotcord";
 
-    export default class WaitingAText implements ICommand {
-      name: string = "receivemytext";
+    export class AskNameCommand implements ICommand {
+      public name: string = "askname";
+      
       public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
         await ctx.Loading();
+        await ctx.SendText("🤖 Hello! Please tell me your first name:");
 
-        await ctx.SendText("Tell me your name:");
-        let userName: string;
-    ```
+        let validName: string;
 
-2.  **Approach 1: Waiting for raw messages**
+        // The Validation Loop
+        while (true) {
+          // 1. Wait for a text response for up to 60 seconds
+          const result: string | null = await ctx.WaitText({ timeoutSeconds: 60 }); 
+          
+          // 2. Handle Timeouts
+          if (result === null) {
+            await ctx.SendText("⏳ You took too long to respond. Please send your name:");
+            continue; // Ask again!
+          }
 
-    There are a few ways to accomplish the same thing, from worst to better. Here is the first approach using `WaitMsg`. By default it waits 30 seconds. If it returns `null`, the wait timed out.
+          // 3. Handle Validation
+          const trimmedName = result.trim();
+          if (trimmedName.length < 2) {
+            await ctx.SendText("⚠️ That name is too short. Try again:");
+            continue; // Ask again!
+          }
 
-    ```ts
-        const literalWhatsappMsg: WhatsappMessage | null = await ctx.WaitMsg(MsgType.Text); 
-        
-        if (literalWhatsappMsg === null) {
-          await ctx.SendText("you took much time to respond, try again");
-          return;
+          // 4. Success! Break the loop
+          validName = trimmedName;
+          break;
         }
 
-        const originalMsg: string | null = Helpers.Msg.FullMsg_GetText(literalWhatsappMsg);
-        if (originalMsg) userName = originalMsg;
-    ```
-
-3.  **Approach 2: Using the built-in helper**
-
-    Of course that's too bloated for something so common as requesting texts in a text based chat like whatsapp! This library offers an easy way to handle this instead using `WaitText`:
-
-    ```ts
-        const name: string | null = await ctx.WaitText();
-        if (name) userName = name;
+        // 5. Continue execution
+        await ctx.SendText(`✅ Nice to meet you, ${validName}!`);
+        await ctx.Ok();
       }
     }
     ```
+  </TabItem>
+</Tabs>
 
-    **Why might the returning text be `null`?**
-    WhatsApp theoretically doesn't always guarantee you can retrieve the text of a message because there are many types of messages. What happens if it's an image only message? It doesn't have text!
-    
-    In the case of this second approach, it could also be due to internet problems, or problems with the WhatsApp API. But 99% of the time, it will always return the text the user sent to you.
+## Breaking Down the Logic
+
+<Steps>
+
+1. **`ctx.WaitText(...)`**
+   This is a built-in helper that halts the function's execution until the user replies. By default, it filters out images, audios, or videos, returning only the text content.
+   
+2. **Handling Timeouts (`null`)**
+   If the user does not reply within the `timeoutSeconds` window, the function resolves to `null`. In our loop, we simply catch this `null`, inform the user, and use `continue` to start waiting again.
+
+3. **Validation and `continue`**
+   Since we are inside a `while (true)` loop, if the user sends text but it doesn't meet our criteria (e.g., too short, invalid format), we send a warning and use `continue` to jump back to `WaitText()`.
+
+4. **Breaking the Loop**
+   Once the input passes all validations, we save the result into our `validName` variable and use `break` to exit the loop and finish the command.
 
 </Steps>
+
+## Waiting for Multimedia (Images, Audio, Video)
+
+Sometimes you don't want text, you want a file. Instead of `WaitText`, you can use `WaitMultimedia`. It works exactly the same way but returns a binary `Buffer` containing the downloaded media.
+
+```typescript
+import { MsgType } from "whatsbotcord";
+
+// ... inside your run method ...
+
+await ctx.SendText("🖼️ Please send me an image:");
+
+while(true) {
+    // Specify what type of media you are waiting for
+    const imgBuffer: Buffer | null = await ctx.WaitMultimedia(MsgType.Image, { 
+        timeoutSeconds: 60 
+    });
+
+    if (imgBuffer === null) {
+        await ctx.SendText("❌ I didn't receive an image in time. Try again:");
+        continue;
+    }
+
+    // You now have the binary data! You can save it, manipulate it, or send it back.
+    await ctx.SendText("✅ Image received! Size: " + imgBuffer.length + " bytes.");
+    break;
+}
+```
+
+> **Note:** Just like `WaitText`, `WaitMultimedia` automatically ignores messages that don't match the requested `MsgType`. If you ask for an `Image` and the user sends text or an audio note, it will gracefully ignore it until they send an actual image or the timeout is reached.

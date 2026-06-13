@@ -5,13 +5,13 @@ description: "Execute and validate your commands in a locally simulated WhatsApp
 
 import { Tabs, TabItem } from "@astrojs/starlight/components";
 
-The `ChatMock` utility is a purpose-built simulation wrapper native to the WhatsBotCord library. It allows you to execute your commands locally, feed them synthetic inbound payloads, and assert their exact outbound responses within standard testing frameworks (like `bun:test` or `jest`).
+The `ChatMock` utility is a purpose-built simulation wrapper native to the WhatsBotCord library. It allows you to execute your commands locally, feed them synthetic inbound payloads, and assert their exact outbound responses within standard testing frameworks (like `bun:test`, `vitest`, or `jest`).
 
 This means you don't need an active WhatsApp connection, a testing device, or QR scans to rigorously validate logic flows!
 
 # Core Mechanics
 
-A standard testing implementation involves three specific phases: **Configuration**, **Simulation Enqueuing**, and **Assertion Validation**.
+A standard testing implementation involves four specific phases: **Configuration**, **Simulation Enqueueing**, **Execution**, and **Assertion Validation**.
 
 ```ts
 import { test, expect } from "your-testing-framework";
@@ -29,7 +29,7 @@ test("MyCommand should respond correctly", async () => {
   // chat.EnqueueIncoming_Text("yes");
 
   // 3. Execution
-  await chat.StartChatSimulation();
+  const botOutputs = await chat.StartChatSimulation();
 
   // 4. Assertion Validation
   expect(chat.SentFromCommand.Texts).toHaveLength(1);
@@ -45,20 +45,36 @@ When instantiating `ChatMock`, you can forge the origin state. The `MockingChatP
 
 ### Chat & Sender Targeting
 
-- **`senderType`**: Simulates whether the command executes inside an individual direct message (`SenderType.Individual` targeting `@s.whatsapp.net` identifiers) or a group chat (`SenderType.Group` targeting `@g.us` or `@lid` identifiers). See [WhatsApp IDs](/essential_concepts/whatsapp_ids) to understand how the library differentiates these routing scopes. Defaults to `Individual` unless a participant ID is explicitly provided.
+- **`senderType`**: Simulates whether the command executes inside an individual direct message (`SenderType.Individual` targeting `@s.whatsapp.net` identifiers) or a group chat (`SenderType.Group` targeting `@g.us` or `@lid` identifiers). Defaults to `Individual` unless a participant ID is explicitly provided.
 - **`chatId`**: The simulated chat ID. If omitted, an ID with the correct WhatsApp suffix (`@g.us` or `@s.whatsapp.net`) is automatically generated.
-- **`participantId_LID`**: The modern Linked Device identifier (`@lid`) of the simulated sender. Supplying this automatically scopes the simulation to a `Group` sender type.
+- **`participantId_LID`**: The modern Linked Device identifier (`@lid`) of the simulated sender.
 - **`participantId_PN`**: The standard phone number format ID (`@s.whatsapp.net`) of the simulated sender. 
+
+```ts
+// Example: Simulating a group message
+const groupChatMock = new ChatMock(new MyCommand(), {
+  senderType: SenderType.Group,
+  chatId: "123456789@g.us",
+  participantId_PN: "987654321@s.whatsapp.net"
+});
+```
 
 ### Message Setup
 
-- **`args`**: Simulates text appended to the command trigger (e.g., `["@user", "value"]`). This maps directly to the [`CommandArgs`](/essential_concepts/command_args) payload.
-- **`msgType`**: The explicit type of the initial command-triggering message. Defaults to `MsgType.Text`.
+- **`args`**: Simulates text appended to the command trigger.
+- **`msgType`**: The explicit type of the initial command-triggering message.
+
+```ts
+// Example: Simulating '!ban @user reason'
+const argsMock = new ChatMock(new BanCommand(), {
+  args: ["@123456789", "spamming"],
+});
+```
 
 ### Context Overrides
 
-- **`botSettings`**: Temporarily overwrites internal `Bot` properties specifically for this test run. Allows you to define `initialCommandsToAdd` to pre-register dependent commands in the environment.
-- **`chatContextConfig`**: Granular overrides for the `ChatContext` pipeline (e.g., `timeoutSeconds`, `ignoreSelfMessages`, or overriding standard feedback messages like `cancelFeedbackMsg`).
+- **`botSettings`**: Temporarily overwrites internal `Bot` properties specifically for this test run.
+- **`chatContextConfig`**: Granular overrides for the `ChatContext` pipeline.
 - **`cancelKeywords`**: An array of string payloads that will immediately trigger an explicit Wait cancellation error during the execution. By default `["cancel"]`.
 
 ```ts
@@ -77,25 +93,28 @@ const chat = new ChatMock(command, {
 
 # 2. Simulation Enqueuing
 
-If your command implements conversational flows utilizing `ctx.WaitText` or `ctx.WaitMultimedia`, the test will pause indefinitely and throw a deadlock error unless you provide the expected simulated responses preemptively.
+If your command implements conversational flows utilizing `ctx.WaitText` or `ctx.WaitMultimedia`, the test will pause indefinitely and throw a deadlock error unless you provide the expected simulated responses preemptively (or via dynamic simulation).
 
 `ChatMock` exposes strict enqueuing methods resolving precisely into the awaited flows:
 
 - **`EnqueueIncoming_Text(text)`**: Simulates an incoming raw string.
-- **`EnqueueIncoming_Img(urlOrOpts)` / `EnqueueIncoming_Video`**: Simulates rich media components. You can leverage the parameter configurations to append faux buffers directly via `imgContentBufferMock`.
+- **`EnqueueIncoming_Img(urlOrOpts)` / `EnqueueIncoming_Video`**: Simulates rich media components.
 - **`EnqueueIncoming_Contact(contacts)`**: Pushes specific virtual card datasets.
 
 ```ts
 test("Multi-step configuration command", async () => {
   const chat = new ChatMock(new ConfigCommand(), { senderType: SenderType.Group });
 
-  // Enqueue what the user would type when the command halts via `WaitText`
-  chat.EnqueueIncoming_Text("Confirm settings");
-  // Enqueue what the user replies when it halts again via `WaitYesOrNoAnswer`
-  chat.EnqueueIncoming_Text("yes");
+  // Note: Enqueue methods return `void`. They just stage the payloads 
+  // for when `StartChatSimulation()` reaches a wait operation.
+  chat.EnqueueIncoming_Text("Confirm settings"); 
+  chat.EnqueueIncoming_Text("yes"); 
 
   // Runs the command logic uninterrupted through the queues!
-  await chat.StartChatSimulation();
+  // Returns an array of mocked outgoing payloads (BotReplies[])
+  const outputs = await chat.StartChatSimulation();
+  
+  console.log("Bot replied with:", outputs);
 });
 ```
 
@@ -109,6 +128,14 @@ Once `StartChatSimulation()` finishes resolving, the `ChatMock` instance formall
 
 The `chat.SentFromCommand` property offers specific arrays storing chronological outbound payloads issued through the `IChatContext`:
 
+```ts
+// Example: Validating a text was sent
+expect(chat.SentFromCommand.Texts[0].text).toBe("Hello world!");
+
+// Example: Validating an emoji reaction
+expect(chat.SentFromCommand.ReactedEmojis[0].emoji).toBe("✅");
+```
+
 - **`Texts`**: Stores all payloads fired via `ctx.SendText()`. Access output strings via `chat.SentFromCommand.Texts[0].text`.
 - **`Images` / `Videos` / `Audios` / `Documents` / `Stickers`**: Stores multimedia outputs and their captions.
 - **`ReactedEmojis`**: Specific emoji metrics logging responses to `ctx.SendReactEmojiToInitialMsg()`, `ctx.Ok()`, etc.
@@ -117,6 +144,11 @@ The `chat.SentFromCommand` property offers specific arrays storing chronological
 ### Validating Inbound Requests
 
 The `chat.WaitedFromCommand` array explicitly chronicles what `WaitX()` calls the command initiated, capturing exact timestamp delays and expected return configurations dynamically queued inside your script.
+
+```ts
+// Check if the command requested text input
+expect(chat.WaitedFromCommand[0].msgType).toBe(MsgType.Text);
+```
 
 ### Validating Raw Socket Behavior
 
@@ -127,9 +159,9 @@ If your command leveraged the raw global bot properties (e.g., executing `api.In
 
 ---
 
-# Full Implementation Reference
+# Advanced examples
 
-Here is a holistic robust test ensuring a command correctly handles missing parameters, confirmation loops, and positive verification outcomes utilizing `ChatMock`:
+Here are robust examples ensuring commands correctly handle missing parameters, confirmation loops, and dynamic mocking utilizing `ChatMock`:
 
 ```ts
 import { describe, expect, test } from "your-testing-framework";
@@ -178,4 +210,115 @@ describe("Add Member Command Workflows", () => {
   });
 });
 ```
+
+### Dynamic Simulation
+
+Instead of enqueuing all inputs at once, you can step through the chat interactively using dynamic queues.
+
+```ts
+test("Interactive simulation", async () => {
+  const chat = new ChatMock(new InteractiveCommand());
+  
+  // Start the simulation, it stops at the first `ctx.Wait*`
+  const botOutputs = await chat.StartChatSimulation();
+  expect(botOutputs[0].msg).toContain("Please send your name:");
+  
+  // Provide the user response interactively
+  const nextOutputs = await chat.QueueAction_SimulateSendText("John Doe");
+  expect(nextOutputs[0].msg).toContain("Hello John Doe!");
+});
+```
+
+---
+
+# Advanced Integration Testing (with Dependency Injection)
+
+For production-scale applications, you should test your commands using robust test runners like `bun:test`, and inject mock databases or file systems into your commands using Dependency Injection (e.g., `tsyringe`). This ensures pure determinism across tests.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { describe, expect, it } from "bun:test";
+    import path from "path";
+    import { container, Lifecycle } from "tsyringe";
+    import { ChatMock, SenderType } from "whatsbotcord";
+
+    // ... your domain specific mocks ...
+
+    function createPerfilCommand({ players = [], fsEntries = {} } = {}) {
+      const localContainer = container.createChildContainer();
+      
+      // Mock the database
+      localContainer.register("PlayerRepository", { useValue: players }, { lifecycle: Lifecycle.Transient });
+      
+      // Mock the file system
+      localContainer.register("IFileSystem", {
+        useValue: new FileSystemMock({ entries: fsEntries }),
+      });
+
+      return localContainer.resolve(PerfilCommand);
+    }
+
+    describe("Perfil Command Tests", () => {
+      
+      it("INDIVIDUAL | User not found | Should send error msg", async () => {
+        const command = createPerfilCommand();
+
+        const chat = new ChatMock(command, {
+          senderType: SenderType.Individual,
+          chatId: "notvalid@s.whatsapp.net",
+        });
+        await chat.StartChatSimulation();
+
+        expect(chat.SentFromCommand.Images).toHaveLength(0);
+        expect(chat.SentFromCommand.Texts.at(0)!.text).toContain("Not found");
+        expect(chat.SentFromCommand.ReactedEmojis[0].emoji).toBe("❌");
+      });
+
+      it("GROUP | User found | Should send profile card", async () => {
+        const command = createPerfilCommand({
+          players: [{ ID: "valid_id", name: "John" }],
+          fsEntries: { "profile.png": "mockImgData" },
+        });
+
+        const chat = new ChatMock(command, {
+          senderType: SenderType.Group,
+          participantId_PN: "valid_id@s.whatsapp.net",
+        });
+
+        await chat.StartChatSimulation();
+
+        expect(chat.SentFromCommand.Texts).toHaveLength(0);
+        expect(chat.SentFromCommand.Images).toHaveLength(1);
+        expect(chat.SentFromCommand.ReactedEmojis[0].emoji).toBe("✅");
+      });
+
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+# Injecting Custom Adapters (Mocking the Entire Bot)
+
+If you are writing holistic Integration tests for your application instead of isolating individual commands, or if you simply want to switch the underlying WhatsApp engine, `WhatsBot` supports injecting a Custom Adapter (or a Mock Adapter) right into its constructor. 
+
+This prevents the bot from generating a real QR code or connecting to the Baileys network, while still allowing all your logic to execute.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { WhatsBot } from "whatsbotcord";
+    // Optional: Import a custom adapter or MockAdapter
+    // import { MyCustomWhatsappWebJsAdapter } from "./my-adapter";
+
+    // 1. Standard initialization: Uses Baileys by default and connects to WhatsApp
+    const bot = new WhatsBot({ authFolder: "./auth" }); 
+
+    // 2. Custom/Mock Initialization: Injects a different adapter engine
+    // const botMocked = new WhatsBot({ authFolder: "./auth" }, new MyCustomWhatsappWebJsAdapter());
+    ```
+  </TabItem>
+</Tabs>
 

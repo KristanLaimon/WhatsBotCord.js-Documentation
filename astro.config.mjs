@@ -47,6 +47,12 @@ export default defineConfig({
       customCss: ["./src/styles/custom.css"],
       sidebar: [
         {
+          label: "Release Notes",
+          items: [
+            { label: "v2.0.0", slug: "release-notes" },
+          ],
+        },
+        {
           label: "Getting Started",
           items: [
             { label: "Installation", slug: "getting-started/installation" },
@@ -63,6 +69,8 @@ export default defineConfig({
             { label: "Built-in Helpers", slug: "essential_concepts/helpers" },
             { label: "Sending", slug: "essential_concepts/sending" },
             { label: "Receiving", slug: "essential_concepts/receiving" },
+            { label: "Groups", slug: "essential_concepts/groups" },
+            { label: "Presence", slug: "essential_concepts/presence" },
             { label: "Chat Context", slug: "essential_concepts/chat_context" },
             { label: "Additional API", slug: "essential_concepts/additional_api" },
             { label: "Testing & ChatMock", slug: "essential_concepts/chat_mock" },
@@ -80,16 +88,13 @@ export default defineConfig({
             { label: "Middleware", slug: "guides/middleware" },
             { label: "Plugins", slug: "guides/plugins" },
             { label: "Tags & Groups", slug: "guides/tags-and-groups" },
-            { label: "Advanced Usage", slug: "guides/advanced-usage" },
+            { label: "Commands Examples", slug: "guides/commands-examples" },
           ],
         },
         {
-          label: "Advanced Architecture",
+          label: "Guides & Tutorials | Deeper",
           items: [
-            { label: "Database Integration", slug: "intermediate_advanced_concepts/database-integration" },
-            { label: "Dependency Injection", slug: "intermediate_advanced_concepts/dependency-injection" },
-            { label: "Testing & Mocking", slug: "intermediate_advanced_concepts/testing-and-mocking" },
-            { label: "Unit Testing & ChatMock", slug: "testing/testing" },
+            { label: "How would my index.ts look?", slug: "intermediate_advanced_concepts/main-setup" },
           ],
         },
         {

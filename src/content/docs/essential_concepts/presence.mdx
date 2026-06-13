@@ -1,0 +1,109 @@
+---
+title: "Presence Module"
+description: "Programmatically control the bot's online status and chat activity indicators."
+---
+
+import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
+
+# The Presence Module
+
+The Presence API allows you to control how the bot appears to other users on WhatsApp. You can toggle its global online status, or trigger "typing..." and "recording audio..." indicators in specific chats.
+
+These indicators are fantastic for improving user experience (UX). When a command takes several seconds to execute (like querying a database or fetching an API), triggering a typing indicator lets the user know the bot is actively processing their request.
+
+## Global Status API
+
+You can configure the bot's global visibility. By default, the bot usually appears online when connected. You can explicitly set it to offline if you want the bot to operate in "stealth" mode.
+
+```typescript
+// Usually done on bot startup
+await bot.InternalSocket.Presence.SetGlobalPresenceState("offline");
+// OR
+await bot.InternalSocket.Presence.SetGlobalPresenceState("online");
+```
+
+---
+
+## Chat Activity Indicators
+
+These methods trigger the indicators that appear at the top of a chat (e.g., "typing..." or "recording audio...").
+
+### StartTyping / StopTyping
+Use these methods to manually toggle the text typing indicator.
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  // 1. Turn on the typing indicator
+  await ctx.Presence.StartTyping(ctx.FixedChatId);
+  
+  // 2. Perform a slow task
+  const data = await mySlowDatabaseQuery();
+  
+  // 3. Turn off the typing indicator
+  await ctx.Presence.StopTyping(ctx.FixedChatId);
+  
+  // 4. Send the result
+  await ctx.SendText(`Here are the results: ${data}`);
+}
+```
+
+### StartRecording / StopRecording
+Use these methods if your command generates and sends Voice Notes (audio files). It shows "recording audio..." instead of "typing...".
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  await ctx.Presence.StartRecording(ctx.FixedChatId);
+  
+  const audioBuffer = await generateTextToSpeech("Hello!");
+  
+  await ctx.Presence.StopRecording(ctx.FixedChatId);
+  await ctx.SendAudio(audioBuffer);
+}
+```
+
+---
+
+## Automatic Helpers (Recommended)
+
+Manually calling `Start` and `Stop` can be risky. If an error is thrown during your slow task (e.g., your database query fails), the `StopTyping` line might never execute, leaving the bot stuck "typing..." forever in that chat.
+
+To solve this cleanly, WhatsBotCord provides **Wrapper Methods**: `WithTyping` and `WithRecording`. 
+
+These methods accept an asynchronous callback function. They will automatically turn the indicator ON, execute your function, and guarantee the indicator is turned OFF when the function completes (even if it throws an error!).
+
+### WithTyping
+
+<Aside type="tip">
+This is the recommended way to use Presence indicators in your commands.
+</Aside>
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  
+  // The indicator will stay active for as long as this inner callback runs
+  await ctx.Presence.WithTyping(ctx.FixedChatId, async () => {
+    
+    const apiResponse = await fetch("https://api.example.com/data");
+    const data = await apiResponse.json();
+    
+    await ctx.SendText(`Data fetched: ${data.result}`);
+    
+  }); 
+  // <-- Stops typing automatically right here!
+}
+```
+
+### WithRecording
+
+Works identically, but displays the "recording audio..." indicator instead.
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  
+  await ctx.Presence.WithRecording(ctx.FixedChatId, async () => {
+    const audioBuffer = await generateTextToSpeech("Hello!");
+    await ctx.SendAudio(audioBuffer);
+  });
+  
+}
+```

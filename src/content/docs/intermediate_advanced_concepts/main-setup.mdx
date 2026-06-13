@@ -1,0 +1,100 @@
+---
+title: "How would my index.ts look?"
+description: "An example of a real-world index.ts initializing WhatsBotCord with multiple commands, middlewares, and plugins."
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+You can structure your bot any way you want, but normally, when creating many commands, it would look like this if you use one file.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    /**
+     * index.ts | Main entry for WhatsBot
+     */
+
+    // 1. Main Dependencies
+    import type { ICommand } from "whatsbotcord";
+    import Whatsbotcord, { CommandType, OfficialPlugin_OneCommandPerUserAtATime } from "whatsbotcord";
+
+    // 2. Configuration & Helpers
+    import { ENV_AuthFolder, ENV_IsDev } from "./envs.js";
+
+    // 3. Middlewares (Custom examples)
+    import ChatTypeValidatorMiddleware from "./middlewares/chattype_middleware.js";
+    import CommandPrivilegesMiddleware from "./middlewares/privileges_middleware.js";
+
+    // 4. Commands (Truncated imports for brevity)
+    import PerfilCommand from "./commands/essentials/perfil.js";
+    import HelpCommand from "./commands/essentials/help.js";
+    import StatusCommand from "./commands/essentials/status.js";
+    import QueueCommand from "./commands/matchmaking/queue.js";
+    import KissCommand from "./commands/misc/kiss.js";
+    import EveryoneTag from "./commands/tags/everyone.js";
+    import TestCommand from "./commands/test/test.js";
+    
+    // Environment Logs
+    console.log(`✉️ Starting Bot in ${ENV_IsDev ? "DEV" : "PROD"} mode`);
+
+    /** =================================== MAIN ======================================= */
+    
+    // 5. Core Bot Initialization
+    const Bot = new Whatsbotcord({
+      commandPrefix: ["!", "/"],
+      tagPrefix: "@",
+      loggerMode: "info",
+      defaultEmojiToSendReactionOnFailureCommand: "❌",
+      enableCommandSafeNet: true,
+      credentialsFolder: ENV_AuthFolder,
+      delayMilisecondsBetweenMsgs: 500,
+      senderQueueMaxLimit: 12,
+    });
+
+    /** ============================= Bot configuration =============================== */
+    {
+      // === Middlewares ===
+      Bot.Use_OnCommandFound(ChatTypeValidatorMiddleware());
+      Bot.Use_OnCommandFound(CommandPrivilegesMiddleware());
+
+      // ==== Plugins ===
+      const plugin = OfficialPlugin_OneCommandPerUserAtATime({
+        msgToSend: (_, commandRunning: ICommand, newCommand: ICommand) => {
+          return `⏳ You are already running the command '${commandRunning.name}'. Finish or wait before using '${newCommand.name}'.`;
+        },
+        timeoutSecondsToForgetThem: 60 * 5,
+      });
+      Bot.Use(plugin);
+    }
+
+    // ======================================= Commands =====================================
+    {
+      // ==== Developer Helpers ====
+      if (ENV_IsDev) {
+        Bot.Commands.Add(new TestCommand());
+      }
+
+      // ===== Core Commands =====
+      Bot.Commands.Add(new PerfilCommand());
+      Bot.Commands.Add(new HelpCommand());
+      Bot.Commands.Add(new StatusCommand());
+
+      // ==== Miscelanea ====
+      Bot.Commands.Add(new KissCommand());
+
+      // ==== Matchmaking related ====
+      Bot.Commands.Add(new QueueCommand());
+
+      // ======================================= Tags =====================================
+      Bot.Commands.Add(new EveryoneTag(), CommandType.Tag);
+    }
+
+    async function Main(): Promise<void> {
+      // 6. Connect to WhatsApp!
+      await Bot.Start();
+    }
+
+    Main();
+    ```
+  </TabItem>
+</Tabs>

@@ -1,0 +1,109 @@
+---
+title: "WhatsBotCord.js v2.0.0"
+description: "Release notes for version 2.0.0"
+---
+
+# Release Notes: WhatsBotCord.js v2.0.0
+
+Welcome to version **2.0.0** of **WhatsBotCord.js**.
+
+**Why a major version bump (v2.0.0)?**
+In theory, the entire API from the previous version `1.3.0` is compatible (with some deprecations and possible minor changes in imports, nothing too severe). However, in version `2.0.0` the exports are divided by "namespace" (such as `whatsbotcord/testing`, `whatsbotcord/debugging`). This new Sub-path Exports system is what will be considered for future versions, which constitutes a justified architectural *breaking change* to jump to version 2.0.0. Despite this, the new features have been designed to maintain the highest possible compatibility with version 1.3.0.
+
+This version introduces profound architectural changes, a new typed module system to manage Groups and Presence, and a drastic improvement in developer experience (DX) thanks to the new _Sub-path Exports_.
+
+---
+
+## 1. Vendor Adapters Architecture and Unit Testing
+
+The biggest architectural change in this version is the complete abstraction of `Baileys.js`. The bot no longer has a tight coupling with Baileys, but now operates under a **Vendor Adapters** architecture.
+
+### Custom Adapters Injection
+
+Now the main `WhatsBot` class accepts an optional second parameter in its constructor that implements the `IWhatsappAdapter` interface. If none is provided, the bot will automatically use the official Baileys adapter (`BaileysWhatsSocketAdapter`).
+
+```typescript
+import { WhatsBot } from "whatsbotcord";
+// Optional: Import a custom adapter
+// import { MyCustomWhatsappWebJsAdapter } from "./my-adapter";
+
+const bot = new WhatsBot({ authFolder: "./auth" }); // Uses Baileys by default
+// const bot = new WhatsBot({ authFolder: "./auth" }, new MyCustomWhatsappWebJsAdapter());
+```
+
+### Testing Utilities (Mocking)
+
+Thanks to this new abstraction, it is now possible to perform **Unit Testing and E2E Testing** on your bot without needing to scan a QR code or connect to WhatsApp servers. A new testing tool is exposed: `MockAdapter`.
+
+```typescript
+import { WhatsBot, CommandType } from "whatsbotcord";
+import { MockAdapter, ChatMock } from "whatsbotcord/testing";
+
+// 1. Initialize the bot with the mock adapter (starts instantly in memory)
+const mockAdapter = new MockAdapter();
+const bot = new WhatsBot({ authFolder: "./auth" }, mockAdapter);
+
+// 2. You can add commands and test them
+bot.Commands.AddCommand(CommandType.Normal, {
+  name: "ping",
+  async run(ctx) {
+    await ctx.SendText("pong!");
+  },
+});
+
+// 3. You can use ChatMock to simulate a real user sending a message
+const chatSimulation = new ChatMock(bot.Commands.NormalCommands[0]);
+await chatSimulation.StartChatSimulation(); // Simulates sending "!ping"
+```
+
+---
+
+## 2. Overview: The New Groups Module
+
+Previously, actions on WhatsApp groups lacked a unified interface. With this update, we have created the **Groups Module**.
+
+**Critical API Changes (General Rules):**
+
+1. **PascalCase:** Following a style similar to C#, all group module methods start with a capital letter (e.g., `GetMetadata`, `AddParticipants`).
+2. **Safe Boolean Returns:** Operational actions (such as modifying administrators) no longer return a confusing untyped array. They now return a clear and simple **`Promise<boolean>`**.
+3. **Internal Error Handling:** All methods in this module are internally wrapped in `try/catch` blocks. If an operation fails, the method will simply return `false` instead of crashing the bot.
+
+👉 **[Read the complete Groups Module documentation here](/essential_concepts/groups)** to see full code examples on extracting metadata, managing participants, promoting admins, and handling group lifecycles.
+
+---
+
+## 4. New Presence Module (Presence API)
+
+The new **Presence** module has been added to programmatically control the bot's online status and chat activity (typing, recording audio). 
+
+These indicators are fantastic for improving user experience (UX) when a command takes several seconds to execute.
+
+👉 **[Read the complete Presence Module documentation here](/essential_concepts/presence)** to see full code examples on how to correctly and safely trigger the "typing..." and "recording audio..." indicators using the new Wrapper methods (`WithTyping` / `WithRecording`).
+
+---
+
+## 5. Modularization Improvements and "Sub-path Exports"
+
+With version v2.0.0, the library introduces **Sub-path Exports** to improve the developer experience (DX), allowing you to import specific tools without bloating your production application. The main `whatsbotcord` API has not suffered severe compatibility breakages (mostly _non-breaking changes_, though it is considered a _breaking change_ at the modular exports level).
+
+Now you can access specialized modules cleanly:
+
+- **`whatsbotcord/testing`**: Tools for Unit Testing (`MockAdapter`, `ChatMock`, `GenericSocketVendorClient_Mock`).
+- **`whatsbotcord/helpers`**: Utility functions such as mention extractors, text formatters, etc.
+- **`whatsbotcord/types`**: Pure TypeScript interfaces and types (`ICommand`, `ChatContext`, etc.).
+- **`whatsbotcord/debugging`**: Specific debugging utilities (e.g., `Debug_StoreWhatsMsgHistoryInJson`).
+
+**Modularized usage example:**
+
+```typescript
+import { WhatsBot } from "whatsbotcord";
+import { MockAdapter } from "whatsbotcord/testing";
+import type { ICommand } from "whatsbotcord/types";
+```
+
+In addition, the codebase was restructured internally:
+
+- Types were moved to the `/src/types/` folder.
+- Playground files were moved from the root of `/src` to `/src/playground/`.
+- The bundling system now uses `tsdown`, generating optimized _chunks_ without code duplication.
+

@@ -1,20 +1,68 @@
 ---
 /**
  * Custom ThemeSelect override
- * Shows the ThemePicker on desktop (min-width: 50rem)
+ * Shows the ThemePicker and BgPicker on desktop (min-width: 50rem)
  */
 import type { Props } from "@astrojs/starlight/props";
 import Default from "@astrojs/starlight/components/ThemeSelect.astro";
 import ThemePicker from "./ThemePicker.astro";
+import BgPicker from "./BgPicker.astro";
 import VersionSelect from "starlight-versions/components/VersionSelect.astro";
+
+const isOldDocs = Astro.url.pathname.startsWith("/v1.");
 ---
 
 <div class="custom-theme-group">
   <VersionSelect />
   <div class="desktop-theme-picker">
+    {!isOldDocs && (
+      <a 
+        href="/whatsbotcord-ai-agents.md" 
+        download="whatsbotcord-ai-agents.md"
+        class="ai-download-btn"
+        title="Download AI Agents Context File"
+      >
+        <span>Using AI? agents.md</span>
+      </a>
+    )}
+    {!isOldDocs && <BgPicker />}
     <ThemePicker />
   </div>
   <Default {...Astro.props}><slot /></Default>
 </div>
 
-
+<style>
+  .custom-theme-group {
+    display: flex;
+    align-items: center;
+  }
+  .desktop-theme-picker {
+    display: none;
+  }
+  .ai-download-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999rem;
+    color: var(--sl-color-text-accent);
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+  }
+  .ai-download-btn:hover {
+    background: var(--sl-color-text-accent);
+    color: var(--sl-color-bg);
+    border-color: var(--sl-color-text-accent);
+  }
+  @media (min-width: 50rem) {
+    .desktop-theme-picker {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-right: 0.75rem;
+    }
+  }
+</style>

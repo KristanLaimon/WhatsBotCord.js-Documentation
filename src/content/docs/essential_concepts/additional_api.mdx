@@ -36,13 +36,29 @@ await api.Myself.Status.UploadText(
 
 ### 2. `Myself.Bot`
 
-Provides read-only access to the minimal bot info. Useful if your command needs to read the current runtime configurations (like `api.Myself.Bot.Settings.commandPrefix`) or dynamically search other commands in the system (`api.Myself.Bot.Commands`).
+Provides read-only access to the minimal bot info. Useful if your command needs to read the current runtime configurations (like `api.Myself.Bot.Settings.commandPrefix`) or dynamically search other commands in the system.
+
+```ts
+// Example: Outputting the bot's configured prefixes
+const prefixes = api.Myself.Bot.Settings.commandPrefix;
+await ctx.SendText(`My configured prefixes are: ${prefixes.join(", ")}`);
+
+// Example: Iterating over all registered commands
+const allCommands = api.Myself.Bot.Commands.NormalCommands;
+await ctx.SendText(`I have ${allCommands.length} normal commands registered!`);
+```
 
 ### 3. `InternalSocket`
 
-Direct access to the underlying WhatsApp socket implementation (`IWhatsSocket`).
+Direct access to the underlying WhatsApp socket implementation (the Vendor Adapter). Use it to send messages manually or tap into raw events.
 
 > ⚠️ **Caution**: Bypassing `ChatContext` means you are responsible for handling errors, message formatting, and safe sending.
+
+```ts
+// Example: Send a raw message directly to another group using InternalSocket
+const targetGroupId = "123456789@g.us";
+await api.InternalSocket.Send.Text(targetGroupId, "Hello from the raw socket!");
+```
 
 ---
 
@@ -56,7 +72,26 @@ The main [Bot](/essential_concepts/bot) instance itself exposes direct dispatch 
 - `bot.ReceiveMsg`
 - `bot.InternalSocket`
 
-### Example use case: External Webhook Broadcaster
+### Simple Example: Background Timer
+
+You can use the bot instance globally to send messages when a `setTimeout` triggers, outside of any command.
+
+```ts
+import Whatsbotcord from "whatsbotcord";
+
+const bot = new Whatsbotcord({ authFolder: "./auth" });
+
+// Start the bot as usual
+await bot.Start();
+
+// Send a message 10 seconds after starting
+setTimeout(async () => {
+  const targetId = "1234567890@s.whatsapp.net";
+  await bot.SendMsg.Text(targetId, "10 seconds have passed since the bot started!");
+}, 10000);
+```
+
+### With express backend
 
 Imagine you have an external web server (like Express) running alongside your bot. Whenever a specific HTTP endpoint is hit, you want your WhatsApp Bot to automatically alert a specific group.
 
@@ -64,27 +99,19 @@ Because this endpoint is triggered by a web request and is not bound to a user's
 
 ```ts
 import express from "express";
-import type Bot from "whatsbotcord";
+import type { WhatsBot } from "whatsbotcord";
 
-export function StartWebhookServer(bot: Bot) {
+export function StartWebhookServer(bot: WhatsBot) {
   const app = express();
   app.use(express.json());
 
-  app.post("/github-commit-webhook", async (req, res) => {
-    try {
-      const commitMessage = req.body.message;
-      
-      // Using `bot.SendMsg` directly! We specify the exact target chat manually
-      await bot.SendMsg.Text("1234567890-987654@g.us", `🛠️ New commit pushed:\n${commitMessage}`);
-      
-      res.status(200).send("Broadcasted to WhatsApp!");
-    } catch (error) {
-      console.error("Failed to broadcast:", error);
-      res.status(500).send("Error");
-    }
+  app.post("/alert", async (req, res) => {
+    // Send message to a specific group using the global Bot instance
+    await bot.SendMsg.Text("123456789@g.us", `🚨 Alert triggered: ${req.body.message}`);
+    res.send("Alert sent to WhatsApp!");
   });
 
-  app.listen(8080, () => console.log("Webhook listener started on port 8080"));
+  app.listen(8080, () => console.log("Server listening on port 8080"));
 }
 ```
 

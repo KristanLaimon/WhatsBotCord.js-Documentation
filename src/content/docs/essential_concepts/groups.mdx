@@ -1,0 +1,166 @@
+---
+title: "Groups Module"
+description: "Manage WhatsApp group metadata, administrators, and participants."
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+# The Groups Module
+
+WhatsBotCord provides a unified, strongly-typed interface for handling WhatsApp Groups. All methods are designed to be safe, meaning they will gracefully return `false` or `null` instead of crashing the bot if an operation fails or if the bot lacks sufficient permissions.
+
+## Access Points
+
+The Groups API is accessible from two primary locations depending on where you are writing your code:
+
+- **Inside a Command (`ChatContext`):** Use `ctx.Group` for actions related to the current chat context.
+- **Globally (`WhatsBot` instance):** Use `bot.Groups` for external global actions (e.g., cron jobs or webhooks).
+
+---
+
+## Data Extraction
+
+These methods allow you to retrieve metadata about the groups the bot is in.
+
+### GetMetadata
+Retrieves complete information about a specific group. If the bot is not in the group or the ID is invalid, it returns `null`.
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  const metadata = await ctx.Group.GetMetadata(ctx.FixedChatId);
+  if (metadata) {
+    await ctx.SendText(`This group has ${metadata.members.length} members.`);
+  }
+}
+```
+
+### GetAll
+Returns an array of metadata for all the groups the bot is currently a participant in.
+
+```typescript
+// Usually accessed globally
+const allGroups = await bot.Groups.GetAll();
+console.log(`The bot is currently active in ${allGroups.length} groups.`);
+```
+
+### FindByName
+Searches through all groups the bot is in and returns the metadata of the first group that perfectly matches the provided name.
+
+```typescript
+const targetGroup = await bot.Groups.FindByName("VIP Admins");
+if (targetGroup) {
+  await ctx.SendText(`Found group ID: ${targetGroup.id}`);
+}
+```
+
+### IsBotAdmin
+Evaluates whether the bot has Administrator privileges in the specified group. You should almost always check this before trying to add or kick members.
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  const isAdmin = await ctx.Group.IsBotAdmin(ctx.FixedChatId);
+  if (!isAdmin) {
+    await ctx.SendText("I cannot do this because I am not an admin here!");
+    return;
+  }
+  // proceed with admin actions...
+}
+```
+
+---
+
+## Participant Management
+
+These operational methods return a `Promise<boolean>`. If the operation succeeds, it returns `true`. If it fails (due to lack of permissions or network errors), it returns `false`.
+
+### AddParticipants
+Adds a list of user IDs to the group.
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  const success = await ctx.Group.AddParticipants(ctx.FixedChatId, ["1234567890@s.whatsapp.net"]);
+  if (success) {
+    await ctx.SendText("User successfully added to the group!");
+  }
+}
+```
+
+### RemoveParticipants
+Kicks a list of user IDs from the group.
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  const kicked = await ctx.Group.RemoveParticipants(ctx.FixedChatId, ["1234567890@s.whatsapp.net"]);
+  if (kicked) {
+    await ctx.SendText("User has been removed.");
+  }
+}
+```
+
+### PromoteParticipants
+Grants administrator privileges to the specified users.
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  const promoted = await ctx.Group.PromoteParticipants(ctx.FixedChatId, ["1234567890@s.whatsapp.net"]);
+  if (promoted) {
+    await ctx.SendText("The user is now an Administrator.");
+  }
+}
+```
+
+### DemoteParticipants
+Revokes administrator privileges from the specified users.
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  const demoted = await ctx.Group.DemoteParticipants(ctx.FixedChatId, ["1234567890@s.whatsapp.net"]);
+  if (demoted) {
+    await ctx.SendText("The user is no longer an Administrator.");
+  }
+}
+```
+
+### RemoveAllParticipants
+Kicks **all** participants from the group (except the bot itself). Use this with extreme caution.
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  await ctx.SendText("Initiating total group purge...");
+  await ctx.Group.RemoveAllParticipants(ctx.FixedChatId);
+}
+```
+
+---
+
+## Group Lifecycle & Cleanup
+
+Manage the bot's presence within the group itself.
+
+### Leave
+Makes the bot voluntarily leave the group.
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  await ctx.SendText("I have been commanded to leave. Goodbye!");
+  await ctx.Group.Leave(ctx.FixedChatId);
+}
+```
+
+### DeleteChat
+Deletes the group's message history from the WhatsApp client's inbox. This is often used in conjunction with `Leave` to keep the bot's inbox clean.
+
+```typescript
+// Best used from the global instance after leaving
+await bot.Groups.Leave("1234567890@g.us");
+await bot.Groups.DeleteChat("1234567890@g.us");
+```
+
+### Cleanup
+Performs an internal cleanup of the group's memory cache within the bot's Node.js process. You rarely need to call this manually unless you are aggressively managing memory limits.
+
+```typescript
+public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+  await ctx.Group.Cleanup(ctx.FixedChatId);
+}
+```

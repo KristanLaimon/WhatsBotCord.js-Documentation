@@ -2,6 +2,7 @@
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { Card, CardGrid } from "@astrojs/starlight/components";
 import CodeDemo from "../components/CodeDemo.astro";
+import InstallDemo from "../components/InstallDemo.astro";
 
 import { Image } from "astro:assets";
 
@@ -68,6 +69,8 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
 
   <!-- Rest of page -->
   <main>
+    <InstallDemo />
+    
     <h2 style="color: white;">Get started in seconds</h2>
 
     <CodeDemo />
@@ -103,7 +106,7 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
       <p>
         Proudly built and maintained by <strong>
           <a href="https://github.com/KristanLaimon">@KristanLaimon</a>
-        </strong>
+        </strong>. Concept art original by me assisted by AI 🦊.
       </p>
       <a href="https://github.com/KristanLaimon">
         <img
@@ -126,7 +129,7 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
     position: relative;
     overflow: hidden;
     /* Fijo en oscuro para que los PNG transparentes no se mezclen con blanco en Light Mode */
-    background-color: #140f25; 
+    background-color: #140f25;
 
     img {
       object-fit: cover;
@@ -143,7 +146,7 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
     }
 
     .spyral-img {
-      position: absolute;
+      position: fixed;
       bottom: 0;
       left: 0;
       width: 120%; /* Un poco más grande en móvil */
@@ -191,24 +194,24 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
     }
 
     .fox-img {
-      position: absolute;
+      position: fixed;
       right: -10px;
       bottom: -10px;
-      width: 85%; /* En móvil el zorro se ve mejor más grande */
+      width: 75%;
       height: auto;
       z-index: 4;
 
       @media (min-width: 640px) {
-        width: 70%;
+        width: 60%;
       }
       @media (min-width: 768px) {
-        width: 55%;
-      }
-      @media (min-width: 1024px) {
         width: 45%;
       }
+      @media (min-width: 1024px) {
+        width: 35%;
+      }
       @media (min-width: 1280px) {
-        width: 40%;
+        width: 30%;
       }
     }
 
@@ -383,5 +386,46 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
         display: block;
       }
     }
+    }
   }
 </style>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  function initParallax() {
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Parallax del Spyral (hacia arriba) atado al hero
+    gsap.to(".spyral-img", {
+      y: -150,
+      ease: "none",
+      scrollTrigger: {
+        trigger: "#hero-section",
+        start: "top top",      
+        end: "bottom top", 
+        scrub: 1,
+      }
+    });
+
+    // Fade del Zorro SOLO cuando llegamos al fondo (los créditos)
+    const targetOpacity = window.innerWidth < 768 ? 0.15 : 0.6;
+    gsap.to(".fox-img", {
+      opacity: targetOpacity,
+      scrollTrigger: {
+        trigger: ".footer-credits",
+        start: "top bottom", // cuando la parte superior de los créditos entra por abajo
+        end: "bottom bottom",
+        scrub: 1,
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initParallax);
+  } else {
+    initParallax();
+  }
+  document.addEventListener("astro:page-load", initParallax);
+</script>

@@ -36,11 +36,11 @@
   --sl-color-gray-3: #727d77;
   --sl-color-gray-4: #4d5751;
   --sl-color-gray-5: #323c36;
-  --sl-color-gray-6: #232a27; /* Sidebar / secondary background */
-  --sl-color-black: #17181c; /* Fondo principal para la app/docs en darkmode */
+  --sl-color-gray-6: #1e1533; /* Sidebar / secondary background */
+  --sl-color-black: #120e1f; /* Fondo principal para la app/docs en darkmode */
 
-  --sl-color-bg-sidebar: #232a27;
-  --sl-color-bg-nav: #232a27;
+  --sl-color-bg-sidebar: #1e1533;
+  --sl-color-bg-nav: #1e1533;
 
   --sl-color-text-accent: #4ade80;
   --sl-content-width: 75rem;
@@ -59,11 +59,11 @@
   --sl-color-gray-3: #727d77;
   --sl-color-gray-4: #4d5751;
   --sl-color-gray-5: #323c36;
-  --sl-color-gray-6: #232a27;
-  --sl-color-black: #17181c;
+  --sl-color-gray-6: #1e1533;
+  --sl-color-black: #120e1f;
 
-  --sl-color-bg-sidebar: #232a27;
-  --sl-color-bg-nav: #232a27;
+  --sl-color-bg-sidebar: #1e1533;
+  --sl-color-bg-nav: #1e1533;
 
   --sl-color-text-accent: #4ade80;
   --hero-gradient-start: rgba(37, 211, 102, 0.15);

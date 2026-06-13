@@ -29,6 +29,275 @@ const isV1 = Astro.url.pathname.includes('/v1.0.3');
 </script>
 <Default {...Astro.props}><slot /></Default>
 
+<!-- FOUC Prevention & Theme Management Scripts -->
+<script is:inline>
+  // 1. Old Docs Green Background FOUC
+  (function enforceOldDocsGreenBg() {
+    function applyGreenBg() {
+      if (window.location.pathname.startsWith("/v1.")) {
+        if (document.documentElement.dataset.theme !== "light") {
+          const root = document.documentElement;
+          root.style.setProperty("--sl-color-black", "#17181c");
+          root.style.setProperty("--sl-color-bg-sidebar", "#232a27");
+          root.style.setProperty("--sl-color-bg-nav", "#232a27");
+          root.style.setProperty("--sl-color-gray-6", "#232a27");
+        }
+      }
+    }
+    
+    applyGreenBg();
+    document.addEventListener("astro:after-swap", applyGreenBg);
+    
+    const observer = new MutationObserver(applyGreenBg);
+    if (!window.__oldDocsGreenObserver) {
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+      window.__oldDocsGreenObserver = true;
+    }
+  })();
+
+  // 2. BgPicker FOUC
+  (function initBgPicker() {
+    const KEY = "wb-bg-theme";
+
+    const bgs = {
+      green: {
+        "--sl-color-black": "#17181c",
+        "--sl-color-bg-sidebar": "#232a27",
+        "--sl-color-bg-nav": "#232a27",
+        "--sl-color-gray-6": "#232a27",
+      },
+      purple: {
+        "--sl-color-black": "#120e1f",
+        "--sl-color-bg-sidebar": "#1e1533",
+        "--sl-color-bg-nav": "#1e1533",
+        "--sl-color-gray-6": "#1e1533",
+      }
+    };
+
+    function getMode() {
+      return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+    }
+
+    function apply(name) {
+      const mode = getMode();
+      const picker = document.getElementById("bg-picker");
+      const isOld = window.location.pathname.startsWith("/v1.");
+      
+      if (mode === "light" || isOld) {
+        if (picker) picker.style.display = "none";
+        const root = document.documentElement;
+        root.style.removeProperty("--sl-color-black");
+        root.style.removeProperty("--sl-color-bg-sidebar");
+        root.style.removeProperty("--sl-color-bg-nav");
+        root.style.removeProperty("--sl-color-gray-6");
+        return;
+      }
+      
+      if (picker) picker.style.display = "flex";
+
+      const p = bgs[name];
+      if (!p) return;
+
+      const root = document.documentElement;
+      Object.entries(p).forEach(([k, v]) => root.style.setProperty(k, v));
+
+      document.querySelectorAll(".bg-swatch").forEach((s) => {
+        if (s.dataset.bg === name) {
+          s.classList.add("active");
+        } else {
+          s.classList.remove("active");
+        }
+      });
+
+      localStorage.setItem(KEY, name);
+    }
+
+    apply(localStorage.getItem(KEY) || "purple");
+
+    function boot() {
+      apply(localStorage.getItem(KEY) || "purple");
+      document.querySelectorAll(".bg-swatch").forEach((btn) => {
+        btn.onclick = () => apply(btn.dataset.bg);
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", boot);
+    } else {
+      boot();
+    }
+
+    document.addEventListener("astro:after-swap", () => {
+      apply(localStorage.getItem(KEY) || "purple");
+    });
+
+    document.addEventListener("astro:page-load", boot);
+
+    const observer = new MutationObserver(() => {
+      apply(localStorage.getItem(KEY) || "purple");
+    });
+    
+    if (!window.__bgPickerObserverSet) {
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
+      window.__bgPickerObserverSet = true;
+    }
+  })();
+
+  // 3. ThemePicker FOUC
+  (function initThemePicker() {
+    const KEY = "wb-accent-theme";
+
+    const palettes = {
+      green: {
+        light: {
+          "--sl-color-accent-low": "#c5f0d1",
+          "--sl-color-accent": "#1a7a3a",
+          "--sl-color-accent-high": "#0d3d1d",
+          "--sl-color-text-accent": "#15692f",
+        },
+        dark: {
+          "--sl-color-accent-low": "#0b2e16",
+          "--sl-color-accent": "#22a34b",
+          "--sl-color-accent-high": "#d0f5dc",
+          "--sl-color-text-accent": "#3dd968",
+        },
+      },
+      blue: {
+        light: {
+          "--sl-color-accent-low": "#bfdbfe",
+          "--sl-color-accent": "#2563eb",
+          "--sl-color-accent-high": "#172554",
+          "--sl-color-text-accent": "#1d4ed8",
+        },
+        dark: {
+          "--sl-color-accent-low": "#0f1b3d",
+          "--sl-color-accent": "#3b82f6",
+          "--sl-color-accent-high": "#dbeafe",
+          "--sl-color-text-accent": "#60a5fa",
+        },
+      },
+      purple: {
+        light: {
+          "--sl-color-accent-low": "#ddd6fe",
+          "--sl-color-accent": "#7c3aed",
+          "--sl-color-accent-high": "#2e1065",
+          "--sl-color-text-accent": "#6d28d9",
+        },
+        dark: {
+          "--sl-color-accent-low": "#1e0a45",
+          "--sl-color-accent": "#8b5cf6",
+          "--sl-color-accent-high": "#ede9fe",
+          "--sl-color-text-accent": "#a78bfa",
+        },
+      },
+      orange: {
+        light: {
+          "--sl-color-accent-low": "#fed7aa",
+          "--sl-color-accent": "#ea580c",
+          "--sl-color-accent-high": "#431407",
+          "--sl-color-text-accent": "#c2410c",
+        },
+        dark: {
+          "--sl-color-accent-low": "#2d0e05",
+          "--sl-color-accent": "#f97316",
+          "--sl-color-accent-high": "#ffedd5",
+          "--sl-color-text-accent": "#fb923c",
+        },
+      },
+      teal: {
+        light: {
+          "--sl-color-accent-low": "#ccfbf1",
+          "--sl-color-accent": "#0d9488",
+          "--sl-color-accent-high": "#042f2e",
+          "--sl-color-text-accent": "#0f766e",
+        },
+        dark: {
+          "--sl-color-accent-low": "#022825",
+          "--sl-color-accent": "#14b8a6",
+          "--sl-color-accent-high": "#ccfbf1",
+          "--sl-color-text-accent": "#2dd4bf",
+        },
+      },
+      rose: {
+        light: {
+          "--sl-color-accent-low": "#fecdd3",
+          "--sl-color-accent": "#e11d48",
+          "--sl-color-accent-high": "#4c0519",
+          "--sl-color-text-accent": "#be123c",
+        },
+        dark: {
+          "--sl-color-accent-low": "#330110",
+          "--sl-color-accent": "#f43f5e",
+          "--sl-color-accent-high": "#ffe4e6",
+          "--sl-color-text-accent": "#fb7185",
+        },
+      },
+    };
+
+    function getMode() {
+      return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+    }
+
+    function apply(name) {
+      const mode = getMode();
+      const p = palettes[name];
+      if (!p) return;
+
+      const vars = p[mode];
+      const root = document.documentElement;
+      Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
+
+      document.querySelectorAll(".tp-swatch").forEach((s) => {
+        if (s.dataset.theme === name) {
+          s.classList.add("active");
+        } else {
+          s.classList.remove("active");
+        }
+      });
+
+      localStorage.setItem(KEY, name);
+    }
+
+    apply(localStorage.getItem(KEY) || "green");
+
+    function boot() {
+      apply(localStorage.getItem(KEY) || "green");
+
+      document.querySelectorAll(".tp-swatch").forEach((btn) => {
+        btn.onclick = () => apply(btn.dataset.theme);
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", boot);
+    } else {
+      boot();
+    }
+
+    document.addEventListener("astro:after-swap", () => {
+      apply(localStorage.getItem(KEY) || "green");
+    });
+
+    document.addEventListener("astro:page-load", boot);
+
+    const observer = new MutationObserver(() => {
+      const current = localStorage.getItem(KEY) || "green";
+      apply(current);
+    });
+    
+    if (!window.__themePickerObserverSet) {
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
+      window.__themePickerObserverSet = true;
+    }
+  })();
+</script>
+
 {isV1 && (
   <style is:inline>
     /* Restaurar el tema verde antiguo específicamente para la documentación v1.0.3 */
@@ -45,6 +314,8 @@ const isV1 = Astro.url.pathname.includes('/v1.0.3');
       --sl-color-gray-5: #215540 !important;
       --sl-color-gray-6: #15251b !important;
       --sl-color-black: #0a1610 !important;
+      --sl-color-bg-sidebar: #15251b !important;
+      --sl-color-bg-nav: #15251b !important;
 
       --sl-color-text-accent: #3dd968 !important;
       --hero-gradient-start: rgba(11, 46, 22, 0.6) !important;
@@ -64,6 +335,8 @@ const isV1 = Astro.url.pathname.includes('/v1.0.3');
         --sl-color-gray-5: #215540 !important;
         --sl-color-gray-6: #15251b !important;
         --sl-color-black: #0a1610 !important;
+        --sl-color-bg-sidebar: #15251b !important;
+        --sl-color-bg-nav: #15251b !important;
 
         --sl-color-text-accent: #3dd968 !important;
         --hero-gradient-start: rgba(11, 46, 22, 0.6) !important;

@@ -1,0 +1,524 @@
+---
+title: Commands Examples
+description: A comprehensive collection of real-world command examples categorized by difficulty.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This guide provides real-world examples of how to build interactive commands. These examples are inspired by production environments and are divided into **Easy**, **Medium**, and **Complex** categories to help you progressively understand the WhatsBotCord ecosystem.
+
+---
+
+## 🟢 Easy Examples
+
+These commands represent the basics of bot interaction: reading arguments, sending simple messages, and calling external APIs.
+
+### 1. Simple Reply (Goodnight Command)
+A straightforward command that reads the sender's details and replies with a personalized message.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { type AdditionalAPI, type IChatContext, type CommandArgs, type ICommand } from "whatsbotcord";
+
+    export class GoodnightCommand implements ICommand {
+      public name: string = "goodnight";
+      public aliases: string[] = ["gn"];
+      
+      public async run(ctx: IChatContext, _api: AdditionalAPI, _args: CommandArgs): Promise<void> {
+        await ctx.Loading();
+        await ctx.SendText(`Goodnight! Rest well. 🌙`);
+        await ctx.Ok();
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 2. API Integration (Action Command)
+A command that fetches a random GIF from a public API and sends it as an image with a caption.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { type AdditionalAPI, type IChatContext, type CommandArgs, type ICommand } from "whatsbotcord";
+
+    export class KissCommand implements ICommand {
+      public name: string = "kiss";
+      
+      public async run(ctx: IChatContext, _api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.Loading();
+        
+        // Fetch random image URL from a generic API
+        const response = await fetch("https://api.otakugifs.com/v1/gifs/kiss");
+        const data = await response.json();
+
+        // Mention a user if provided in args
+        const target = args.args.length > 0 ? args.args.join(" ") : "someone";
+
+        await ctx.SendImgWithCaption(data.url, `You gave a kiss to ${target}! 😘`);
+        await ctx.Ok();
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 3. Update Bot Status
+Using the `AdditionalAPI` to modify the bot's own WhatsApp state (story).
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { type AdditionalAPI, type IChatContext, type CommandArgs, type ICommand, SenderType } from "whatsbotcord";
+
+    export class SetStatusCommand implements ICommand {
+      public name: string = "status";
+      
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.Loading();
+        
+        if (args.args.length === 0) {
+          await ctx.SendText("❌ Please provide the text for the status.");
+          await ctx.Fail();
+          return;
+        }
+
+        const statusText = args.args.join(" ");
+        const targetViewer = args.senderType === SenderType.Individual ? args.chatId! : args.participantIdPN!;
+        
+        // Uploads to WhatsApp Status and makes it visible only to the specified user
+        await api.Myself.Status.UploadText(statusText, [targetViewer]);
+        
+        await ctx.SendText("✅ Status updated successfully!");
+        await ctx.Ok();
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 🟡 Medium Examples
+
+Medium commands involve **halting execution** to wait for user interactions, parsing inputs, and validating data using `while` loops.
+
+### 4. Wait for Text (Date Parsing)
+Halts execution to ask the user for text input and validates it. It uses a `while (true)` loop to handle invalid inputs gracefully without restarting the command.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { type AdditionalAPI, type IChatContext, type CommandArgs, type ICommand } from "whatsbotcord";
+
+    export class AskForDateCommand implements ICommand {
+      public name: string = "askdate";
+      
+      public async run(ctx: IChatContext, _api: AdditionalAPI, _args: CommandArgs): Promise<void> {
+        await ctx.Loading();
+        await ctx.SendText("📅 Please provide a date in the format YYYY/MM/DD (e.g., 2024/10/24):");
+        
+        while (true) {
+          const result = await ctx.WaitText({ timeoutSeconds: 60 });
+          
+          if (!result) {
+            await ctx.SendText("❌ You haven't responded in time. Please try again:");
+            continue;
+          }
+
+          const dateRegex = /^\d{4}\/\d{2}\/\d{2}$/;
+          if (!dateRegex.test(result)) {
+            await ctx.SendText("❌ Invalid date format. It should be YYYY/MM/DD. Try again:");
+            continue;
+          }
+
+          await ctx.SendText(`✅ Success! The date you entered is: ${result}`);
+          await ctx.Ok();
+          break;
+        }
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 5. Wait for Multimedia (Profile Photo)
+Asks the user to upload an image. Highly useful for registration flows or profile updates.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { type AdditionalAPI, type IChatContext, type CommandArgs, type ICommand, MsgType } from "whatsbotcord";
+    import * as fs from "fs";
+
+    export class UpdateProfilePhotoCommand implements ICommand {
+      public name: string = "updatephoto";
+      
+      public async run(ctx: IChatContext, _api: AdditionalAPI, _args: CommandArgs): Promise<void> {
+        await ctx.Loading();
+        await ctx.SendText("🖼️ Send me your new profile photo (Send an image, not text):");
+        
+        while (true) {
+          const imgBuffer = await ctx.WaitMultimedia(MsgType.Image, { timeoutSeconds: 60 });
+          
+          if (!imgBuffer) {
+            await ctx.SendText("❌ There was an error receiving your photo or you took too long. Please try again:");
+            continue;
+          }
+          
+          // Normally you would save imgBuffer to your file system or database
+          // fs.writeFileSync(`profile_${Date.now()}.png`, imgBuffer);
+
+          await ctx.SendText("✅ I have successfully received and updated your profile photo!");
+          await ctx.Ok();
+          break;
+        }
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 6. Numeric Selection Menu
+Shows a list of items and asks the user to select one by typing its number. This is an extremely common pattern for navigating menus.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { type AdditionalAPI, type IChatContext, type CommandArgs, type ICommand } from "whatsbotcord";
+
+    export class SelectLanguageCommand implements ICommand {
+      public name: string = "setlanguage";
+      
+      public async run(ctx: IChatContext, _api: AdditionalAPI, _args: CommandArgs): Promise<void> {
+        await ctx.Loading();
+        
+        const availableLangs = ["English", "Spanish", "French", "German"];
+        const menuText = availableLangs.map((lang, index) => `${index + 1}. ${lang}`).join("\n");
+        
+        await ctx.SendText(`🌐 Language selection. Reply with the number of your preferred language:\n\n${menuText}`);
+        
+        while (true) {
+          const result = await ctx.WaitText({ timeoutSeconds: 30 });
+          if (!result) {
+            await ctx.SendText("❌ Process canceled.");
+            await ctx.Fail();
+            return;
+          }
+
+          const selectedIndex = parseInt(result.trim()) - 1;
+          if (isNaN(selectedIndex) || selectedIndex < 0 || selectedIndex >= availableLangs.length) {
+            await ctx.SendText("⚠️ Bad selection. Try selecting by number (e.g., '1' for English):");
+            continue;
+          }
+
+          await ctx.SendText(`✅ Language successfully set to: ${availableLangs[selectedIndex]}`);
+          await ctx.Ok();
+          break;
+        }
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 🔴 Complex Examples
+
+Complex commands integrate multiple steps, handle logical validations, interact with a database, and manage advanced states like **Matchmaking Queues** or **Admin Operations**.
+
+### 7. Multi-step Admin Creation (Add Member)
+This command validates permissions, executes multiple `WaitText` prompts in sequence to gather data, and saves a record in a simulated database.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { type AdditionalAPI, type IChatContext, type CommandArgs, type ICommand } from "whatsbotcord";
+
+    export class AddMemberCommand implements ICommand {
+      public name: string = "addmember";
+      
+      public async run(ctx: IChatContext, _api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.Loading();
+        
+        // 1. Permission Validation Simulation
+        const isAdmin = true; // In reality, fetch from your DB
+        if (!isAdmin) {
+          await ctx.SendText("❌ You don't have permission to use this command.");
+          await ctx.Fail();
+          return;
+        }
+
+        // 2. Step One: Ask for Username
+        await ctx.SendText("👤 Please type the new member's username:");
+        const username = await ctx.WaitText({ timeoutSeconds: 60 });
+        if (!username) {
+          await ctx.SendText("❌ Timed out waiting for a username. Cancelled.");
+          await ctx.Fail();
+          return;
+        }
+
+        // 3. Step Two: Ask for Phone Number
+        await ctx.SendText(`📱 Now, what is ${username}'s WhatsApp number? (Include country code)`);
+        let phone: string;
+        while(true) {
+          const input = await ctx.WaitText({ timeoutSeconds: 60 });
+          if (!input) return; // Silent cancel
+          
+          if (!/^\d{10,15}$/.test(input)) {
+            await ctx.SendText("⚠️ Invalid number format. It should only contain digits. Try again:");
+            continue;
+          }
+          phone = input;
+          break;
+        }
+
+        // 4. Database Simulation
+        // await db.members.create({ username, phone });
+
+        await ctx.SendText(`✅ Successfully added member **${username}** with phone **${phone}**.`);
+        await ctx.Ok();
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 8. API, Database, and Mention Handling (Kiss Command)
+This complex command showcases how to parse tagged users (mentions), validate arguments, interact with a database to keep track of interactions (e.g., how many times two users have kissed), fetch external data from an API, and use dynamic language localization.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { 
+      type AdditionalAPI, 
+      type IChatContext, 
+      type CommandArgs, 
+      type ICommand,
+      Helpers, 
+      WhatsappHelpers 
+    } from "whatsbotcord";
+    
+    // Example OtakuGifs API wrapper
+    import { GlobalOtakuGifs_API } from "./OtakuGifs.api.js";
+
+    export class KissCommand implements ICommand {
+      public name: string = "kiss";
+      public aliases?: string[] = ["k"];
+      
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.Loading();
+
+        // 1. Arguments Validation
+        if (args.args.length < 1) {
+          await ctx.SendText("❌ You must mention someone! Use: !kiss @someone", { quoted: args.originalRawMsg });
+          await ctx.Fail();
+          return;
+        }
+
+        if (args.args.length > 1) {
+          await ctx.SendText("🤓 You can't kiss more than 1 person at a time!", { quoted: args.originalRawMsg });
+          await ctx.Fail();
+          return;
+        }
+
+        // 2. Mention Extraction
+        const mentionedId: string = args.args[0];
+        if (!Helpers.Whatsapp.IsMentionString(mentionedId)) {
+          await ctx.SendText("🥲 Invalid mention. Try again with @someone.", { quoted: args.originalRawMsg });
+          await ctx.Fail();
+          return;
+        }
+
+        // 3. Simulated Database Interaction
+        const kisserId = args.participantIdLID || args.participantIdPN || args.chatId!;
+        const kissedWhatsInfo = WhatsappHelpers.GetWhatsInfoFromMentionStr(mentionedId);
+        
+        if (!kissedWhatsInfo) {
+          await ctx.SendText("🥲 There was a strange error fetching info about the user.");
+          await ctx.Fail();
+          return;
+        }
+
+        // Fetch user profiles from database
+        // const kisserProfile = await db.Players.Find(kisserId);
+        // const kissedProfile = await db.Players.Find(kissedWhatsInfo.rawId);
+
+        // Update database counts
+        // const currentKisses = await db.Kisses.Increment(kisserId, kissedWhatsInfo.rawId);
+        const currentKisses = 1; // Simulated result
+
+        // 4. External API Call
+        const kissImg = await GlobalOtakuGifs_API.GetRandomAnimeKissGiff();
+        
+        const messageToSend = currentKisses === 1 
+          ? `💋 You kissed for the first time!` 
+          : `💋 You have kissed ${currentKisses} times!`;
+
+        // 5. Rich Response with Mentions and Media
+        if (kissImg) {
+          await ctx.SendImgFromBufferWithCaption(kissImg.imgBuffer, kissImg.extension, messageToSend);
+        } else {
+          // Send text tagging both users
+          await ctx.SendText(messageToSend, { 
+            quoted: args.originalRawMsg, 
+            mentionsIds: [kisserId, kissedWhatsInfo.rawId] 
+          });
+        }
+
+        await ctx.Ok();
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 9. Pagination and Discovery (Help Command)
+The `!help` command is often the most complex command in any bot. This example demonstrates how to filter available commands dynamically based on the user's role privileges, provide paginated menus, and parse specific command requests using `string-similarity` to suggest alternatives.
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import stringSimilarity from "string-similarity";
+    import { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand, CommandType } from "whatsbotcord";
+    
+    // Assume you have a custom Command wrapper (e.g. KLCommand) that has minimumPrivileges and localization
+    export class HelpCommand implements ICommand {
+      public name: string = "help";
+      public aliases?: string[] = ["h", "ayuda"];
+      
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        await ctx.Loading();
+
+        // 1. Fetch user privileges (simulated)
+        // const userRoleWeight = await getUserWeight(args.chatId);
+        const userRoleWeight = 1; // Example: 0 = Anyone, 1 = Member, 2 = Admin
+
+        // 2. Filter commands by privileges dynamically
+        const availableCommands = api.Myself.Bot.Commands.NormalCommands.filter(entry => {
+           // const requiredWeight = getRequiredWeightForCommand(entry.commandObj);
+           // return userRoleWeight >= requiredWeight;
+           return true;
+        });
+
+        // 3. Specific Command Search
+        if (args.args.length === 1 && isNaN(Number(args.args[0]))) {
+          const searchName = args.args[0]!.toLowerCase();
+          
+          let foundCommand = api.Myself.Bot.Commands.GetWhateverWithAlias(searchName, CommandType.Normal);
+
+          if (foundCommand) {
+            await ctx.SendText(`📖 Help for command: ${foundCommand.name}`);
+            await ctx.Ok();
+          } else {
+            // Suggest similar commands
+            const commandNames = availableCommands.map(entry => entry.commandObj.name);
+            const matches = stringSimilarity.findBestMatch(searchName, commandNames);
+            
+            if (matches.bestMatch.rating > 0.3) {
+              await ctx.SendText(`❌ Command not found. Did you mean !${matches.bestMatch.target}?`);
+            } else {
+              await ctx.SendText(`❌ Command not found.`);
+            }
+            await ctx.Fail();
+          }
+          return;
+        }
+
+        // 4. Pagination System
+        const resultsPerPage = 5;
+        const totalPages = Math.ceil(availableCommands.length / resultsPerPage) || 1;
+        let currentPage = 1;
+
+        if (args.args.length === 1 && !isNaN(Number(args.args[0]))) {
+          currentPage = Number(args.args[0]);
+        }
+
+        if (currentPage < 1 || currentPage > totalPages) {
+          await ctx.SendText(`❌ Invalid page. Max pages: ${totalPages}`);
+          await ctx.Fail();
+          return;
+        }
+
+        const startIndex = (currentPage - 1) * resultsPerPage;
+        const pageCommands = availableCommands.slice(startIndex, startIndex + resultsPerPage);
+
+        // 5. Render Page
+        const prefix = typeof api.Myself.Bot.Settings.commandPrefix === "string" 
+            ? api.Myself.Bot.Settings.commandPrefix 
+            : api.Myself.Bot.Settings.commandPrefix[0];
+
+        const msgToSend = [
+          `📖 Help (Page ${currentPage}/${totalPages})`,
+          `----------------------------------`,
+          ...pageCommands.map(c => `▪️ ${prefix}${c.commandObj.name}`)
+        ];
+
+        await ctx.SendText(msgToSend.join("\n"), { quoted: args.originalRawMsg });
+        await ctx.Ok();
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 10. Cross-Chat Interactions (Sending DMs from a Group)
+
+This advanced example demonstrates how to start a command inside a Group Chat, temporarily shift the execution context to a Direct Message to ask the user something privately, and then return back to the Group Chat to confirm success.
+
+We achieve this by utilizing `ctx.CloneButTargetedToIndividualChat(...)`, which spins up a completely identical sub-context but safely directs all its `Send*` and `Wait*` functions strictly into the private chat!
+
+<Tabs>
+  <TabItem label="TypeScript" icon="seti:typescript">
+    ```typescript
+    import { type AdditionalAPI, type IChatContext, type CommandArgs, type ICommand, SenderType } from "whatsbotcord";
+
+    export class SecretQuestionCommand implements ICommand {
+      public name: string = "secretquestion";
+      
+      public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+        // 1. Initial Validation
+        if (args.senderType === SenderType.Individual) {
+          await ctx.SendText("😶‍🌫️ This command can only be executed inside a Group!");
+          await ctx.Fail();
+          return;
+        }
+
+        // 2. Notify the group that we will slide into their DMs
+        await ctx.SendText("⚠️ I will send you a private message to ask you a secret question.");
+
+        // We try to get the user's private Phone Number ID or LID
+        const foundUserChatID = args.participantIdPN || args.participantIdLID;
+
+        if (!foundUserChatID) {
+          await ctx.SendText("🥲 I couldn't find a way to DM you...");
+          await ctx.Fail();
+          return;
+        }
+
+        // 3. 💥 CLONE THE CONTEXT DIRECTED TO THE DM! 💥
+        const privateChat = ctx.CloneButTargetedToIndividualChat({ userChatId: foundUserChatID });
+
+        // 4. Send messages and wait for inputs INSIDE THE PRIVATE CHAT
+        await privateChat.SendText(`Tell me a secret! Nobody in the group will see this.`);
+        
+        const secretAnswer = await privateChat.WaitText({ timeoutSeconds: 60 });
+
+        if (!secretAnswer) {
+          await privateChat.SendText("You took too long. Aborting.");
+          await ctx.Fail(); // Failing the original context will react to the original group message!
+          return;
+        }
+
+        await privateChat.SendText("Got it! I won't tell anyone. I'm going back to the group now.");
+
+        // 5. Back to the original GROUP CHAT context
+        await ctx.SendText(`✅ The user successfully answered the secret question in my DMs!`);
+        await ctx.Ok();
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
