@@ -182,6 +182,9 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
       @media (min-width: 768px) {
         width: 30%;
       }
+      @media (min-width: 768px) and (max-aspect-ratio: 4/5) {
+        width: 45%; /* Aumentamos el tamaño en pantallas muy altas y estrechas */
+      }
       @media (min-width: 1024px) {
         width: 20%;
       }
@@ -397,25 +400,26 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
   function initParallax() {
     gsap.registerPlugin(ScrollTrigger);
 
-    // Parallax del Spyral (hacia arriba) atado al hero
-    gsap.to(".spyral-img", {
-      y: -150,
-      ease: "none",
+    // Fade del Zorro y del Spyral SOLO cuando llegamos al fondo (los créditos)
+    const isMobile = window.innerWidth < 768;
+    const targetOpacityFox = isMobile ? 0.15 : 0.6;
+    const targetOpacitySpyral = isMobile ? 0.15 : 0.2;
+
+    gsap.to(".fox-img", {
+      opacity: targetOpacityFox,
       scrollTrigger: {
-        trigger: "#hero-section",
-        start: "top top",      
-        end: "bottom top", 
+        trigger: ".footer-credits",
+        start: "top bottom", // cuando la parte superior de los créditos entra por abajo
+        end: "bottom bottom",
         scrub: 1,
       }
     });
 
-    // Fade del Zorro SOLO cuando llegamos al fondo (los créditos)
-    const targetOpacity = window.innerWidth < 768 ? 0.15 : 0.6;
-    gsap.to(".fox-img", {
-      opacity: targetOpacity,
+    gsap.to(".spyral-img", {
+      opacity: targetOpacitySpyral,
       scrollTrigger: {
         trigger: ".footer-credits",
-        start: "top bottom", // cuando la parte superior de los créditos entra por abajo
+        start: "top bottom",
         end: "bottom bottom",
         scrub: 1,
       }
