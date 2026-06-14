@@ -1,0 +1,20 @@
+  /* ── Layout ── */
+  .wa-container {
+    display: grid;
+    grid-template-columns: 72px var(--sidebar-width, 360px) 4px 1fr;
+    grid-template-rows: 1fr;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    text-align: left;
+    background: var(--wa-app-bg);
+    color: var(--wa-text);
+    box-sizing: border-box;
+  }
+  .wa-container.wa-container--collapsed {
+    grid-template-columns: 72px 1fr;
+  }
+
+  *, *::before, *::after { box-sizing: inherit; }

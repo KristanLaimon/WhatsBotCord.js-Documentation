@@ -1,0 +1,37 @@
+  /* ── Col 1: Nav ── */
+  .wa-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--wa-panel-bg);
+    border-right: 1px solid var(--wa-border);
+    padding: 10px 0;
+  }
+
+  .wa-nav-top { margin-bottom: 10px; }
+  .wa-nav-bottom { margin-top: auto; }
+
+  .wa-nav-icons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    width: 100%;
+  }
+
+  .wa-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--wa-icon);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .wa-nav-btn:hover { background: var(--wa-input-bg); }
+  .wa-nav-btn--active { color: var(--wa-icon-active); }

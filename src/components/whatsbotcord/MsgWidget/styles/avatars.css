@@ -1,0 +1,45 @@
+  /* ── Avatars ── */
+  .wa-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    --av-bg: var(--wa-avatar-bg);
+  }
+  .wa-avatar--self { width: 36px; height: 36px; }
+  .wa-avatar--sm   { width: 40px; height: 40px; }
+
+  .wa-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .wa-avatar-initials {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--av-bg, var(--wa-avatar-bg));
+    color: var(--wa-avatar-text);
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 50%;
+  }
+  .wa-avatar-initials--group {
+    background: var(--av-bg, var(--wa-group-avatar-bg));
+    font-size: 12px;
+  }
+
+  .wa-resizer {
+    cursor: col-resize;
+    background: transparent;
+    transition: background 0.15s;
+    z-index: 10;
+  }
+  .wa-resizer:hover, .wa-resizer:active {
+    background: var(--wa-accent);
+  }
