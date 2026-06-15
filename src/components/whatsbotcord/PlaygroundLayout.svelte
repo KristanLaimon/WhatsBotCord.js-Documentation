@@ -4,6 +4,17 @@
 
   let { initialCode }: { initialCode: string } = $props();
 
+  const localStorageKey = "whatsbotcord_playground_code";
+  const savedCode = localStorage.getItem(localStorageKey) || null;
+  // svelte-ignore state_referenced_locally
+  let codeToUse = savedCode || initialCode;
+
+  function handleCodeRun(code: string) {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(localStorageKey, code);
+    }
+  }
+
   let containerRef = $state<HTMLElement | null>(null);
   let isDragging = $state(false);
   let leftWidthPercent = $state(50); // Initial 50% split
@@ -74,7 +85,7 @@
   <div class="pane left-pane" style="width: {leftWidthPercent}%">
     <MsgWidgetWrapper 
       width="100%" 
-      height="calc(100vh - 11rem);"
+      height="calc(100vh - 12rem);"
       bind:showChatList={showChatList}
       initialSidebarCollapsed={!showChatList} 
       colorMode="light" 
@@ -89,7 +100,8 @@
   
   <div class="pane right-pane">
     <CodeWidgetWrapper 
-      initialCode={initialCode} 
+      initialCode={codeToUse} 
+      onCodeRun={handleCodeRun}
       width="100%" 
       height="100%" 
     />
