@@ -20,6 +20,9 @@ Es el editor de código integrado (basado en Monaco Editor) que permite escribir
 **Propiedades importantes:**
 - `initialCode`: El código fuente (string) que aparecerá por defecto en el editor.
 - `msgWidget`: Recibe la referencia instanciada del `MsgWidget`. El simulador necesita esta referencia para interceptar y enrutar correctamente la red (enviar/recibir mensajes simulados entre el bot y el widget visual).
+- `width`: El ancho del widget (CSS string, por ejemplo `"100%"` o `"500px"`). Por defecto `"100%"`.
+- `height`: El alto del widget (CSS string, por ejemplo `"500px"` o `"100vh"`). Por defecto `"100%"`.
+- `theme`: El tema visual del editor y la consola (`"light"` para tema claro o `"dark"` para tema oscuro). Por defecto `"dark"`.
 
 ## Ejemplo de Uso (`App.svelte`)
 

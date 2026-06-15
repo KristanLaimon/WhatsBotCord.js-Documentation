@@ -262,3 +262,4 @@ export class MsgWidgetAdapter implements IWhatsappAdapter {
   }
 }
 
+

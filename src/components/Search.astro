@@ -7,12 +7,20 @@
 import type { Props } from "@astrojs/starlight/props";
 import VersionSearch from "starlight-versions/components/VersionSearch.astro";
 import ThemePicker from "./ThemePicker.astro";
+import WidgetToggle from "./WidgetToggle.svelte";
+
+const isQuickstart = Astro.url.pathname.includes('quickstart');
 ---
 
 <div class="custom-search-group">
   <div class="mobile-theme-picker">
     <ThemePicker />
   </div>
+  {isQuickstart && (
+    <div class="widget-toggle-wrapper">
+      <WidgetToggle client:load />
+    </div>
+  )}
   <!-- Starlight-versions custom Search component -->
   <VersionSearch {...Astro.props}><slot /></VersionSearch>
 </div>

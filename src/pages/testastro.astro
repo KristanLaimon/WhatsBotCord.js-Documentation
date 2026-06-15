@@ -1,0 +1,63 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+
+import MsgWidgetWrapper from "../components/whatsbotcord/MsgWidgetWrapper.svelte";
+import CodeWidgetWrapper from "../components/whatsbotcord/CodeWidgetWrapper.svelte";
+
+const initialCodeTest: string = `import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord";
+
+ const bot = new Whatsbotcord({
+   commandPrefix: "!",
+   tagPrefix: "@",
+ });
+
+ class PingCommand implements ICommand {
+   name: string = "ping";
+   aliases?: string[] | undefined = ["p"];
+   public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      await ctx.SendText("pong! 🏓");
+   }
+ }
+
+ bot.Commands.Add(new PingCommand());
+
+ bot.Start();`;
+---
+
+<StarlightPage
+  frontmatter={{
+    title: "Whatsbotcord.js",
+    template: "splash",
+    head: [
+      {
+        // (1) Resetting star-light CSS (This page only)
+        tag: "style",
+        content: `
+          .content-panel:has(#_top) { display: none !important; }
+          .sl-container, .content-panel { max-width: none !important; padding: 0 !important; margin: 0 !important; }
+          :root[data-theme='dark'] {
+            --sl-color-black: #140f25 !important;
+            --sl-color-bg-nav: #140f25 !important;
+            --sl-color-accent: #5e4ec2 !important;
+          }
+          @media (prefers-color-scheme: dark) {
+            :root:not([data-theme='light']) {
+              --sl-color-black: #140f25 !important;
+              --sl-color-bg-nav: #140f25 !important;
+              --sl-color-accent: #5e4ec2 !important;
+            }
+          }
+        `,
+      },
+    ],
+  }}
+  hasSidebar={false}
+>
+  <main>
+    <h1>Nothing to see here...</h1>
+    <MsgWidgetWrapper client:only="svelte" width="auto" initialSidebarCollapsed={false} colorMode="light" />
+    <div style="margin: 5rem auto; width: fit-content;">
+      <CodeWidgetWrapper client:only="svelte" initialCode={initialCodeTest} width="88vw" height="1200px" />
+    </div>
+  </main>
+</StarlightPage>

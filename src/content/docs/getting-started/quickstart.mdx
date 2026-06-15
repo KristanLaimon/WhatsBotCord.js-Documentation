@@ -4,6 +4,26 @@ description: Create your first WhatsApp bot command in minutes.
 ---
 
 import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+import CodeWidgetWrapper from '../../../components/whatsbotcord/CodeWidgetWrapper.svelte';
+
+export const botCode = `import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord";
+
+const bot = new Whatsbotcord({
+  commandPrefix: "!",
+  tagPrefix: "@",
+});
+
+class PingCommand implements ICommand {
+  name: string = "ping";
+  aliases?: string[] | undefined = ["p"];
+  public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+    await ctx.SendText("pong!");
+  }
+}
+
+bot.Commands.Add(new PingCommand());
+bot.Start();`;
+
 
 Initialize a functional bot instance and register a fundamental command in minutes.
 
@@ -95,6 +115,10 @@ Initialize a functional bot instance and register a fundamental command in minut
 
      </TabItem>
    </Tabs>
+
+   **Interactive Playground**  
+   Try it yourself! Toggle the widget in the header to see the chat interface.
+   <CodeWidgetWrapper client:only="svelte" initialCode={botCode} />
 
 3. **Run your bot**
 

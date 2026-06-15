@@ -1,0 +1,27 @@
+---
+import type { Props } from '@astrojs/starlight/props';
+import DefaultRightSidebar from '@astrojs/starlight/components/RightSidebar.astro';
+import MsgWidgetWrapper from './whatsbotcord/MsgWidgetWrapper.svelte';
+
+const isQuickstart = Astro.url.pathname.includes('quickstart');
+---
+
+{isQuickstart ? (
+  <div class="custom-right-sidebar-container" style="height: 100%; display: flex; flex-direction: column;">
+    <div class="right-sidebar-toc" style="display: block; height: 100%; overflow-y: auto;">
+      <DefaultRightSidebar {...Astro.props} />
+    </div>
+    <div class="right-sidebar-widget" style="display: none; height: 100%; width: 100%;">
+      <MsgWidgetWrapper client:only="svelte" />
+    </div>
+  </div>
+) : (
+  <DefaultRightSidebar {...Astro.props} />
+)}
+
+<style>
+  /* Ensure the sidebar takes full height for the widget */
+  :global(.right-sidebar-panel) {
+    height: 100%;
+  }
+</style>

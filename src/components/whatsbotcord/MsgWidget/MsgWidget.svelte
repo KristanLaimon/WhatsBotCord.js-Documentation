@@ -3,25 +3,14 @@
   import MsgSidebar from "./MsgSidebar.svelte";
   import MsgChatArea from "./MsgChatArea.svelte";
   import "./MsgWidget.css";
-  import { type Chat, type ThemeColors, type SvgIconColors, type Message, DARK_THEME, LIGHT_THEME, DEFAULT_CHATS } from "./MsgWidget";
+  import { type Chat, type ThemeColors, type SvgIconColors, type Message, DARK_THEME, LIGHT_THEME } from "./MsgWidget";
 
   // ─────────────────────────────────────────────────────────────
   //  Props
   // ─────────────────────────────────────────────────────────────
 
-  let {
-    colorMode = "dark",
-    themeOverrides = {},
-    iconColors = {},
-    chats: initialChats,
-    initialActiveChat,
-    appTitle = "Whatsbotcord",
-    filters = ["All", "Unread 4", "Favorites 1", "Groups 1"],
-    width = "100%",
-    height = "100%",
-    onSendMessage,
-    initialSidebarCollapsed = false,
-  }: {
+
+  export type MsgWidgetProps = {
     colorMode?: "dark" | "light";
     themeOverrides?: Partial<ThemeColors>;
     iconColors?: Partial<SvgIconColors>;
@@ -33,21 +22,36 @@
     height?: string;
     onSendMessage?: (chatId: number, text: string, msgId: number) => void;
     initialSidebarCollapsed?: boolean;
-  } = $props();
+  };
+
+
+  let {
+    colorMode = $bindable(),
+    themeOverrides = {},
+    iconColors = {},
+    chats: initialChats = [],
+    initialActiveChat,
+    appTitle = "Whatsbotcord",
+    filters = ["All", "Unread 4", "Favorites 1", "Groups 1"],
+    width = "100%",
+    height = "100%",
+    onSendMessage,
+    initialSidebarCollapsed = false,
+  }: MsgWidgetProps = $props();
 
   // ─────────────────────────────────────────────────────────────
   //  Defaults
   // ─────────────────────────────────────────────────────────────
 
   // svelte-ignore state_referenced_locally
-  let chats = $state(initialChats ?? DEFAULT_CHATS);
+  let chats = $state(initialChats);
 
   // ─────────────────────────────────────────────────────────────
   //  Reactive state
   // ─────────────────────────────────────────────────────────────
 
   // svelte-ignore state_referenced_locally
-  let activeChat = $state(initialActiveChat ?? chats[0]?.id ?? 1);
+  let activeChat = $state(initialActiveChat  ?? 1);
   // let searchQuery = $state("");
   // svelte-ignore state_referenced_locally
   // let activeFilter = $state(filters[0] ?? "All");
@@ -244,4 +248,4 @@
   <MsgChatArea {activeChatData} onSendMessage={handleSendMessage} />
 </article>
 
-<style src="./WhatsbotcordPlaygroundWidget.css"></style>
+

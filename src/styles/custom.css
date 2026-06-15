@@ -43,7 +43,7 @@
   --sl-color-bg-nav: #1e1533;
 
   --sl-color-text-accent: #4ade80;
-  --sl-content-width: 75rem;
+  --sl-content-width: 55rem;
   --hero-gradient-start: rgba(37, 211, 102, 0.15);
 }
 
@@ -252,12 +252,7 @@ td {
    RESPONSIVE CONTENT LAYOUT
    ============================== */
 
-/* On documentation pages, allow content more breathing room */
-@media (min-width: 72rem) {
-  .main-pane {
-    max-width: none;
-  }
-}
+/* Removed .main-pane { max-width: none; } to fix right sidebar overflow */
 
 /* ==============================
    HEADER / NAV POLISH
@@ -351,4 +346,12 @@ nav.sidebar a,
 :root[data-theme="dark"] .sl-markdown-content td,
 :root[data-theme="dark"] .sl-markdown-content ul {
   color: #f0f4f2;
+}
+
+
+/* ==============================
+   MONACO EDITOR — Neutralize Starlight content gap
+   ============================== */
+.monaco-editor :not(a, strong, em, del, span, input, code, br) + :not(a, strong, em, del, span, input, code, br, :where(.not-content *)) {
+  margin-top: 0 !important;
 }

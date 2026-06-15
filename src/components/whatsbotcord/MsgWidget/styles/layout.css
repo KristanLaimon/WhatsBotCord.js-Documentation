@@ -17,4 +17,8 @@
     grid-template-columns: 72px 1fr;
   }
 
-  *, *::before, *::after { box-sizing: inherit; }
+  .wa-container *,
+  .wa-container *::before,
+  .wa-container *::after {
+    box-sizing: border-box;
+  }
