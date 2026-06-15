@@ -1,3 +1,5 @@
+
+
 <script lang="ts">
   import { onMount } from "svelte";
   import MsgNav from "./MsgNav.svelte";
@@ -17,6 +19,7 @@
     iconColors?: Partial<SvgIconColors>;
     chats?: Chat[];
     initialActiveChat?: number;
+    initialChatScrollToBottom?: boolean;
     appTitle?: string;
     filters?: string[];
     width?: string;
@@ -33,6 +36,7 @@
     iconColors = {},
     chats: initialChats = [],
     initialActiveChat,
+    initialChatScrollToBottom = true,
     appTitle = "Whatsbotcord",
     filters = ["All", "Unread 4", "Favorites 1", "Groups 1"],
     width = "100%",
@@ -153,8 +157,25 @@
     return chats;
   }
 
+  export function setChatActivity(chatId: number, activity: "typing" | "recording" | "idle") {
+    const chatIndex = chats.findIndex((c: Chat) => c.id === chatId);
+    if (chatIndex !== -1) {
+      if (activity === "typing") {
+        chats[chatIndex].typing = true;
+        chats[chatIndex].subtitle = "typing...";
+      } else if (activity === "recording") {
+        chats[chatIndex].typing = true;
+        chats[chatIndex].subtitle = "recording audio...";
+      } else {
+        chats[chatIndex].typing = false;
+        chats[chatIndex].subtitle = chats[chatIndex].isGroup ? "15 participants" : "online";
+      }
+      chats = [...chats];
+    }
+  }
+
   let containerRef: HTMLElement | undefined = $state(undefined);
-  let sidebarWidth = $state(360);
+  let sidebarWidth = $state(250);
   let isResizing = $state(false);
 
 
@@ -221,6 +242,19 @@
     }
   }
 
+  function handleClearChat(chatId: number) {
+    const chatIndex = chats.findIndex((c: Chat) => c.id === chatId);
+    if (chatIndex !== -1) {
+      if (chats[chatIndex].messages) {
+        chats[chatIndex].messages = chats[chatIndex].messages.filter(
+          (m: Message) => m.type === "system" || m.type === "date-divider"
+        );
+      }
+      chats[chatIndex].preview = "Say something to the bot!";
+      chats = [...chats];
+    }
+  }
+
   import { getInitials } from "./MsgWidget";
 
   // CSS custom properties object → inline style string for the root container
@@ -274,7 +308,7 @@
   {/if}
 
   <!-- ── Col 3: Main chat ── -->
-  <MsgChatArea {activeChatData} onSendMessage={handleSendMessage} />
+  <MsgChatArea {activeChatData} onSendMessage={handleSendMessage} onClearChat={handleClearChat} {initialChatScrollToBottom} />
 </article>
 
 

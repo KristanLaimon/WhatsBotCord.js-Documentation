@@ -5,31 +5,78 @@ import PlaygroundLayout from "../components/whatsbotcord/PlaygroundLayout.svelte
 
 const initialCodeTest: string = `import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord";
 
+const bot = new Whatsbotcord({
+    commandPrefix: "!",
+    tagPrefix: "@",
+ });
+
+ class PingCommand implements ICommand {
+    name: string = "ping";
+    aliases?: string[] | undefined = ["p"];
+    public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      await ctx.Loading(); //Optional
+      await ctx.SendText("pong! 🏓");
+      await ctx.Ok(); //Optional
+    }
+ }
+
+ bot.Commands.Add(new PingCommand());
+
+ bot.Start();
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
     To send [images, docs, gifs and pdf's]
     use this object (already injected in this code editor!)
                       MockMedia
 
-    So you can send an img as the following: 
-    await ctx.SendImg(MockMedia.Images.Fox) for example.
-*/
+    So you can send mock data as the following: 
 
- const bot = new Whatsbotcord({
-   commandPrefix: "!",
-   tagPrefix: "@",
- });
 
- class PingCommand implements ICommand {
-   name: string = "ping";
-   aliases?: string[] | undefined = ["p"];
-   public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
-      await ctx.SendText("pong! 🏓");
-   }
- }
 
- bot.Commands.Add(new PingCommand());
+    import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord";
 
- bot.Start();`;
+    const bot = new Whatsbotcord({
+        commandPrefix: "!",
+        tagPrefix: "@",
+    });
+
+    class PingCommand implements ICommand {
+        name: string = "ping";
+        aliases?: string[] | undefined = ["p"];
+        public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
+          await ctx.SendText("pong! 🏓");
+
+              //Sending with caption
+              //await ctx.SendImgWithCaption(MockMedia.Images.Frieren, "The eternal Journey");
+              //await ctx.SendDocumentWithCustomName(MockMedia.Pdfs.Sample, "OneOfThePDF's of all time...");
+              //await ctx.SendVideoWithCaption(MockMedia.Videos.BuckBunny, "Bunny bunny");
+
+              //Sending without caption
+              //await ctx.SendImg(MockMedia.Images.Frieren);
+              //await ctx.SendDocument(MockMedia.Pdfs.Sample);
+              //await ctx.SendVideo(MockMedia.Videos.BuckBunny);
+        }
+    }
+
+    bot.Commands.Add(new PingCommand());
+
+    bot.Start();
+
+
+    Check (https://whatsbotcord.sbs/essential_concepts/sending/ for more info)
+*/`;
 ---
 
 <StarlightPage
@@ -55,15 +102,25 @@ const initialCodeTest: string = `import Whatsbotcord, { type AdditionalAPI, type
               --sl-color-accent: #5e4ec2;
             }
           }
+          footer.sl-flex {
+            display: none;
+          }
+
+          :root main {
+            padding: 0 !important;
+          }
+
+          html, body {
+            overflow: hidden !important;
+            height: 100vh !important;
+          }
         `,
       },
     ],
   }}
   hasSidebar={false}
 >
-  <main>
-    <h1>Nothing to see here...</h1>
-
+  <main class="not-content">
     <PlaygroundLayout client:only="svelte" initialCode={initialCodeTest} />
   </main>
 </StarlightPage>

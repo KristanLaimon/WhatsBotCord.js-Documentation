@@ -58,9 +58,15 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
         </p>
         <div class="hero-buttons">
           <a href="/getting-started/quickstart" class="btn-primary">Get Started →</a>
-          <a href="https://github.com/KristanLaimon" class="btn-secondary" target="_blank" rel="noopener">
+          <a
+            href="https://github.com/KristanLaimon/WhatsBotCord.js"
+            class="btn-secondary"
+            target="_blank"
+            rel="noopener"
+          >
             Source-code
           </a>
+          <a class="btn-tertiary" href="/playground">Playground/Editor</a>
         </div>
       </div>
       <Image src={WhatsbotcordLogo} alt="whatsbotcord-logo" class="whatsbotcord-logo" />
@@ -70,7 +76,7 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
   <!-- Rest of page -->
   <main>
     <InstallDemo />
-    
+
     <h2 style="color: white;">Get started in seconds</h2>
 
     <CodeDemo />
@@ -336,6 +342,20 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
           a.btn-secondary:hover {
             color: var(--sl-color-gray-2);
           }
+
+          a.btn-tertiary {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgb(255, 255, 255);
+            backdrop-filter: blur(8px);
+          }
+
+          a.btn-tertiary:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: var(--sl-color-accent);
+            color: white !important;
+            box-shadow: 0 0 15px var(--sl-color-accent);
+          }
         }
       }
     }
@@ -411,7 +431,7 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
         start: "top bottom", // cuando la parte superior de los créditos entra por abajo
         end: "bottom bottom",
         scrub: 1,
-      }
+      },
     });
 
     gsap.to(".spyral-img", {
@@ -421,7 +441,7 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
         start: "top bottom",
         end: "bottom bottom",
         scrub: 1,
-      }
+      },
     });
   }
 

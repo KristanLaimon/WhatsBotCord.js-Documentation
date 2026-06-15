@@ -176,7 +176,21 @@ export class WhatsSocketMockClient implements IWhatsSocketVendorClient {
   }
 
   public async fetchGroupMetadata(chatId: string): Promise<WhatsappGroupMetadata> {
-    return {} as WhatsappGroupMetadata;
+    return {
+      id: chatId,
+      subject: "Whatsgroup (Group with bot)",
+      creation: Math.floor(Date.now() / 1000),
+      owner: "54911000000@s.whatsapp.net",
+      subjectOwner: "54911000000@s.whatsapp.net",
+      desc: "This is a group chat where the bot is a member.",
+      participants: Array.from({ length: 15 }, (_, i) => {
+        const num = 54911000000 + i;
+        return {
+          id: `${num}@s.whatsapp.net`,
+          admin: i === 0 ? "superadmin" : (i === 1 ? "admin" : null)
+        };
+      })
+    } as unknown as WhatsappGroupMetadata;
   }
   public async fetchAllGroups(): Promise<WhatsappGroupMetadata[]> {
     return [];
@@ -200,6 +214,11 @@ export class WhatsSocketMockClient implements IWhatsSocketVendorClient {
     return true;
   }
   public async setChatActivity(chatId_JID: string, activity: any): Promise<boolean> {
+    const idStr = chatId_JID.split("@")[0];
+    const chatId = parseInt(idStr, 10);
+    if (!isNaN(chatId) && this.msgWidget && this.msgWidget.setChatActivity) {
+      this.msgWidget.setChatActivity(chatId, activity);
+    }
     return true;
   }
   public async shutdown(): Promise<void> {}

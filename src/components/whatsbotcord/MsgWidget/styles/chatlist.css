@@ -25,7 +25,11 @@
     margin: 0;
   }
 
-  .wa-header-actions { display: flex; gap: 2px; }
+  .wa-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
 
   /* Icon button (shared) */
   .wa-icon-btn {

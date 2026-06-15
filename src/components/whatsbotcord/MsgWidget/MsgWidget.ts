@@ -42,6 +42,7 @@ export interface IMsgWidget {
   clearExternalSendListeners: () => void;
   pushExternalMessage: (chatId: number, message: Message) => void;
   addReaction: (chatId: number, messageId: number, emoji: string) => void;
+  setChatActivity?: (chatId: number, activity: "typing" | "recording" | "idle") => void;
 }
 
 export type MessageType = "incoming" | "outgoing" | "system" | "date-divider";

@@ -3,3 +3,12 @@
 @import "./styles/avatars.css";
 @import "./styles/chatlist.css";
 @import "./styles/chat.css";
+
+.disabled {
+  cursor: default !important;
+  opacity: 0.4 !important;
+}
+
+.disabled:hover {
+  background: transparent !important;
+}

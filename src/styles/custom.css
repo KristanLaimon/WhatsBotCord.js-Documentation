@@ -332,6 +332,18 @@ nav.sidebar a,
   transform: scale(1.2);
 }
 
+/* Make color picker accent swatches larger on mobile viewports */
+@media (max-width: 49.99rem) {
+  .theme-picker {
+    gap: 0.5rem;
+    padding: 0.35rem 0.65rem;
+  }
+  .tp-swatch {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+}
+
 /* ==============================
    DOCS CONTENT POLISH (Text Legibility)
    ============================== */

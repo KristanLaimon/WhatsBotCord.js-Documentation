@@ -1,12 +1,16 @@
 <script lang="ts">
   import { getInitials, type Chat } from "./MsgWidget";
+  import { onMount } from "svelte";
 
-  let { activeChatData, onSendMessage }: {
+  let { activeChatData, onSendMessage, onClearChat, initialChatScrollToBottom = true }: {
     activeChatData?: Chat;
     onSendMessage: (text: string) => void;
+    onClearChat?: (chatId: number) => void;
+    initialChatScrollToBottom?: boolean;
   } = $props();
 
   let messageInput = $state("");
+  let messagesContainer = $state<HTMLElement | null>(null);
 
   function handleInputKeydown(e: KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -17,6 +21,37 @@
       }
     }
   }
+
+  let observer: MutationObserver | null = null;
+
+  onMount(() => {
+    if (messagesContainer) {
+      // Initial scroll when chat loads
+      if (initialChatScrollToBottom) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      } else {
+        messagesContainer.scrollTop = 0;
+      }
+
+      // Observe DOM changes in the messages container to scroll to bottom on new messages
+      observer = new MutationObserver(() => {
+        if (messagesContainer) {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      });
+
+      observer.observe(messagesContainer, {
+        childList: true,
+        subtree: true,
+      });
+    }
+
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  });
 </script>
 
 <section class="wa-chat" aria-live="polite">
@@ -38,21 +73,29 @@
       <div class="wa-chat-header-info">
         <p class="wa-chat-header-name">{activeChatData.name}</p>
         {#if activeChatData.subtitle}
-          <p class="wa-chat-header-sub">{activeChatData.subtitle}</p>
+          <p class="wa-chat-header-sub" class:wa-typing-status={activeChatData.typing}>{activeChatData.subtitle}</p>
         {/if}
       </div>
       <div class="wa-chat-header-actions">
-        <button class="wa-icon-btn" title="Video call" aria-label="Video call">
+        <button class="wa-icon-btn" title="Clear chat" aria-label="Clear chat" onclick={() => activeChatData && onClearChat && onClearChat(activeChatData.id)}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <line x1="10" y1="11" x2="10" y2="17" />
+            <line x1="14" y1="11" x2="14" y2="17" />
+          </svg>
+        </button>
+        <button class="wa-icon-btn disabled" title="Video call" aria-label="Video call">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
             <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
           </svg>
         </button>
-        <button class="wa-icon-btn" title="Search" aria-label="Search in chat">
+        <button class="wa-icon-btn disabled" title="Search" aria-label="Search in chat">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
             <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" />
           </svg>
         </button>
-        <button class="wa-icon-btn" title="Menu" aria-label="Chat menu">
+        <button class="wa-icon-btn disabled" title="Menu" aria-label="Chat menu">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
             <circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" />
           </svg>
@@ -75,7 +118,7 @@
     {/if}
 
     <!-- Messages -->
-    <div class="wa-messages">
+    <div bind:this={messagesContainer} class="wa-messages">
       {#each activeChatData.messages ?? [] as msg (msg.id)}
         {#if msg.type === "date-divider"}
           <div class="wa-date-divider"><span>{msg.text}</span></div>
@@ -278,7 +321,7 @@
 
     <!-- Input bar -->
     <footer class="wa-input-bar">
-      <button class="wa-icon-btn" title="Emoji" aria-label="Emoji">
+      <button class="wa-icon-btn disabled" title="Emoji" aria-label="Emoji">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7">
           <circle cx="12" cy="12" r="10" />
           <path d="M8 14s1.5 2 4 2 4-2 4-2" />
@@ -286,7 +329,7 @@
           <line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3" stroke-linecap="round" />
         </svg>
       </button>
-      <button class="wa-icon-btn" title="Attach" aria-label="Attach file">
+      <button class="wa-icon-btn disabled" title="Attach" aria-label="Attach file">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7">
           <path
             d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.42 16.41a2 2 0 0 1-2.83-2.83l8.49-8.48"
@@ -294,7 +337,7 @@
         </svg>
       </button>
       <input class="wa-text-input" type="text" placeholder="Type a message" aria-label="Message input" bind:value={messageInput} onkeydown={handleInputKeydown} />
-      <button class="wa-icon-btn" title="Voice message" aria-label="Voice message">
+      <button class="wa-icon-btn disabled" title="Voice message" aria-label="Voice message">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7">
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
           <path d="M19 10v2a7 7 0 0 1-14 0v-2" />

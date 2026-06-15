@@ -9,8 +9,17 @@ export async function runBotCode(code: string, msgWidget: IMsgWidget, customCons
   const activeAdapter = new MsgWidgetAdapter(msgWidget);
 
   const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+
+  // Extract the custom default export name if one is used in the import statement
+  const importMatch = code.match(/import\s+(?!\{|\*)([a-zA-Z_$][a-zA-Z0-9_$]*)/);
+  const defaultExportName = importMatch ? importMatch[1] : null;
+
   // Strip out import statements so it can be evaluated as a script
-  const executableCode = code.replace(/import\s+[\s\S]*?from\s+['"]whatsbotcord['"];?/g, "");
+  let executableCode = code.replace(/import\s+[\s\S]*?from\s+['"]whatsbotcord['"];?/g, "");
+
+  if (defaultExportName) {
+    executableCode = `const ${defaultExportName} = Whatsbotcord;\n` + executableCode;
+  }
 
   const Whatsbotcord = WhatsbotcordLib.default || (WhatsbotcordLib as any).Whatsbotcord;
 
@@ -22,14 +31,14 @@ export async function runBotCode(code: string, msgWidget: IMsgWidget, customCons
     if (bot.Events) {
       if (bot.Events.onCommandFound) {
         bot.Events.onCommandFound.Subscribe((ctx: any, cmd: any) => {
-          if (customConsole) customConsole.info(`[BOT]: Responding command '${cmd.name}'`);
-          else console.log(`[BOT]: Responding command '${cmd.name}'`);
+          if (customConsole) customConsole.info(`[BOT]: Starting command '${cmd.name}'`);
+          else console.log(`[BOT]: Starting command '${cmd.name}'`);
         });
       }
       if (bot.Events.onCommandFoundAfterItsExecution) {
         bot.Events.onCommandFoundAfterItsExecution.Subscribe((ctx: any, cmd: any, success: boolean) => {
-          if (customConsole) customConsole.info(`Command '${cmd.name}' executed`);
-          else console.log(`Command '${cmd.name}' executed`);
+          if (customConsole) customConsole.info(`[BOT]: Finished command '${cmd.name}'`);
+          else console.log(`[BOT]: Finished command '${cmd.name}'`);
         });
       }
     }

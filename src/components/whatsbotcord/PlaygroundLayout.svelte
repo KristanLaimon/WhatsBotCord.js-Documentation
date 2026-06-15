@@ -1,6 +1,7 @@
 <script lang="ts">
   import MsgWidgetWrapper from "./MsgWidgetWrapper.svelte";
   import CodeWidgetWrapper from "./CodeWidgetWrapper.svelte";
+  import { onMount } from "svelte";
 
   let { initialCode }: { initialCode: string } = $props();
 
@@ -18,9 +19,36 @@
   let containerRef = $state<HTMLElement | null>(null);
   let isDragging = $state(false);
   let leftWidthPercent = $state(50); // Initial 50% split
-  let showChatList = $state(true); // Bindable state for MsgWidget's sidebar
+  let showChatList = $state(false); // Bindable state for MsgWidget's sidebar
   let wasOpenBeforeDrag = $state(false);
   let collapsedByDrag = $state(false);
+
+  onMount(() => {
+    if (typeof window !== "undefined") {
+      showChatList = window.innerWidth >= 640;
+    }
+  });
+
+  let activeTab = $state<"chat" | "editor">("chat");
+
+  $effect(() => {
+    if (activeTab) {
+      const triggerResize = () => {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("resize"));
+        }
+      };
+      triggerResize();
+      const t1 = setTimeout(triggerResize, 100);
+      const t2 = setTimeout(triggerResize, 250);
+      const t3 = setTimeout(triggerResize, 400);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+      };
+    }
+  });
 
   function handlePointerDown(e: PointerEvent) {
     if (!containerRef) return;
@@ -77,49 +105,89 @@
   }
 </script>
 
-<div 
-  bind:this={containerRef}
-  class="playground-layout" 
-  class:is-dragging={isDragging}
->
-  <div class="pane left-pane" style="width: {leftWidthPercent}%">
-    <MsgWidgetWrapper 
-      width="100%" 
-      height="calc(100vh - 12rem);"
-      bind:showChatList={showChatList}
-      initialSidebarCollapsed={!showChatList} 
-    />
+<div class="playground-wrapper">
+  <!-- Mobile Toggle -->
+  <div class="mobile-toggle-container">
+    <div class="segment-control">
+      <button 
+        class="segment-btn" 
+        class:active={activeTab === 'chat'} 
+        onclick={() => activeTab = 'chat'}
+      >
+        Preview / Chat
+      </button>
+      <button 
+        class="segment-btn" 
+        class:active={activeTab === 'editor'} 
+        onclick={() => activeTab = 'editor'}
+      >
+        Editor
+      </button>
+      <div class="sliding-pill" class:right={activeTab === 'editor'}></div>
+    </div>
   </div>
-  
+
   <div 
-    class="divider" 
-    role="separator"
-    onpointerdown={handlePointerDown}
-  ></div>
-  
-  <div class="pane right-pane">
-    <CodeWidgetWrapper 
-      initialCode={codeToUse} 
-      defaultCode={initialCode}
-      onCodeRun={handleCodeRun}
-      width="100%" 
-      height="100%" 
-    />
+    bind:this={containerRef}
+    class="playground-layout" 
+    class:is-dragging={isDragging}
+    class:show-chat={activeTab === 'chat'}
+    class:show-editor={activeTab === 'editor'}
+  >
+    <div class="pane left-pane" style="width: {leftWidthPercent}%">
+      <MsgWidgetWrapper 
+        width="100%" 
+        height="100%"
+        bind:showChatList={showChatList}
+        initialSidebarCollapsed={!showChatList} 
+        initialActiveChat={998} /** Documentation chat (ID) */
+        initialChatScrollToBottom={false} /** Start at the top of the notes */
+      />
+    </div>
+    
+    <div 
+      class="divider" 
+      role="separator"
+      onpointerdown={handlePointerDown}
+    ></div>
+    
+    <div class="pane right-pane">
+      <CodeWidgetWrapper 
+        initialCode={codeToUse} 
+        defaultCode={initialCode}
+        onCodeRun={handleCodeRun}
+        width="100%" 
+        height="100%" 
+      />
+    </div>
   </div>
 </div>
 
 <style>
+  .playground-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100vh - var(--var-header-height-starlight, 4rem));
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  .mobile-toggle-container {
+    display: none;
+  }
+
   .playground-layout {
     display: flex;
     flex-direction: row;
     width: auto;
-    height: calc(100vh - 12rem);
+    height: 100%;
     overflow: hidden;
     position: relative;
     border: 1px solid var(--sl-color-gray-5, #cbd5e1);
     border-radius: 8px;
     background-color: var(--sl-color-black, #140f25);
-    margin: 2rem;
+    margin: 0;
   }
 
   .pane {
@@ -187,44 +255,115 @@
     height: 60px;
   }
 
-  /* Responsive layout for mobile / tablet screens (md and below) */
-  @media (max-width: 1200px) {
-    .playground-layout {
-      flex-direction: column-reverse; /* Stacks code widget on top, chat widget on bottom */
+  /* Responsive layout for mobile (< 640px) */
+  @media (max-width: 639px) {
+    .playground-wrapper {
       height: auto !important;
-      gap: 1.5rem;
+      padding: 0 !important;
+    }
+
+    .mobile-toggle-container {
+      display: flex;
+      justify-content: center;
+      margin: 0.5rem 1rem 0;
+    }
+
+    .segment-control {
+      position: relative;
+      display: flex;
+      background-color: var(--sl-color-black, #140f25);
+      border: 1px solid var(--sl-color-gray-5, #cbd5e1);
+      border-radius: 30px;
+      padding: 2px;
+      width: 100%;
+      max-width: 320px;
+      z-index: 10;
+    }
+
+    .segment-btn {
+      flex: 1;
+      background: none;
       border: none;
-      background-color: transparent;
-      margin: 0.2rem;
+      padding: 5px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sl-color-gray-3, #94a3b8);
+      cursor: pointer;
+      z-index: 2;
+      transition: color 0.2s ease;
+      text-align: center;
+      outline: none;
+    }
+
+    .segment-btn.active {
+      color: #ffffff;
+    }
+
+    .sliding-pill {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: calc(50% - 2px);
+      height: calc(100% - 4px);
+      background-color: var(--sl-color-accent, #5e4ec2);
+      border-radius: 26px;
+      z-index: 1;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sliding-pill.right {
+      transform: translateX(100%);
+    }
+
+    .playground-layout {
+      margin-top: 0.5rem !important;
+      height: calc(100vh - var(--var-header-height-starlight, 4rem) - 3.5rem) !important;
+      display: block !important;
+      position: relative !important;
+      border: 1px solid var(--sl-color-gray-5, #cbd5e1);
+      border-radius: 8px;
+      background-color: var(--sl-color-black, #140f25);
+      overflow: hidden;
+      margin-bottom: 0.5rem !important;
+    }
+
+    .divider {
+      display: none !important;
     }
 
     .pane {
       width: 100% !important;
-      height: auto !important;
+      height: 100% !important;
+      position: absolute !important;
+      top: 0;
+      left: 0;
+      transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
     .left-pane {
-      height: 800px !important;
-    }
-
-    .left-pane :global(> div),
-    .left-pane :global(.wa-container) {
-      height: 100% !important;
-      min-height: 800px !important;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-20px);
     }
 
     .right-pane {
-      height: 1200px !important;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(20px);
     }
 
-    .right-pane :global(> div),
-    .right-pane :global(.code-widget) {
-      height: 100% !important;
-      min-height: 1200px !important;
+    .show-chat .left-pane {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+      z-index: 1;
     }
 
-    .divider {
-      display: none;
+    .show-editor .right-pane {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+      z-index: 1;
     }
   }
 </style>

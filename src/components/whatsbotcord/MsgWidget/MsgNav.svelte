@@ -26,7 +26,7 @@
       </svg>
     </button>
     <!-- Status -->
-    <button class="wa-nav-btn" title="Status" aria-label="Status">
+    <button class="wa-nav-btn disabled" title="Status" aria-label="Status">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
         <circle cx="12" cy="12" r="10" />
         <circle cx="12" cy="12" r="3" />
@@ -36,7 +36,7 @@
 
   <div class="wa-nav-bottom">
     <!-- Settings -->
-    <button class="wa-nav-btn" title="Settings" aria-label="Settings">
+    <button class="wa-nav-btn disabled" title="Settings" aria-label="Settings">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
         <circle cx="12" cy="12" r="3" />
         <path

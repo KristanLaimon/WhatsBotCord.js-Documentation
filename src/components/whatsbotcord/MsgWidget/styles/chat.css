@@ -18,21 +18,40 @@
     flex-shrink: 0;
   }
 
-  .wa-chat-header-info { flex: 1; min-width: 0; }
+  .wa-chat-header-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transform: translateY(-1px);
+  }
 
   .wa-chat-header-name {
     font-size: 15px; font-weight: 600;
     color: var(--wa-text); margin: 0;
+    line-height: 1.2;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
   .wa-chat-header-sub {
     font-size: 12px;
     color: var(--wa-muted); margin: 0;
+    line-height: 1.2;
+    margin-top: 2px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
-  .wa-chat-header-actions { display: flex; gap: 2px; }
+  .wa-chat-header-sub.wa-typing-status {
+    color: var(--wa-typing) !important;
+    font-weight: 500;
+  }
+
+  .wa-chat-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
 
   /* Pinned banner */
   .wa-pinned-banner {

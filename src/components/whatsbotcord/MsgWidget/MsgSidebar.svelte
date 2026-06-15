@@ -41,12 +41,12 @@
   <header class="wa-chatlist-header">
     <h1 class="wa-wordmark">{appTitle}</h1>
     <div class="wa-header-actions">
-      <button class="wa-icon-btn" title="New chat" aria-label="New chat">
+      <button class="wa-icon-btn disabled" title="New chat" aria-label="New chat">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
           <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
         </svg>
       </button>
-      <button class="wa-icon-btn" title="Menu" aria-label="Menu">
+      <button class="wa-icon-btn disabled" title="Menu" aria-label="Menu">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
           <circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" />
         </svg>
@@ -58,7 +58,7 @@
   <div class="wa-search-wrap">
     <div class="wa-search">
       <svg
-        class="wa-search-icon"
+      class="wa-search-icon disabled"
         viewBox="0 0 24 24"
         width="15"
         height="15"
@@ -76,7 +76,7 @@
         aria-label="Search chats"
       />
     </div>
-    <button class="wa-icon-btn wa-icon-btn--sm" title="Filter by" aria-label="Filter">
+    <button class="wa-icon-btn wa-icon-btn--sm disabled" title="Filter by" aria-label="Filter">
       <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
       </svg>
@@ -93,7 +93,7 @@
         onclick={() => (activeFilter = f)}>{f}</button
       >
     {/each}
-    <button class="wa-pill-add" title="Add filter" aria-label="Add filter">
+    <button class="wa-pill-add disabled" title="Add filter" aria-label="Add filter">
       <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
         <path d="M12 5v14M5 12h14" />
       </svg>
@@ -146,7 +146,7 @@
                 <div class="wa-chat-id-badge" title="Click to copy ID" onclick={(e) => {
                   e.stopPropagation();
                   navigator.clipboard.writeText(chat.isGroup ? chat.id + '@g.us' : chat.id + '@s.whatsapp.net');
-                  alert('ID copiado al portapapeles!');
+                  alert('ID copied to your clipboard!');
                 }}>
                   ID: {chat.isGroup ? chat.id + '@g.us' : chat.id + '@s.whatsapp.net'}
                 </div>

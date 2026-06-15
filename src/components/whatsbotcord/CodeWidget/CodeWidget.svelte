@@ -71,7 +71,7 @@
   }
 
   function handleRestoreDefault() {
-    if (confirm("¿Estás seguro de que deseas restablecer el código al ejemplo por defecto? Se perderán todos tus cambios.")) {
+    if (confirm("Are you sure you want to reset the code to the default example? All your changes will be lost.")) {
       const resetValue = defaultCode || initialCode;
       code = resetValue;
       if (editor) {
@@ -246,6 +246,7 @@
     const message = args.map(a => typeof a === "object" ? JSON.stringify(a) : String(a)).join(" ");
     const time = new Date().toLocaleTimeString();
     consoleLogs.push({ type, message, time });
+    isConsoleCollapsed = false; // Auto-expand logs panel
   }
 
   const customConsole = {
@@ -319,7 +320,7 @@
 
   // Resizing logic
   let consoleHeight = $state(150);
-  let isConsoleCollapsed = $state(false);
+  let isConsoleCollapsed = $state(true);
   let isDragging = $state(false);
 
   function startDrag(e: MouseEvent) {
@@ -375,7 +376,7 @@
       {/if}
     </div>
     <div class="controls-container">
-      <button class="restore-btn" onclick={handleRestoreDefault} title="Restablecer el código al ejemplo por defecto">
+      <button class="restore-btn" onclick={handleRestoreDefault} title="Reset code to the default example">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
         </svg>
@@ -396,7 +397,7 @@
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
           <path d="M8 5v14l11-7z" />
         </svg>
-        Run Bot
+        Execute/Update code
       </button>
     </div>
   </div>
@@ -479,7 +480,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 16px;
+    padding: 6px 12px;
     background-color: var(--header-bg);
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
@@ -487,7 +488,7 @@
 
   h3 {
     margin: 0;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--header-text);
   }
@@ -500,8 +501,8 @@
     color: white;
     border: none;
     border-radius: 4px;
-    padding: 6px 12px;
-    font-size: 13px;
+    padding: 4px 10px;
+    font-size: 12px;
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -519,8 +520,8 @@
     color: var(--header-text);
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    padding: 6px 12px;
-    font-size: 13px;
+    padding: 4px 10px;
+    font-size: 12px;
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s, border-color 0.2s;
@@ -667,7 +668,7 @@
   .controls-container {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
   }
 
   .vim-toggle-wrapper {
