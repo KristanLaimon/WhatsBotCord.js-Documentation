@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
+  import { fade } from "svelte/transition";
   import loader from "@monaco-editor/loader";
   import type * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
@@ -29,13 +30,64 @@
   }: CodeWidgetProps = $props();
 
   let editorContainer: HTMLElement;
-  let editor: monaco.editor.IStandaloneCodeEditor;
+  let editor = $state<monaco.editor.IStandaloneCodeEditor | null>(null);
   let monacoInstance: typeof monaco;
 
   // svelte-ignore state_referenced_locally
   let code = $state(initialCode);
   let runTimeout: ReturnType<typeof setTimeout> | null = null;
   let currentAdapter: any = null;
+
+  let statusMessage = $state("");
+  let statusType = $state<"success" | "error">("success");
+  let statusTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  function showStatus(message: string, type: "success" | "error") {
+    statusMessage = message;
+    statusType = type;
+    if (statusTimeout) clearTimeout(statusTimeout);
+    statusTimeout = setTimeout(() => {
+      statusMessage = "";
+    }, 4000);
+  }
+
+  function handleKeyDown(e: KeyboardEvent) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+      e.preventDefault();
+      handleRun();
+    }
+  }
+
+  let vimModeEnabled = $state(localStorage.getItem("whatsbotcord_vim_mode") === "true");
+  let vimModeInstance: any = null;
+  let vimStatusBar = $state<HTMLElement | null>(null);
+
+  function handleVimToggle() {
+    vimModeEnabled = !vimModeEnabled;
+  }
+
+  $effect(() => {
+    // Save Vim mode preference to localStorage
+    localStorage.setItem("whatsbotcord_vim_mode", String(vimModeEnabled));
+
+    if (vimModeEnabled && editor && vimStatusBar) {
+      import("monaco-vim").then(({ initVimMode }) => {
+        if (vimModeInstance) vimModeInstance.dispose();
+        vimModeInstance = initVimMode(editor, vimStatusBar);
+      }).catch(e => console.error("Error initializing Vim mode:", e));
+    } else {
+      if (vimModeInstance) {
+        vimModeInstance.dispose();
+        vimModeInstance = null;
+      }
+    }
+    if (editor) {
+      // Trigger layout adjustment on state change
+      setTimeout(() => {
+        if (editor) editor.layout();
+      }, 0);
+    }
+  });
 
   onMount(async () => {
     monacoInstance = await loader.init();
@@ -102,6 +154,14 @@
       fixedOverflowWidgets: true,
     });
 
+    // Register Ctrl+S keyboard shortcut command inside the editor text area
+    editor.addCommand(
+      monacoInstance.KeyMod.CtrlCmd | monacoInstance.KeyCode.KeyS,
+      () => {
+        handleRun();
+      }
+    );
+
     // FIX: Wait for fonts to be ready, then remeasure and relayout.
     // This is the correct sequence to prevent layout drift on mount.
     const doRemeasure = () => {
@@ -134,6 +194,10 @@
 
   onDestroy(() => {
     if (runTimeout) clearTimeout(runTimeout);
+    if (vimModeInstance) {
+      vimModeInstance.dispose();
+      vimModeInstance = null;
+    }
     if (editor) {
       editor.dispose();
     }
@@ -211,9 +275,11 @@
       }
       
       currentAdapter = newAdapter;
+      showStatus("Saved and loaded changes...", "success");
     } catch(err: any) {
       if (currentRunId === runIdCounter) {
         customConsole.error("Error executing bot code:", err.message || err);
+        showStatus("Error, check logs", "error");
       }
     }
   }
@@ -260,18 +326,42 @@
 
 <svelte:window onmousemove={handleMouseMove} onmouseup={handleMouseUp} />
 
-<div class="code-widget" class:light={theme === "light"} class:dark={theme === "dark"} style="width: {width}; height: {height};">
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="code-widget" class:light={theme === "light"} class:dark={theme === "dark"} style="width: {width}; height: {height};" onkeydown={handleKeyDown}>
   <div class="header">
-    <h3>WhatsBotCord Bot Editor</h3>
-    <button class="run-btn" onclick={handleRun}>
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-        <path d="M8 5v14l11-7z" />
-      </svg>
-      Run Bot
-    </button>
+    <div class="title-container">
+      <h3>WhatsBotCord Bot Editor</h3>
+      {#if statusMessage}
+        <span transition:fade={{ duration: 250 }} class="status-msg {statusType}">
+          {statusMessage}
+        </span>
+      {/if}
+    </div>
+    <div class="controls-container">
+      <div class="vim-toggle-wrapper">
+        <span class="vim-label">Vim Mode</span>
+        <button 
+          class="switch-btn" 
+          class:active={vimModeEnabled} 
+          onclick={handleVimToggle}
+          aria-label="Toggle Vim Mode"
+        >
+          <span class="switch-slider"></span>
+        </button>
+      </div>
+      <button class="run-btn" onclick={handleRun}>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+        Run Bot
+      </button>
+    </div>
   </div>
   <div class="editor-area" style="cursor: {isDragging ? 'row-resize' : 'default'}">
     <div class="editor-container" bind:this={editorContainer} onmousedown={() => editor && editor.layout()}></div>
+    {#if vimModeEnabled}
+      <div class="vim-status-bar" bind:this={vimStatusBar}></div>
+    {/if}
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div class="resizer" role="separator" tabindex="0" onmousedown={startDrag}></div>
@@ -388,33 +478,10 @@
   .editor-container {
     flex: 1;
     min-height: 0;
-    /* FIX: Use 'visible' instead of 'hidden' so Monaco's overflow widgets
-       (IntelliSense dropdown, sticky scroll header, hover tooltips) can escape
-       the container bounds and render correctly. Monaco positions these widgets
-       via fixedOverflowWidgets:true using document-level coordinates, but
-       'overflow:hidden' on the container clips them visually. */
     overflow: visible;
     position: relative;
     text-align: left;
   }
-
-  /* FIX: Removed all the aggressive :global overrides on .view-lines,
-     .view-line, and .view-line * that were setting box-sizing, margin,
-     padding, line-height, and vertical-align.
-     
-     These overrides were the root cause of the bugs:
-     - `line-height: inherit` on span children forced Monaco's internal
-       line-height calculations to inherit the wrong value, causing the
-       caret to appear ~2 lines below the actual cursor position.
-     - `box-sizing: content-box` broke Monaco's pixel-perfect width
-       measurements for token spans, causing text rendering misalignment.
-     - `margin: 0 / padding: 0 / border: none` on view-line elements
-       conflicted with Monaco's own layout, breaking sticky scroll.
-     - Overriding IntelliSense widget children caused the dropdown text
-       to become invisible (inheriting wrong color or zero-height).
-     
-     Monaco is a self-contained layout system. Only override what is
-     strictly necessary and at the container level. */
 
   /* Keep only safe, non-destructive overrides */
   .editor-container :global(.monaco-editor) {
@@ -503,5 +570,120 @@
 
   .log-warn .log-message {
     color: #cca700;
+  }
+
+  .title-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .status-msg {
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 2px;
+    letter-spacing: 0.2px;
+  }
+
+  .status-msg.success {
+    color: #4ade80;
+  }
+
+  .status-msg.error {
+    color: #f87171;
+  }
+
+  .light .status-msg.success {
+    color: #15803d;
+  }
+
+  .light .status-msg.error {
+    color: #b91c1c;
+  }
+
+  .controls-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .vim-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+  }
+
+  .vim-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--header-text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .switch-btn {
+    position: relative;
+    width: 38px;
+    height: 20px;
+    background-color: var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.2s, border-color 0.2s;
+    display: flex;
+    align-items: center;
+  }
+
+  .switch-btn.active {
+    background-color: #0e639c;
+    border-color: #0e639c;
+  }
+
+  .switch-slider {
+    position: absolute;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background-color: var(--text-color);
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+
+  .switch-btn.active .switch-slider {
+    transform: translateX(18px);
+  }
+
+  .vim-status-bar {
+    background-color: var(--console-header-bg);
+    color: var(--console-header-text);
+    border-top: 1px solid var(--border-color);
+    padding: 4px 12px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 12px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+
+  .vim-status-bar :global(.status-span) {
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .vim-status-bar :global(.status-input) {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    width: 100%;
+    padding: 0;
+    margin: 0;
   }
 </style>
