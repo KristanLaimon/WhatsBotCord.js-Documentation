@@ -22,6 +22,7 @@
     height?: string;
     onSendMessage?: (chatId: number, text: string, msgId: number) => void;
     initialSidebarCollapsed?: boolean;
+    showChatList?: boolean;
   };
 
 
@@ -37,6 +38,7 @@
     height = "100%",
     onSendMessage,
     initialSidebarCollapsed = false,
+    showChatList = $bindable(!initialSidebarCollapsed),
   }: MsgWidgetProps = $props();
 
   // ─────────────────────────────────────────────────────────────
@@ -65,8 +67,7 @@
     accentIcon: iconColors.accentIcon ?? theme.accent,
   });
 
-  // svelte-ignore state_referenced_locally
-  let showChatList = $state(!initialSidebarCollapsed);
+
 
   let activeChatData = $derived(chats.find((c: Chat) => c.id === activeChat));
 
@@ -129,6 +130,8 @@
   let containerRef: HTMLElement | undefined = $state(undefined);
   let sidebarWidth = $state(360);
   let isResizing = $state(false);
+
+
 
   function startResize(e: MouseEvent) {
     isResizing = true;

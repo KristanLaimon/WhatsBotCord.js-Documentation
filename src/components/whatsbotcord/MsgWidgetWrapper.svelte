@@ -9,6 +9,7 @@
   let {
     chats = [],
     colorMode = $bindable(),
+    showChatList = $bindable(),
     ...restProps
   }: MsgWidgetProps  = $props();
 
@@ -64,5 +65,6 @@
 <MsgWidget 
   bind:this={innerMsgWidget}
   chats={mergedChats}
+  bind:showChatList={showChatList}
   {...restProps}
 />
