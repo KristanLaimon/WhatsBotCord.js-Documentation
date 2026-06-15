@@ -35,6 +35,8 @@
 
   // svelte-ignore state_referenced_locally
   let code = $state(initialCode);
+  let activeTheme = $state(theme);
+  let themeObserver: MutationObserver | null = null;
   let runTimeout: ReturnType<typeof setTimeout> | null = null;
   let currentAdapter: any = null;
 
@@ -90,6 +92,21 @@
   });
 
   onMount(async () => {
+    const syncTheme = () => {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      if (currentTheme === "light" || currentTheme === "dark") {
+        activeTheme = currentTheme;
+      }
+    };
+
+    syncTheme();
+
+    themeObserver = new MutationObserver(syncTheme);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"]
+    });
+
     monacoInstance = await loader.init();
 
     // Add library types for IntelliSense
@@ -140,7 +157,7 @@
     editor = monacoInstance.editor.create(editorContainer, {
       value: code,
       language: "typescript",
-      theme: theme === "light" ? "vs" : "vs-dark",
+      theme: activeTheme === "light" ? "vs" : "vs-dark",
       minimap: { enabled: false },
       automaticLayout: true,
       fontSize: 14,
@@ -203,6 +220,9 @@
     }
     if (currentAdapter && typeof currentAdapter.destroy === "function") {
       currentAdapter.destroy();
+    }
+    if (themeObserver) {
+      themeObserver.disconnect();
     }
   });
 
@@ -318,8 +338,12 @@
   }
 
   $effect(() => {
+    activeTheme = theme;
+  });
+
+  $effect(() => {
     if (editor && monacoInstance) {
-      monacoInstance.editor.setTheme(theme === "light" ? "vs" : "vs-dark");
+      monacoInstance.editor.setTheme(activeTheme === "light" ? "vs" : "vs-dark");
     }
   });
 </script>
@@ -327,7 +351,7 @@
 <svelte:window onmousemove={handleMouseMove} onmouseup={handleMouseUp} />
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="code-widget" class:light={theme === "light"} class:dark={theme === "dark"} style="width: {width}; height: {height};" onkeydown={handleKeyDown}>
+<div class="code-widget" class:light={activeTheme === "light"} class:dark={activeTheme === "dark"} style="width: {width}; height: {height};" onkeydown={handleKeyDown}>
   <div class="header">
     <div class="title-container">
       <h3>WhatsBotCord Bot Editor</h3>

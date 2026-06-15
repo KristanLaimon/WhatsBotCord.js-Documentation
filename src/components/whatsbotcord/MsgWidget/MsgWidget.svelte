@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import MsgNav from "./MsgNav.svelte";
   import MsgSidebar from "./MsgSidebar.svelte";
   import MsgChatArea from "./MsgChatArea.svelte";
@@ -57,6 +58,31 @@
   // let searchQuery = $state("");
   // svelte-ignore state_referenced_locally
   // let activeFilter = $state(filters[0] ?? "All");
+
+  let themeObserver: MutationObserver | null = null;
+
+  onMount(() => {
+    const syncTheme = () => {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      if (currentTheme === "light" || currentTheme === "dark") {
+        colorMode = currentTheme;
+      }
+    };
+
+    syncTheme();
+
+    themeObserver = new MutationObserver(syncTheme);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"]
+    });
+
+    return () => {
+      if (themeObserver) {
+        themeObserver.disconnect();
+      }
+    };
+  });
 
   let theme = $derived({ ...(colorMode === "dark" ? DARK_THEME : LIGHT_THEME), ...themeOverrides });
 

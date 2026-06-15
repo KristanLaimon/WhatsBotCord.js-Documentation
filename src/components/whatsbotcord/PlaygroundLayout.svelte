@@ -88,7 +88,6 @@
       height="calc(100vh - 12rem);"
       bind:showChatList={showChatList}
       initialSidebarCollapsed={!showChatList} 
-      colorMode="light" 
     />
   </div>
   
