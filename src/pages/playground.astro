@@ -5,6 +5,15 @@ import PlaygroundLayout from "../components/whatsbotcord/PlaygroundLayout.svelte
 
 const initialCodeTest: string = `import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord";
 
+/*
+    To send [images, docs, gifs and pdf's]
+    use this object (already injected in this code editor!)
+                      MockMedia
+
+    So you can send an img as the following: 
+    await ctx.SendImg(MockMedia.Images.Fox) for example.
+*/
+
  const bot = new Whatsbotcord({
    commandPrefix: "!",
    tagPrefix: "@",
@@ -35,15 +44,15 @@ const initialCodeTest: string = `import Whatsbotcord, { type AdditionalAPI, type
           .content-panel:has(#_top) { display: none !important; }
           .sl-container, .content-panel { max-width: none !important; padding: 0 !important; margin: 0 !important; }
           :root[data-theme='dark'] {
-            --sl-color-black: #140f25 !important;
-            --sl-color-bg-nav: #140f25 !important;
-            --sl-color-accent: #5e4ec2 !important;
+            --sl-color-black: #140f25;
+            --sl-color-bg-nav: #140f25;
+            --sl-color-accent: #5e4ec2;
           }
           @media (prefers-color-scheme: dark) {
             :root:not([data-theme='light']) {
-              --sl-color-black: #140f25 !important;
-              --sl-color-bg-nav: #140f25 !important;
-              --sl-color-accent: #5e4ec2 !important;
+              --sl-color-black: #140f25;
+              --sl-color-bg-nav: #140f25;
+              --sl-color-accent: #5e4ec2;
             }
           }
         `,

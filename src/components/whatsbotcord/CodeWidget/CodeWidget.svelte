@@ -13,6 +13,7 @@
 
   export type CodeWidgetProps = {
     initialCode?: string;
+    defaultCode?: string;
     msgWidget?: IMsgWidget;
     onCodeRun?: (code: string) => void;
     width?: string;
@@ -22,6 +23,7 @@
 
   const {
     initialCode = "",
+    defaultCode,
     msgWidget,
     onCodeRun,
     width = "100%",
@@ -66,6 +68,17 @@
 
   function handleVimToggle() {
     vimModeEnabled = !vimModeEnabled;
+  }
+
+  function handleRestoreDefault() {
+    if (confirm("¿Estás seguro de que deseas restablecer el código al ejemplo por defecto? Se perderán todos tus cambios.")) {
+      const resetValue = defaultCode || initialCode;
+      code = resetValue;
+      if (editor) {
+        editor.setValue(resetValue);
+      }
+      handleRun();
+    }
   }
 
   $effect(() => {
@@ -362,6 +375,12 @@
       {/if}
     </div>
     <div class="controls-container">
+      <button class="restore-btn" onclick={handleRestoreDefault} title="Restablecer el código al ejemplo por defecto">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+        Restore default code
+      </button>
       <div class="vim-toggle-wrapper">
         <span class="vim-label">Vim Mode</span>
         <button 
@@ -490,6 +509,26 @@
 
   .run-btn:hover {
     background-color: #1177bb;
+  }
+
+  .restore-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: transparent;
+    color: var(--header-text);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  }
+
+  .restore-btn:hover {
+    background-color: var(--border-color);
+    color: var(--text-color);
   }
 
   .editor-area {

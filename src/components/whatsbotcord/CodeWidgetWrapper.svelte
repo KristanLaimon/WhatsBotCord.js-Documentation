@@ -6,6 +6,7 @@
 
   let {
     initialCode,
+    defaultCode,
     onCodeRun,
     width = "100%",
     height = "500px",
@@ -32,6 +33,7 @@
   {#if msgWidgetToInject}
     <CodeWidget 
       initialCode={initialCode} 
+      defaultCode={defaultCode}
       msgWidget={msgWidgetToInject} 
       onCodeRun={onCodeRun}
       width="100%"

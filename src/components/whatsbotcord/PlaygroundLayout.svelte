@@ -100,6 +100,7 @@
   <div class="pane right-pane">
     <CodeWidgetWrapper 
       initialCode={codeToUse} 
+      defaultCode={initialCode}
       onCodeRun={handleCodeRun}
       width="100%" 
       height="100%" 
