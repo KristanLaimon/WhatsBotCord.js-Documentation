@@ -4,12 +4,14 @@
   import loader from "@monaco-editor/loader";
   import type * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
+  import TabBar from "./components/TabBar.svelte";
+  import ConsolePanel from "./components/ConsolePanel.svelte";
+  import "./style/CodeWidget.css";
+
   // @ts-ignore
   import dtsContents from "../lib/whatsbotcord-browser-lib.d.ts?raw";
-  import { runBotCode } from "./BotRunner";
-
+  import { runBotCode } from "./logic/BotRunner";
   import type { IMsgWidget } from "../MsgWidget/MsgWidget";
-
 
   export type CodeWidgetProps = {
     initialCode?: string;
@@ -35,8 +37,39 @@
   let editor = $state<monaco.editor.IStandaloneCodeEditor | null>(null);
   let monacoInstance: typeof monaco;
 
-  // svelte-ignore state_referenced_locally
-  let code = $state(initialCode);
+  interface TabState {
+    id: string;
+    name: string;
+    code: string;
+    isMain?: boolean;
+  }
+
+  // Parse initial code or load default
+  let initialTabs: TabState[] = [];
+  if (initialCode && initialCode.trim().startsWith("[")) {
+    try {
+      initialTabs = JSON.parse(initialCode);
+    } catch (e) {
+      console.error("Failed to parse initialCode as tabs JSON:", e);
+    }
+  }
+
+  if (initialTabs.length === 0) {
+    initialTabs = [
+      {
+        id: "main-tab",
+        name: "main.ts",
+        code: initialCode || defaultCode || "",
+        isMain: true
+      }
+    ];
+  }
+
+  let tabs = $state<TabState[]>(initialTabs);
+  let activeTabId = $state<string>(initialTabs[0].id);
+  let renamingTabId = $state<string | null>(null);
+  let renamingText = $state("");
+
   let activeTheme = $state(theme);
   let themeObserver: MutationObserver | null = null;
   let runTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -45,6 +78,123 @@
   let statusMessage = $state("");
   let statusType = $state<"success" | "error">("success");
   let statusTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // Tab management functions
+  function saveTabsToStorage() {
+    const serialized = JSON.stringify(
+      tabs.map(t => ({
+        id: t.id,
+        name: t.name,
+        code: t.code,
+        isMain: t.isMain
+      }))
+    );
+    if (onCodeRun) {
+      onCodeRun(serialized);
+    }
+  }
+
+  function getOrCreateModel(name: string, code: string): monaco.editor.ITextModel | null {
+    if (!monacoInstance) return null;
+    const uri = monacoInstance.Uri.parse(`file:///${name}`);
+    let model = monacoInstance.editor.getModel(uri);
+    const language = name.endsWith(".js") ? "javascript" : "typescript";
+    if (!model) {
+      model = monacoInstance.editor.createModel(code, language, uri);
+    } else {
+      model.setValue(code);
+      monacoInstance.editor.setModelLanguage(model, language);
+    }
+    return model;
+  }
+
+  function handleTabAdd() {
+    let count = 1;
+    let name = `module_${count}.ts`;
+    while (tabs.some(t => t.name.toLowerCase() === name.toLowerCase())) {
+      count++;
+      name = `module_${count}.ts`;
+    }
+
+    const newTab: TabState = {
+      id: "tab-" + Date.now() + Math.random().toString(36).substring(2, 7),
+      name,
+      code: `export function hello() {\n  console.log("Hello from ${name}!");\n}\n`,
+    };
+
+    tabs.push(newTab);
+    activeTabId = newTab.id;
+
+    const model = getOrCreateModel(newTab.name, newTab.code);
+    if (model && editor) {
+      editor.setModel(model);
+    }
+
+    saveTabsToStorage();
+    handleRun();
+
+    // Trigger renaming
+    renamingTabId = newTab.id;
+    renamingText = newTab.name;
+  }
+
+  function handleTabDelete(id: string, event: MouseEvent) {
+    event.stopPropagation();
+    const index = tabs.findIndex(t => t.id === id);
+    if (index === -1) return;
+
+    const tabToDelete = tabs[index];
+    if (tabToDelete.isMain) return;
+
+    if (confirm(`Are you sure you want to delete "${tabToDelete.name}"?`)) {
+      if (monacoInstance) {
+        const model = monacoInstance.editor.getModel(monacoInstance.Uri.parse(`file:///${tabToDelete.name}`));
+        if (model) {
+          model.dispose();
+        }
+      }
+
+      tabs.splice(index, 1);
+
+      if (activeTabId === id) {
+        const newActiveIndex = Math.max(0, index - 1);
+        activeTabId = tabs[newActiveIndex].id;
+
+        if (editor && monacoInstance) {
+          const activeTab = tabs[newActiveIndex];
+          const model = monacoInstance.editor.getModel(monacoInstance.Uri.parse(`file:///${activeTab.name}`));
+          if (model) {
+            editor.setModel(model);
+          }
+        }
+      }
+
+      saveTabsToStorage();
+      handleRun();
+    }
+  }
+
+  function handleTabRename(tab: TabState, oldName: string, newName: string) {
+    tab.name = newName;
+
+    if (monacoInstance) {
+      const oldUri = monacoInstance.Uri.parse(`file:///${oldName}`);
+      const oldModel = monacoInstance.editor.getModel(oldUri);
+      const currentCode = oldModel ? oldModel.getValue() : tab.code;
+
+      if (oldModel) {
+        oldModel.dispose();
+      }
+
+      const newModel = getOrCreateModel(newName, currentCode);
+      if (activeTabId === tab.id && editor && newModel) {
+        editor.setModel(newModel);
+      }
+    }
+
+    saveTabsToStorage();
+    handleRun();
+  }
 
   function showStatus(message: string, type: "success" | "error") {
     statusMessage = message;
@@ -73,10 +223,32 @@
   function handleRestoreDefault() {
     if (confirm("Are you sure you want to reset the code to the default example? All your changes will be lost.")) {
       const resetValue = defaultCode || initialCode;
-      code = resetValue;
-      if (editor) {
-        editor.setValue(resetValue);
+      
+      // Dispose old models
+      if (monacoInstance) {
+        tabs.forEach(tab => {
+          const model = monacoInstance.editor.getModel(monacoInstance.Uri.parse(`file:///${tab.name}`));
+          if (model) model.dispose();
+        });
       }
+
+      // Restore to a single main.ts tab
+      tabs = [
+        {
+          id: "main-tab",
+          name: "main.ts",
+          code: resetValue,
+          isMain: true
+        }
+      ];
+      activeTabId = "main-tab";
+
+      const model = getOrCreateModel("main.ts", resetValue);
+      if (model && editor) {
+        editor.setModel(model);
+      }
+
+      saveTabsToStorage();
       handleRun();
     }
   }
@@ -101,6 +273,19 @@
       setTimeout(() => {
         if (editor) editor.layout();
       }, 0);
+    }
+  });
+
+  $effect(() => {
+    if (editor && monacoInstance && activeTabId) {
+      const targetTab = tabs.find(t => t.id === activeTabId);
+      if (targetTab) {
+        const uri = monacoInstance.Uri.parse(`file:///${targetTab.name}`);
+        const model = monacoInstance.editor.getModel(uri);
+        if (model && editor.getModel() !== model) {
+          editor.setModel(model);
+        }
+      }
     }
   });
 
@@ -135,9 +320,13 @@
       target: tsLang.ScriptTarget.ES2020,
       allowNonTsExtensions: true,
       moduleResolution: tsLang.ModuleResolutionKind.NodeJs,
-      module: tsLang.ModuleKind.ESNext,
+      module: tsLang.ModuleKind.CommonJS,
       typeRoots: ["node_modules/@types"],
     });
+
+    // Eagerly sync all models (like background tabs) to the worker so relative imports resolve on initial load
+    tsOpts.setEagerModelSync(true);
+    monacoInstance.languages.typescript.javascriptDefaults.setEagerModelSync(true);
 
     const wrappedDts = `declare module "whatsbotcord" {
       ${dtsContents}
@@ -164,12 +353,20 @@
     `;
     tsOpts.addExtraLib(globalDeclarations, "ts:filename/globalDeclarations.d.ts");
 
+    // Initialize models for all tabs
+    tabs.forEach(tab => {
+      getOrCreateModel(tab.name, tab.code);
+    });
+
+    // Get model for active tab
+    const activeTabObj = tabs.find(t => t.id === activeTabId) || tabs[0];
+    const activeModel = monacoInstance.editor.getModel(monacoInstance.Uri.parse(`file:///${activeTabObj.name}`));
+
     // FIX: Do NOT set lineHeight manually — let Monaco derive it from fontSize.
     // A fixed lineHeight that doesn't match the rendered font causes the caret
     // to appear offset (typically 2 lines below the actual cursor position).
     editor = monacoInstance.editor.create(editorContainer, {
-      value: code,
-      language: "typescript",
+      model: activeModel,
       theme: activeTheme === "light" ? "vs" : "vs-dark",
       minimap: { enabled: false },
       automaticLayout: true,
@@ -207,7 +404,15 @@
     [100, 300, 800].forEach(delay => setTimeout(doRemeasure, delay));
 
     editor.onDidChangeModelContent(() => {
-      code = editor.getValue();
+      const currentModel = editor.getModel();
+      if (currentModel) {
+        const val = currentModel.getValue();
+        const currentTab = tabs.find(t => monacoInstance.Uri.parse(`file:///${t.name}`).toString() === currentModel.uri.toString());
+        if (currentTab) {
+          currentTab.code = val;
+          saveTabsToStorage();
+        }
+      }
       
       // Auto-run debounce logic (2 seconds)
       if (runTimeout) clearTimeout(runTimeout);
@@ -230,6 +435,12 @@
     }
     if (editor) {
       editor.dispose();
+    }
+    if (monacoInstance) {
+      tabs.forEach(tab => {
+        const model = monacoInstance.editor.getModel(monacoInstance.Uri.parse(`file:///${tab.name}`));
+        if (model) model.dispose();
+      });
     }
     if (currentAdapter && typeof currentAdapter.destroy === "function") {
       currentAdapter.destroy();
@@ -257,10 +468,9 @@
   };
 
   let runIdCounter = 0;
+  let initialRunRetries = 0;
   async function handleRun() {
-    if (onCodeRun) {
-      onCodeRun(code);
-    }
+    saveTabsToStorage();
     
     const currentRunId = ++runIdCounter;
     try {
@@ -269,24 +479,50 @@
       }
       
       consoleLogs = []; // Clear previous logs
-      let executableJs = code;
       
-      // Attempt to compile TypeScript to JavaScript using Monaco's worker
-      try {
-        if (monacoInstance && editor) {
-          const model = editor.getModel();
+      const transpiledFiles: Record<string, string> = {};
+      let entryPointUri = "";
+      
+      if (monacoInstance) {
+        const tsLang: any = monacoInstance.languages.typescript;
+        const getWorker = await tsLang.getTypeScriptWorker();
+        
+        for (const tab of tabs) {
+          const uri = monacoInstance.Uri.parse(`file:///${tab.name}`);
+          const model = monacoInstance.editor.getModel(uri);
+          
           if (model) {
-            const tsLang: any = monacoInstance.languages.typescript;
-            const getWorker = await tsLang.getTypeScriptWorker();
-            const worker = await getWorker(model.uri);
-            const emitOutput = await worker.getEmitOutput(model.uri.toString());
-            if (emitOutput && emitOutput.outputFiles && emitOutput.outputFiles.length > 0) {
-              executableJs = emitOutput.outputFiles[0].text;
+            if (tab.name.endsWith(".js")) {
+              transpiledFiles[model.uri.toString()] = model.getValue();
+            } else {
+              try {
+                const worker = await getWorker(model.uri);
+                const emitOutput = await worker.getEmitOutput(model.uri.toString());
+                if (emitOutput && emitOutput.outputFiles && emitOutput.outputFiles.length > 0) {
+                  transpiledFiles[model.uri.toString()] = emitOutput.outputFiles[0].text;
+                } else {
+                  throw new Error("Compiler worker is initializing");
+                }
+              } catch (e: any) {
+                if (e.message === "Compiler worker is initializing") {
+                  throw e;
+                }
+                console.warn(`Failed to transpile ${tab.name}, falling back to raw code`, e);
+                transpiledFiles[model.uri.toString()] = model.getValue();
+              }
             }
+          } else {
+            transpiledFiles[uri.toString()] = tab.code;
+          }
+          
+          if (tab.isMain) {
+            entryPointUri = uri.toString();
           }
         }
-      } catch (e) {
-        customConsole.warn("Failed to transpile TypeScript, falling back to raw code");
+      }
+      
+      if (!entryPointUri && tabs.length > 0) {
+        entryPointUri = monacoInstance.Uri.parse(`file:///${tabs[0].name}`).toString();
       }
       
       // Check if a newer run was started while we were compiling
@@ -294,7 +530,7 @@
         return; // Abort this run since a newer one is active
       }
       
-      const newAdapter = await runBotCode(executableJs, msgWidget, customConsole);
+      const newAdapter = await runBotCode(transpiledFiles, entryPointUri, msgWidget, customConsole);
 
       // Check again after execution in case another run started
       if (currentRunId !== runIdCounter) {
@@ -312,6 +548,11 @@
       showStatus("Saved and loaded changes...", "success");
     } catch(err: any) {
       if (currentRunId === runIdCounter) {
+        if (err.message === "Compiler worker is initializing" && initialRunRetries < 5) {
+          initialRunRetries++;
+          setTimeout(handleRun, 200);
+          return;
+        }
         customConsole.error("Error executing bot code:", err.message || err);
         showStatus("Error, check logs", "error");
       }
@@ -402,6 +643,17 @@
     </div>
   </div>
   <div class="editor-area" style="cursor: {isDragging ? 'row-resize' : 'default'}">
+    <TabBar
+      bind:tabs={tabs}
+      bind:activeTabId={activeTabId}
+      bind:renamingTabId={renamingTabId}
+      bind:renamingText={renamingText}
+      onTabSelect={(id) => activeTabId = id}
+      onTabAdd={handleTabAdd}
+      onTabDelete={handleTabDelete}
+      onTabRename={handleTabRename}
+    />
+
     <div class="editor-container" bind:this={editorContainer} onmousedown={() => editor && editor.layout()}></div>
     {#if vimModeEnabled}
       <div class="vim-status-bar" bind:this={vimStatusBar}></div>
@@ -409,345 +661,11 @@
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div class="resizer" role="separator" tabindex="0" onmousedown={startDrag}></div>
-    <div class="console-panel" style="height: {isConsoleCollapsed ? '32px' : consoleHeight + 'px'}">
-      <div class="console-header">
-        <span>Console Output</span>
-        <button class="collapse-btn" onclick={() => isConsoleCollapsed = !isConsoleCollapsed}>
-          {isConsoleCollapsed ? "▲" : "▼"}
-        </button>
-      </div>
-      {#if !isConsoleCollapsed}
-        <div class="console-logs">
-          {#each consoleLogs as log}
-            <div class="log-entry log-{log.type}">
-              <span class="log-time">[{log.time}]</span>
-              <span class="log-message">{log.message}</span>
-            </div>
-          {/each}
-          {#if consoleLogs.length === 0}
-            <div class="log-entry log-log" style="color: #666; font-style: italic;">No logs yet...</div>
-          {/if}
-        </div>
-      {/if}
-    </div>
+    
+    <ConsolePanel
+      consoleLogs={consoleLogs}
+      bind:isConsoleCollapsed={isConsoleCollapsed}
+      consoleHeight={consoleHeight}
+    />
   </div>
 </div>
-
-<style>
-  .code-widget {
-    /* Theme variables - Default (Dark) */
-    --bg-color: #1e1e1e;
-    --text-color: #ffffff;
-    --border-color: #333333;
-    --header-bg: #252526;
-    --header-text: #cccccc;
-    --console-bg: #1e1e1e;
-    --console-header-bg: #2d2d2d;
-    --console-header-text: #cccccc;
-    --console-text: #d4d4d4;
-    --resizer-bg: #333333;
-    --collapse-btn-color: #888888;
-    --collapse-btn-hover: #ffffff;
-
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    font-family: sans-serif;
-    border-left: 1px solid var(--border-color);
-    text-align: left;
-  }
-
-  .code-widget.light {
-    /* Light theme values */
-    --bg-color: #ffffff;
-    --text-color: #1e293b;
-    --border-color: #e2e8f0;
-    --header-bg: #f8fafc;
-    --header-text: #475569;
-    --console-bg: #f8fafc;
-    --console-header-bg: #f1f5f9;
-    --console-header-text: #475569;
-    --console-text: #1e293b;
-    --resizer-bg: #e2e8f0;
-    --collapse-btn-color: #64748b;
-    --collapse-btn-hover: #0f172a;
-  }
-
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 6px 12px;
-    background-color: var(--header-bg);
-    border-bottom: 1px solid var(--border-color);
-    flex-shrink: 0;
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--header-text);
-  }
-
-  .run-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background-color: #0e639c;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 4px 10px;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-
-  .run-btn:hover {
-    background-color: #1177bb;
-  }
-
-  .restore-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background-color: transparent;
-    color: var(--header-text);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    padding: 4px 10px;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-  }
-
-  .restore-btn:hover {
-    background-color: var(--border-color);
-    color: var(--text-color);
-  }
-
-  .editor-area {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-  }
-
-  .editor-container {
-    flex: 1;
-    min-height: 0;
-    overflow: visible;
-    position: relative;
-    text-align: left;
-  }
-
-  /* Keep only safe, non-destructive overrides */
-  .editor-container :global(.monaco-editor) {
-    text-align: left;
-  }
-
-  .resizer {
-    height: 4px;
-    background-color: var(--resizer-bg);
-    cursor: row-resize;
-    flex-shrink: 0;
-    transition: background-color 0.2s;
-  }
-
-  .resizer:hover,
-  .resizer:active {
-    background-color: #0e639c;
-  }
-
-  .console-panel {
-    background-color: var(--console-bg);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  .console-header {
-    background-color: var(--console-header-bg);
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--console-header-text);
-    border-bottom: 1px solid var(--border-color);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    user-select: none;
-    flex-shrink: 0;
-  }
-
-  .collapse-btn {
-    background: none;
-    border: none;
-    color: var(--collapse-btn-color);
-    cursor: pointer;
-    font-size: 10px;
-    padding: 4px;
-  }
-
-  .collapse-btn:hover {
-    color: var(--collapse-btn-hover);
-  }
-
-  .console-logs {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px 12px;
-    font-family: "Consolas", "Courier New", monospace;
-    font-size: 13px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .log-entry {
-    word-break: break-all;
-    line-height: 1.4;
-  }
-
-  .log-time {
-    color: #888;
-    margin-right: 8px;
-    font-size: 12px;
-  }
-
-  .log-message {
-    color: var(--console-text);
-  }
-
-  .log-error .log-message {
-    color: #f14c4c;
-  }
-
-  .log-warn .log-message {
-    color: #cca700;
-  }
-
-  .title-container {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .status-msg {
-    font-size: 11px;
-    font-weight: 600;
-    margin-top: 2px;
-    letter-spacing: 0.2px;
-  }
-
-  .status-msg.success {
-    color: #4ade80;
-  }
-
-  .status-msg.error {
-    color: #f87171;
-  }
-
-  .light .status-msg.success {
-    color: #15803d;
-  }
-
-  .light .status-msg.error {
-    color: #b91c1c;
-  }
-
-  .controls-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .vim-toggle-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    user-select: none;
-  }
-
-  .vim-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--header-text);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .switch-btn {
-    position: relative;
-    width: 38px;
-    height: 20px;
-    background-color: var(--border-color);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    cursor: pointer;
-    padding: 0;
-    transition: background-color 0.2s, border-color 0.2s;
-    display: flex;
-    align-items: center;
-  }
-
-  .switch-btn.active {
-    background-color: #0e639c;
-    border-color: #0e639c;
-  }
-
-  .switch-slider {
-    position: absolute;
-    left: 2px;
-    width: 14px;
-    height: 14px;
-    background-color: var(--text-color);
-    border-radius: 50%;
-    transition: transform 0.2s;
-  }
-
-  .switch-btn.active .switch-slider {
-    transform: translateX(18px);
-  }
-
-  .vim-status-bar {
-    background-color: var(--console-header-bg);
-    color: var(--console-header-text);
-    border-top: 1px solid var(--border-color);
-    padding: 4px 12px;
-    font-family: "Consolas", "Courier New", monospace;
-    font-size: 12px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    user-select: none;
-    box-sizing: border-box;
-    flex-shrink: 0;
-  }
-
-  .vim-status-bar :global(.status-span) {
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-
-  .vim-status-bar :global(.status-input) {
-    background: transparent;
-    border: none;
-    outline: none;
-    color: inherit;
-    font-family: inherit;
-    font-size: inherit;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-  }
-</style>

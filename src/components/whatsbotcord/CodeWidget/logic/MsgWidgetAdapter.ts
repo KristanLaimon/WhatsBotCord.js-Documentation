@@ -2,12 +2,12 @@ import type {
   IWhatsSocketVendorClient,
   WhatsappGroupMetadata,
   WhatsappMessage,
-} from "../lib/whatsbotcord-browser-lib.js";
+} from "../../lib/whatsbotcord-browser-lib.js";
 
-import type { IMsgWidget } from "../MsgWidget/MsgWidget.js";
+import type { IMsgWidget } from "../../MsgWidget/MsgWidget.js";
 
 // @ts-ignore
-import type { IWhatsappAdapter } from "../lib/whatsbotcord-browser-lib.js";
+import type { IWhatsappAdapter } from "../../lib/whatsbotcord-browser-lib.js";
 
 type CallbackFunction = (...args: any[]) => void;
 
@@ -280,5 +280,3 @@ export class MsgWidgetAdapter implements IWhatsappAdapter {
     return this.client;
   }
 }
-
-
