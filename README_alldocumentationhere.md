@@ -363,7 +363,7 @@ const everyoneTag = CreateCommand(
     }
   },
   //So it can be used like @e
-  { aliases: "e" }
+  { aliases: ["e"] }
 );
 
 // ========================== MAIN ==============================

@@ -3895,7 +3895,7 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
         }
       },
       // Now it can be used like @e
-      { aliases: "e" }
+      { aliases: ["e"] }
     );
 
     const bot = new Bot({

@@ -52,7 +52,14 @@ _Note:_ Standard broadcasts flow through a safety-queue to prevent WhatsApp from
 Occasionally you will need to peek beneath the surface of commands and inspect raw socket emissions (such as `onIncomingMsg`).
 
 ```typescript
-import { MsgType } from "whatsbotcord";
+import Whatsbotcord, { MsgType, type ICommand, type IChatContext, type AdditionalAPI } from "whatsbotcord";
+
+const bot = new Whatsbotcord({
+  commandPrefix: "!",
+  tagPrefix: "@",
+  credentialsFolder: "./auth",
+  loggerMode: "recommended",
+});
 
 class TapRawStream implements ICommand {
   name = "tapprobe";
@@ -70,6 +77,9 @@ class TapRawStream implements ICommand {
     // api.InternalSocket.onIncomingMsg.Unsubscribe(handler);
   }
 }
+
+bot.Commands.Add(new TapRawStream());
+bot.Start();
 ```
 
 ## InternalSocket Best Practices
