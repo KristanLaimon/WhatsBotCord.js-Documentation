@@ -1,6 +1,7 @@
 ---
 import Default from '@astrojs/starlight/components/Icon.astro';
 import type { Props } from '@astrojs/starlight/props';
+import { Image } from 'astro:assets';
 import jsLogo from '../assets/javascript_logo.png';
 import tsLogo from '../assets/typescript_logo.png';
 
@@ -8,9 +9,9 @@ const { name, ...attrs } = Astro.props;
 ---
 {
   name === 'seti:javascript' ? (
-    <img src={jsLogo.src} alt="JavaScript" class="custom-tab-icon" {...attrs} />
+    <Image src={jsLogo} alt="JavaScript" class="custom-tab-icon" {...attrs} />
   ) : name === 'seti:typescript' ? (
-    <img src={tsLogo.src} alt="TypeScript" class="custom-tab-icon" {...attrs} />
+    <Image src={tsLogo} alt="TypeScript" class="custom-tab-icon" {...attrs} />
   ) : (
     <Default name={name} {...attrs} />
   )

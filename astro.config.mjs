@@ -8,6 +8,12 @@ import svelte from "@astrojs/svelte";
 // https://astro.build/config
 export default defineConfig({
   site: "https://whatsbotcord.sbs/",
+  image: {
+    remotePatterns: [
+      { protocol: "https", hostname: "github.com" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
+    ],
+  },
   integrations: [starlight({
     title: "Whatsbotcord.js",
     expressiveCode: {
