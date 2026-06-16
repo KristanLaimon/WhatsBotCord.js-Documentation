@@ -105,16 +105,19 @@ import { encodeCode } from "../utils/codeEncoder";
 
           if (isTestSnippet) {
             // Rewrite test framework import to whatsbotcord-browser-test
-            codeToSend = code.replace(/from\s+["'](?:your-testing-framework|vitest|jest|bun:test)["']/g, 'from "whatsbotcord-browser-test"');
+            codeToSend = code.replace(
+              /from\s+["'](?:your-testing-framework|vitest|jest|bun:test)["']/g,
+              'from "whatsbotcord-browser-test"'
+            );
           } else if (!isComplete && isCommandClass) {
             // If it is an incomplete command class, wrap and transform it dynamically
-            const classMatch = code.match(/class\s+(\w+)\s+(?:implements|extends)\s+ICommand/) ||
-                               code.match(/class\s+(\w+Command)\b/);
+            const classMatch =
+              code.match(/class\s+(\w+)\s+(?:implements|extends)\s+ICommand/) || code.match(/class\s+(\w+Command)\b/);
             const className = classMatch ? classMatch[1] : null;
 
             if (className) {
               const { cleanCode: codeWithoutImports, mergedImport } = mergeWhatsbotcordImports(code);
-              
+
               // Remove export default class and export class, converting to just class
               const codeWithoutExports = codeWithoutImports
                 .replace(/\bexport\s+default\s+class\b/g, "class")
@@ -143,14 +146,14 @@ bot.Start();
           codeToSend = codeToSend.replace(/\n{3,}/g, "\n\n");
 
           const encoded = await encodeCode(codeToSend);
-          
+
           // Determine if it is a group chat example
           const isGroup = codeToSend.toLowerCase().includes("group");
           const chatId = isGroup ? 1000 : 999;
-          
+
           // Extract default trigger text from the final code
           const triggerText = extractTriggerText(codeToSend);
-          
+
           let playgroundUrl = `/playground?code=${encoded}&chat=${chatId}`;
           if (triggerText) {
             playgroundUrl += `&text=${encodeURIComponent(triggerText)}`;
@@ -179,7 +182,7 @@ bot.Start();
             if (hasHeader) {
               wrapper.classList.add("has-header");
             }
-            
+
             if (container.parentNode) {
               container.parentNode.insertBefore(wrapper, container);
               wrapper.appendChild(btn);
@@ -205,3 +208,5 @@ bot.Start();
 
   document.addEventListener("astro:page-load", () => requestAnimationFrame(boot));
 })();
+
+

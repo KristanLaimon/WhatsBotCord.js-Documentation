@@ -86,21 +86,27 @@ If a command relies on `ctx.WaitYesOrNoAnswer` to prevent destructive actions, y
         await ctx.SendText("Are you absolutely sure you want to delete everything? (yes/no)");
 
         const isConfirmed = await ctx.WaitYesOrNoAnswer({
-          timeOutMiliseconds: 15000,
-          expectedTextYes: "yes",
-          expectedTextNo: "no"
+          normalConfig: {
+            timeoutSeconds: 30
+          },
+          waitYesOrNoOptions: {
+            positiveAnswerOptions: ["yes"],
+            negativeAnswerOptions: ["no"],
+          }
         });
 
         if (isConfirmed) {
           await ctx.SendReactEmojiToInitialMsg("✅");
           await ctx.SendText("Database has been wiped successfully.");
-        } else {
+        } else if (!isConfirmed) {
           await ctx.SendReactEmojiToInitialMsg("❌");
           await ctx.SendText("Action cancelled.");
+        } else {
+          console.log("isConfirmed Is null")
         }
       }
     }
-    ```
+```
 
   </TabItem>
 

@@ -11,7 +11,7 @@
   
   let isLoadingCode = $state(true);
   let codeToUse = $state("");
-  let activeChatIdToUse = $state(998);
+  let activeChatIdToUse = $state(999);
   let initialMessageInput = $state("");
 
 
@@ -64,6 +64,7 @@
 
       if (chatParam) {
         const parsedChat = parseInt(chatParam, 10);
+        console.log("PARSED CHAT: ", parsedChat);
         if (!isNaN(parsedChat)) {
           activeChatIdToUse = parsedChat;
         }

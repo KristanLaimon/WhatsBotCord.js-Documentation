@@ -3,6 +3,8 @@ title: Manipulating the Chat Context
 description: Clone contexts to reply privately, switch groups, or spin off parallel tasks.
 ---
 
+import { Aside } from "@astrojs/starlight/components";
+
 The `IChatContext` object (`ctx`) is your primary tool for interacting with a chat. By default, it's tied to the chat where a command was triggered. However, you can seamlessly **clone** or **retarget** it to perform actions in other chats, execute background logic, or reply to a group user privately in their DMs.
 
 <hr/>
@@ -14,6 +16,10 @@ The most reliable way to transition a conversation from a grouped arena to a pri
 **The Pattern:**
 1. Send an "anchor" message right to the user's private DM using the low-level `api.InternalSocket`.
 2. Generate a new context aimed at that private chat by cloning the original context using `CloneButTargetedToWithInitialMsg()`.
+
+<Aside type="note">
+  If you go to the playground with this code snippet, change to a group chat, this snippet doesn't have sense in Individual Chat with bot.
+</Aside>
 
 ```typescript
 import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord";
@@ -47,6 +53,10 @@ Sometimes you possess a raw ID (like a user or an announcements group) and just 
 
 Use `CloneButTargetedToIndividualChat` when aiming at a strict Phone Number ID (`@whatsapp.es`).
 
+<Aside type="note">
+  If you go to the playground with this code snippet, change to a group chat, this snippet doesn't have sense in Individual Chat with bot.
+</Aside>
+
 ```typescript
 class StartPrivateChatCommand implements ICommand {
   name = "contactme";
@@ -65,6 +75,13 @@ class StartPrivateChatCommand implements ICommand {
 ### Messaging Another Group by ID
 
 If you need your bot to broadcast across groups, utilize `CloneButTargetedToGroupChat`.
+
+<Aside type="note">
+  If going to playground:
+  - Use this in the individual chat if you go to the playground, this snippet doesn't have sense in group(s) chat(s) with bot.
+  - You can get the `targetGroupId` by copying it from the group chat in sidebar. (You'll see by switching chat to the group chat when going to playground)
+</Aside>
+
 
 ```typescript
 class AnnounceCommand implements ICommand {

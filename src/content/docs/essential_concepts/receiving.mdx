@@ -30,6 +30,7 @@ Wait for a specific type of message (e.g., text, image, document) from the origi
       } else {
         await ctx.SendText("No message received within the timeout.");
       }
+      console.log("Message is: ", message === null ? "null!" : message);
     }
   }
   ```
@@ -48,6 +49,8 @@ Wait for a specific type of message (e.g., text, image, document) from the origi
     } else {
       await ctx.SendText("No message received within the timeout.");
     }
+
+    console.log("Message is: ", message === null ? "null!" : message);
   });
   ```
   </TabItem>
