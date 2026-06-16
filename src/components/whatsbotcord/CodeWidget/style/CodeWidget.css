@@ -48,7 +48,7 @@
   --tab-hover-bg: #eaeaea;
 }
 
-.header {
+.code-widget .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -58,7 +58,7 @@
   flex-shrink: 0;
 }
 
-h3 {
+.code-widget h3 {
   margin: 0;
   font-size: 13px;
   font-weight: 600;

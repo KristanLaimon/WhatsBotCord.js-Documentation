@@ -296,6 +296,7 @@ nav.sidebar a,
 .custom-theme-group {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
 }
 
 .desktop-theme-picker {
@@ -304,8 +305,11 @@ nav.sidebar a,
 
 @media (min-width: 50rem) {
   .desktop-theme-picker {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     margin-right: 0.75rem;
+    flex-wrap: nowrap;
   }
 }
 
