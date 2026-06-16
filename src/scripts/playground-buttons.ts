@@ -97,13 +97,17 @@ import { encodeCode } from "../utils/codeEncoder";
 
       const isComplete = hasImport && (hasNew || hasStart);
       const isCommandClass = code.includes("ICommand") && code.includes("class ");
+      const isTestSnippet = code.includes("describe") && code.includes("expect");
 
-      if (isComplete || isCommandClass) {
+      if (isComplete || isCommandClass || isTestSnippet) {
         try {
           let codeToSend = code;
 
-          // If it is an incomplete command class, wrap and transform it dynamically
-          if (!isComplete && isCommandClass) {
+          if (isTestSnippet) {
+            // Rewrite test framework import to whatsbotcord-browser-test
+            codeToSend = code.replace(/from\s+["'](?:your-testing-framework|vitest|jest|bun:test)["']/g, 'from "whatsbotcord-browser-test"');
+          } else if (!isComplete && isCommandClass) {
+            // If it is an incomplete command class, wrap and transform it dynamically
             const classMatch = code.match(/class\s+(\w+)\s+(?:implements|extends)\s+ICommand/) ||
                                code.match(/class\s+(\w+Command)\b/);
             const className = classMatch ? classMatch[1] : null;

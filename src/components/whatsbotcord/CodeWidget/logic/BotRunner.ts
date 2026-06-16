@@ -1,4 +1,9 @@
 import * as WhatsbotcordLib from "../../lib/whatsbotcord-browser-lib.js";
+import * as WhatsbotcordTestLib from "../../lib/testing_framework_mock/whatsbotcord-browser-test.js";
+import * as WhatsbotcordTesting from "../../lib/whatsbotcord-browser-lib.testing.js";
+import * as WhatsbotcordTypes from "../../lib/whatsbotcord-browser-lib.types.js";
+import * as WhatsbotcordDebugging from "../../lib/whatsbotcord-browser-lib.debugging.js";
+import * as WhatsbotcordHelpers from "../../lib/whatsbotcord-browser-lib.helpers.js";
 import type { IMsgWidget } from "../../MsgWidget/MsgWidget.js";
 import { MsgWidgetAdapter } from "./MsgWidgetAdapter.js";
 
@@ -103,6 +108,21 @@ export async function runBotCode(
     if (name === "whatsbotcord") {
       return libExports;
     }
+    if (name === "whatsbotcord-browser-test") {
+      return WhatsbotcordTestLib;
+    }
+    if (name === "whatsbotcord/testing") {
+      return WhatsbotcordTesting;
+    }
+    if (name === "whatsbotcord/types") {
+      return WhatsbotcordTypes;
+    }
+    if (name === "whatsbotcord/debugging") {
+      return WhatsbotcordDebugging;
+    }
+    if (name === "whatsbotcord/helpers") {
+      return WhatsbotcordHelpers;
+    }
     
     // Resolve relative path
     const resolvedUri = resolveRelativePath(referrerUri, name);
@@ -167,3 +187,5 @@ export async function runBotCode(
     throw err;
   }
 }
+
+

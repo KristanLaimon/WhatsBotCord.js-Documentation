@@ -9,8 +9,28 @@
   import ConsolePanel from "./components/ConsolePanel.svelte";
   import "./style/CodeWidget.css";
 
-  // @ts-ignore
-  import dtsContents from "../lib/whatsbotcord-browser-lib.d.ts?raw";
+  import commandsSearcherTypesRaw from "../lib/CommandsSearcher.types-Cl63i0Aw.d.ts?raw";
+  import typesCBnhUPhRaw from "../lib/types-C_BnhUPh.d.ts?raw";
+  import typesO6OAA9xaRaw from "../lib/types-O6OAA9xa.d.ts?raw";
+  import browserLibRaw from "../lib/whatsbotcord-browser-lib.d.ts?raw";
+  import debuggingRaw from "../lib/whatsbotcord-browser-lib.debugging.d.ts?raw";
+  import helpersRaw from "../lib/whatsbotcord-browser-lib.helpers.d.ts?raw";
+  import testingRaw from "../lib/whatsbotcord-browser-lib.testing.d.ts?raw";
+  import typesRaw from "../lib/whatsbotcord-browser-lib.types.d.ts?raw";
+  import browserTestRaw from "../lib/testing_framework_mock/whatsbotcord-browser-test.d.ts?raw";
+
+  const dtsFiles: Record<string, string> = {
+    "../lib/CommandsSearcher.types-Cl63i0Aw.d.ts": commandsSearcherTypesRaw,
+    "../lib/types-C_BnhUPh.d.ts": typesCBnhUPhRaw,
+    "../lib/types-O6OAA9xa.d.ts": typesO6OAA9xaRaw,
+    "../lib/whatsbotcord-browser-lib.d.ts": browserLibRaw,
+    "../lib/whatsbotcord-browser-lib.debugging.d.ts": debuggingRaw,
+    "../lib/whatsbotcord-browser-lib.helpers.d.ts": helpersRaw,
+    "../lib/whatsbotcord-browser-lib.testing.d.ts": testingRaw,
+    "../lib/whatsbotcord-browser-lib.types.d.ts": typesRaw,
+    "../lib/testing_framework_mock/whatsbotcord-browser-test.d.ts": browserTestRaw,
+  };
+
   import { runBotCode } from "./logic/BotRunner";
   import type { IMsgWidget } from "../MsgWidget/MsgWidget";
 
@@ -223,6 +243,7 @@
   let vimModeEnabled = $state(localStorage.getItem("whatsbotcord_vim_mode") === "true");
   let vimModeInstance: any = null;
   let vimStatusBar = $state<HTMLElement | null>(null);
+  let handleGlobalSuggest: ((e: KeyboardEvent) => void) | null = null;
 
   function handleVimToggle() {
     vimModeEnabled = !vimModeEnabled;
@@ -364,15 +385,63 @@
     tsOpts.setEagerModelSync(true);
     monacoInstance.languages.typescript.javascriptDefaults.setEagerModelSync(true);
 
-    const wrappedDts = `declare module "whatsbotcord" {
-      ${dtsContents}
-    }`;
+    // Load all d.ts files into the virtual file system of Monaco
+    Object.entries(dtsFiles).forEach(([filepath, content]) => {
+      const relPath = filepath.replace("../lib/", "");
+      
+      if (relPath.startsWith("testing_framework_mock/")) {
+        const testRelPath = relPath.replace("testing_framework_mock/", "");
+        tsOpts.addExtraLib(
+          content,
+          `file:///node_modules/whatsbotcord-browser-test/${testRelPath}`
+        );
+        if (testRelPath === "whatsbotcord-browser-test.d.ts") {
+          tsOpts.addExtraLib(
+            content,
+            "file:///node_modules/whatsbotcord-browser-test/index.d.ts"
+          );
+        }
+      } else {
+        tsOpts.addExtraLib(
+          content,
+          `file:///node_modules/whatsbotcord/${relPath}`
+        );
+        if (relPath.endsWith(".d.ts")) {
+          const jsRelPath = relPath.replace(/\.d\.ts$/, ".js");
+          tsOpts.addExtraLib(
+            content,
+            `file:///node_modules/whatsbotcord/${jsRelPath}`
+          );
+        }
+      }
+    });
 
-    // Provide the library declaration
+    // Create the index.d.ts entry point for whatsbotcord
     tsOpts.addExtraLib(
-      wrappedDts,
-      "ts:filename/whatsbotcord.d.ts"
+      `export * from "./whatsbotcord-browser-lib.js";
+       import DefaultBot from "./whatsbotcord-browser-lib.js";
+       export default DefaultBot;`,
+      "file:///node_modules/whatsbotcord/index.d.ts"
     );
+
+    // Map submodules in Monaco so they can be imported as "whatsbotcord/testing", etc.
+    tsOpts.addExtraLib(
+      `export * from "./whatsbotcord-browser-lib.testing.js";`,
+      "file:///node_modules/whatsbotcord/testing.d.ts"
+    );
+    tsOpts.addExtraLib(
+      `export * from "./whatsbotcord-browser-lib.types.js";`,
+      "file:///node_modules/whatsbotcord/types.d.ts"
+    );
+    tsOpts.addExtraLib(
+      `export * from "./whatsbotcord-browser-lib.debugging.js";`,
+      "file:///node_modules/whatsbotcord/debugging.d.ts"
+    );
+    tsOpts.addExtraLib(
+      `export * from "./whatsbotcord-browser-lib.helpers.js";`,
+      "file:///node_modules/whatsbotcord/helpers.d.ts"
+    );
+
 
     const globalDeclarations = `
       declare var msgWidget: {
@@ -429,6 +498,27 @@
       }
     );
 
+    // Intercept Ctrl+Space to trigger IntelliSense before the browser captures it
+    editor.onKeyDown((e) => {
+      if (e.ctrlKey && e.keyCode === monacoInstance.KeyCode.Space) {
+        e.preventDefault();
+        e.stopPropagation();
+        editor.trigger('keyboard', 'editor.action.triggerSuggest', {});
+      }
+    });
+
+    // Global capture-phase listener to intercept Ctrl+Space if browser/OS tries to override it
+    handleGlobalSuggest = (e: KeyboardEvent) => {
+      if (e.ctrlKey && (e.code === "Space" || e.key === " " || e.keyCode === 32)) {
+        if (editor && editor.hasTextFocus()) {
+          e.preventDefault();
+          e.stopPropagation();
+          editor.trigger('keyboard', 'editor.action.triggerSuggest', {});
+        }
+      }
+    };
+    window.addEventListener("keydown", handleGlobalSuggest, { capture: true });
+
     // FIX: Wait for fonts to be ready, then remeasure and relayout.
     // This is the correct sequence to prevent layout drift on mount.
     const doRemeasure = () => {
@@ -469,6 +559,10 @@
 
   onDestroy(() => {
     if (runTimeout) clearTimeout(runTimeout);
+    if (handleGlobalSuggest) {
+      window.removeEventListener("keydown", handleGlobalSuggest, { capture: true });
+      handleGlobalSuggest = null;
+    }
     if (vimModeInstance) {
       vimModeInstance.dispose();
       vimModeInstance = null;
@@ -703,9 +797,7 @@
     />
 
     <div class="editor-container" bind:this={editorContainer} onmousedown={() => editor && editor.layout()}></div>
-    {#if vimModeEnabled}
-      <div class="vim-status-bar" bind:this={vimStatusBar}></div>
-    {/if}
+    <div class="vim-status-bar" style="display: {vimModeEnabled ? 'flex' : 'none'}" bind:this={vimStatusBar}></div>
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div class="resizer" role="separator" tabindex="0" onmousedown={startDrag}></div>
