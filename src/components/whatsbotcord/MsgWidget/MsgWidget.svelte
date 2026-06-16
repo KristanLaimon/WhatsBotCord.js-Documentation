@@ -27,6 +27,7 @@
     onSendMessage?: (chatId: number, text: string, msgId: number) => void;
     initialSidebarCollapsed?: boolean;
     showChatList?: boolean;
+    initialMessageInput?: string;
   };
 
 
@@ -44,6 +45,7 @@
     onSendMessage,
     initialSidebarCollapsed = false,
     showChatList = $bindable(!initialSidebarCollapsed),
+    initialMessageInput = "",
   }: MsgWidgetProps = $props();
 
   // ─────────────────────────────────────────────────────────────
@@ -308,7 +310,7 @@
   {/if}
 
   <!-- ── Col 3: Main chat ── -->
-  <MsgChatArea {activeChatData} onSendMessage={handleSendMessage} onClearChat={handleClearChat} {initialChatScrollToBottom} />
+  <MsgChatArea {activeChatData} onSendMessage={handleSendMessage} onClearChat={handleClearChat} {initialChatScrollToBottom} {initialMessageInput} />
 </article>
 
 

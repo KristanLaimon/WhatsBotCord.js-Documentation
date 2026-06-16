@@ -3,6 +3,7 @@
   import { fade } from "svelte/transition";
   import loader from "@monaco-editor/loader";
   import type * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
+  import { encodeCode } from "../../../utils/codeEncoder";
 
   import TabBar from "./components/TabBar.svelte";
   import ConsolePanel from "./components/ConsolePanel.svelte";
@@ -48,8 +49,10 @@
 
   // Parse initial code or load default
   let initialTabs: TabState[] = [];
+  // svelte-ignore state_referenced_locally
   if (initialCode && initialCode.trim().startsWith("[")) {
     try {
+      // svelte-ignore state_referenced_locally
       initialTabs = JSON.parse(initialCode);
     } catch (e) {
       console.error("Failed to parse initialCode as tabs JSON:", e);
@@ -61,6 +64,7 @@
       {
         id: "main-tab",
         name: "main.ts",
+        // svelte-ignore state_referenced_locally
         code: initialCode || defaultCode || "",
         isMain: true
       }
@@ -72,8 +76,10 @@
   let renamingTabId = $state<string | null>(null);
   let renamingText = $state("");
 
+  // svelte-ignore state_referenced_locally
   let activeTheme = $state(theme);
   let themeObserver: MutationObserver | null = null;
+
   let runTimeout: ReturnType<typeof setTimeout> | null = null;
   let currentAdapter: any = null;
 
@@ -254,6 +260,34 @@
       handleRun();
     }
   }
+
+  async function handleExportLink() {
+    try {
+      let codeToEncode = "";
+      if (tabs.length === 1 && tabs[0].name === "main.ts") {
+        codeToEncode = tabs[0].code;
+      } else {
+        codeToEncode = JSON.stringify(
+          tabs.map(t => ({
+            id: t.id,
+            name: t.name,
+            code: t.code,
+            isMain: t.isMain
+          }))
+        );
+      }
+
+      const encoded = await encodeCode(codeToEncode);
+      const url = `${window.location.origin}/playground?code=${encoded}`;
+      
+      await navigator.clipboard.writeText(url);
+      showStatus("Playground link copied to clipboard!", "success");
+    } catch (err: any) {
+      console.error("Failed to export playground link:", err);
+      showStatus("Failed to copy link", "error");
+    }
+  }
+
 
   $effect(() => {
     // Save Vim mode preference to localStorage
@@ -628,6 +662,14 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
         </svg>
         Restore default code
+      </button>
+      <button class="restore-btn" onclick={handleExportLink} title="Copy shareable playground link to clipboard">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+          <polyline points="16 6 12 2 8 6" />
+          <line x1="12" y1="2" x2="12" y2="15" />
+        </svg>
+        Export link
       </button>
       <div class="vim-toggle-wrapper">
         <span class="vim-label">Vim Mode</span>

@@ -3,13 +3,17 @@
   import CodeWidgetWrapper from "./CodeWidgetWrapper.svelte";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
+  import { decodeCode } from "../../utils/codeEncoder";
 
   let { initialCode }: { initialCode: string } = $props();
 
   const localStorageKey = "whatsbotcord_playground_code";
-  const savedCode = localStorage.getItem(localStorageKey) || null;
-  // svelte-ignore state_referenced_locally
-  let codeToUse = savedCode || initialCode;
+  
+  let isLoadingCode = $state(true);
+  let codeToUse = $state("");
+  let activeChatIdToUse = $state(998);
+  let initialMessageInput = $state("");
+
 
   function handleCodeRun(code: string) {
     if (typeof localStorage !== "undefined") {
@@ -42,7 +46,7 @@
     return "Ready!";
   });
 
-  onMount(() => {
+  onMount(async () => {
     if (typeof window !== "undefined") {
       const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
       const windowHeightRem = window.innerHeight / rootFontSize;
@@ -51,8 +55,80 @@
       } else {
         showChatList = window.innerWidth >= 640;
       }
+
+      // Check for parameters in URL search params
+      const urlParams = new URLSearchParams(window.location.search);
+      const codeParam = urlParams.get("code");
+      const chatParam = urlParams.get("chat");
+      const textParam = urlParams.get("text");
+
+      if (chatParam) {
+        const parsedChat = parseInt(chatParam, 10);
+        if (!isNaN(parsedChat)) {
+          activeChatIdToUse = parsedChat;
+        }
+      }
+
+      if (textParam) {
+        initialMessageInput = textParam;
+      }
+
+      if (codeParam) {
+        try {
+          const decoded = await decodeCode(codeParam);
+          if (decoded) {
+            const currentSaved = localStorage.getItem(localStorageKey);
+            let isDefault = true;
+            if (currentSaved) {
+              let currentCodeText = currentSaved;
+              if (currentSaved.trim().startsWith("[")) {
+                try {
+                  const parsed = JSON.parse(currentSaved);
+                  if (parsed.length === 1 && parsed[0].isMain) {
+                    currentCodeText = parsed[0].code;
+                  } else if (parsed.length > 1) {
+                    isDefault = false;
+                  }
+                } catch (e) {
+                  isDefault = false;
+                }
+              }
+              if (isDefault) {
+                isDefault = currentCodeText.trim() === initialCode.trim();
+              }
+            }
+
+            let shouldReplace = true;
+            if (!isDefault) {
+              shouldReplace = confirm(
+                "You have custom code in your playground. Do you want to replace it?"
+              );
+            }
+
+            if (shouldReplace) {
+              codeToUse = decoded;
+              localStorage.setItem(localStorageKey, decoded);
+            } else {
+              codeToUse = currentSaved || initialCode;
+            }
+          } else {
+            codeToUse = localStorage.getItem(localStorageKey) || initialCode;
+          }
+        } catch (e) {
+          console.error("Failed to decode code query parameter:", e);
+          codeToUse = localStorage.getItem(localStorageKey) || initialCode;
+        }
+      } else {
+        codeToUse = localStorage.getItem(localStorageKey) || initialCode;
+      }
+      
+      // Clean query parameters from address bar
+      window.history.replaceState({}, document.title, window.location.pathname);
+      isLoadingCode = false;
+
     }
   });
+
 
   let activeTab = $state<"chat" | "editor">("chat");
 
@@ -190,8 +266,9 @@
         height="100%"
         bind:showChatList={showChatList}
         initialSidebarCollapsed={!showChatList} 
-        initialActiveChat={998} /** Documentation chat (ID) */
-        initialChatScrollToBottom={false} /** Start at the top of the notes */
+        initialActiveChat={activeChatIdToUse}
+        initialMessageInput={initialMessageInput}
+        initialChatScrollToBottom={false}
         onReady={() => isMsgWidgetReady = true}
       />
     </div>
@@ -203,14 +280,16 @@
     ></div>
     
     <div class="pane right-pane">
-      <CodeWidgetWrapper 
-        initialCode={codeToUse} 
-        defaultCode={initialCode}
-        onCodeRun={handleCodeRun}
-        width="100%" 
-        height="100%" 
-        onReady={() => isCodeWidgetReady = true}
-      />
+      {#if !isLoadingCode}
+        <CodeWidgetWrapper 
+          initialCode={codeToUse} 
+          defaultCode={initialCode}
+          onCodeRun={handleCodeRun}
+          width="100%" 
+          height="100%" 
+          onReady={() => isCodeWidgetReady = true}
+        />
+      {/if}
     </div>
   </div>
 </div>

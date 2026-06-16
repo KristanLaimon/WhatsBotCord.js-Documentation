@@ -375,3 +375,65 @@ nav.sidebar a,
 .monaco-editor :not(a, strong, em, del, span, input, code, br) + :not(a, strong, em, del, span, input, code, br, :where(.not-content *)) {
   margin-top: 0 !important;
 }
+
+/* ==========================================
+   TEST IN PLAYGROUND BUTTON & WRAPPER
+   ========================================== */
+.playground-button-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.test-playground-btn {
+  position: absolute;
+  top: -30px; /* Float slightly above the code snippet block */
+  right: 0px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--sl-color-accent-low);
+  border: 1px solid var(--sl-color-accent);
+  border-radius: 6px;
+  color: var(--sl-color-text-accent);
+  font-size: 0.75rem;
+  font-family: var(--__sl-font, inherit);
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 10;
+  text-decoration: none !important;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, background-color 0.2s, color 0.2s, border-color 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+/* When code block wrapper is hovered, fade in the button */
+.playground-button-wrapper:hover .test-playground-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.test-playground-btn:hover {
+  background: var(--sl-color-accent) !important;
+  color: var(--sl-color-black) !important;
+  border-color: var(--sl-color-accent) !important;
+  transform: translateY(-1px);
+}
+
+.test-playground-btn:active {
+  transform: translateY(0);
+}
+
+.test-playground-btn svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  fill: none;
+}
+
+/* If the code snippet has a header (e.g. filename tab), place it inside the header next to the copy button */
+.playground-button-wrapper.has-header .test-playground-btn {
+  top: 8px;
+  right: 52px; /* Next to the copy button in the header */
+}

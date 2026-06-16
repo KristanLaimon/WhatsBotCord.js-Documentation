@@ -2,15 +2,27 @@
   import { getInitials, type Chat } from "./MsgWidget";
   import { onMount } from "svelte";
 
-  let { activeChatData, onSendMessage, onClearChat, initialChatScrollToBottom = true }: {
+  let { activeChatData, onSendMessage, onClearChat, initialChatScrollToBottom = true, initialMessageInput = "" }: {
     activeChatData?: Chat;
     onSendMessage: (text: string) => void;
     onClearChat?: (chatId: number) => void;
     initialChatScrollToBottom?: boolean;
+    initialMessageInput?: string;
   } = $props();
 
-  let messageInput = $state("");
+  // svelte-ignore state_referenced_locally
+  let messageInput = $state(initialMessageInput);
+  let firstLoad = true;
+
+  $effect(() => {
+    if (firstLoad && initialMessageInput) {
+      messageInput = initialMessageInput;
+      firstLoad = false;
+    }
+  });
+
   let messagesContainer = $state<HTMLElement | null>(null);
+
 
   function handleInputKeydown(e: KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) {
