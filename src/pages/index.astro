@@ -6,7 +6,7 @@ import InstallDemo from "../components/InstallDemo.astro";
 
 import { Image } from "astro:assets";
 
-import HeroBackground from "../assets/home/home-bg.png";
+import HeroBackground from "../assets/home/home-bg-2.png";
 import FoxRockWhats from "../assets/home/foxrocklogo.png";
 import Spyral from "../assets/home/spiral.png";
 import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
@@ -16,12 +16,16 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
   frontmatter={{
     title: "Whatsbotcord.js",
     template: "splash",
+
     head: [
       {
         // (1) Resetting star-light CSS (This page only)
         tag: "style",
         content: `
+          html, body { overflow-x: hidden;}
+          main, main:where(.astro-rhk77a7l), :root main { padding: 0 !important; --sl-main-pad: 0 !important; }
           .content-panel:has(#_top) { display: none !important; }
+          footer.sl-flex { display: none !important; }
           .sl-container, .content-panel { max-width: none !important; padding: 0 !important; margin: 0 !important; }
           :root[data-theme='dark'] {
             --sl-color-black: #140f25 !important;
@@ -41,129 +45,192 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
   }}
   hasSidebar={false}
 >
-  <!-- 2. Aquí va el resto de tu contenido, con estilos custom para centrarlo si quieres -->
+  <main class="no-content relative">
+    <!-- 2. Aquí va el resto de tu contenido, con estilos custom para centrarlo si quieres -->
 
-  <!-- Hero section -->
-  <section id="hero-section">
-    <Image src={HeroBackground} alt="hero-background" class="hero-bg" />
-    <Image src={FoxRockWhats} alt="fox-rock-whats-img" class="fox-img" />
-    <Image src={Spyral} alt="spyral-img" class="spyral-img" />
+    <Image src={HeroBackground} class="background hero-bg" alt="background" />
 
-    <div class="hero-content">
-      <div class="hero-text">
-        <h1>Whatsbotcord.js</h1>
-        <p>
-          Build WhatsApp bots with Discord-like commands.<br />
-          TypeScript-first. By developers, for developers.
-        </p>
-        <div class="hero-buttons">
-          <a href="/getting-started/quickstart" class="btn-primary">Get Started →</a>
-          <a
-            href="https://github.com/KristanLaimon/WhatsBotCord.js"
-            class="btn-secondary"
-            target="_blank"
-            rel="noopener"
-          >
-            Source-code
-          </a>
-          <a class="btn-tertiary" href="/playground">Playground/Editor</a>
+    <!-- Hero section -->
+    <section id="hero-section">
+      <Image
+        src={FoxRockWhats}
+        alt="fox-rock-whats-img"
+        class="fox-img"
+        style="position: fixed; pointer-events: none;"
+      />
+      <Image src={Spyral} alt="spyral-img" class="spyral-img" style="position: fixed; pointer-events: none;" />
+
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1>Whatsbotcord.js</h1>
+          <p>
+            Build WhatsApp bots with Discord-like commands.<br />
+            TypeScript-first. By developers, for developers.
+          </p>
+          <div class="hero-buttons">
+            <a href="/getting-started/quickstart" class="btn-primary">Get Started →</a>
+            <a
+              href="https://github.com/KristanLaimon/WhatsBotCord.js"
+              class="btn-secondary"
+              target="_blank"
+              rel="noopener"
+            >
+              Source-code
+            </a>
+            <a class="btn-tertiary" href="/playground">Playground/Editor</a>
+          </div>
         </div>
+        <Image src={WhatsbotcordLogo} alt="whatsbotcord-logo" class="whatsbotcord-logo" />
       </div>
-      <Image src={WhatsbotcordLogo} alt="whatsbotcord-logo" class="whatsbotcord-logo" />
-    </div>
-  </section>
+    </section>
 
-  <!-- Rest of page -->
-  <main>
-    <InstallDemo />
+    <!-- Rest of page -->
+    <section class="rest-of-page">
+      <InstallDemo />
 
-    <h2 style="color: white;">Get started in seconds</h2>
+      <h2 style="color: white;">Get started in seconds</h2>
 
-    <CodeDemo />
+      <CodeDemo />
 
-    <h2>Why Whatsbotcord?</h2>
+      <h2>Why Whatsbotcord?</h2>
 
-    <CardGrid stagger>
-      <Card title="Discord-Inspired Commands" icon="rocket">
-        Create commands like `!hello` with a simple, familiar syntax inspired by Discord bots. Supports prefixes,
-        aliases, and tags.
-      </Card>
-      <Card title="TypeScript Support" icon="laptop">
-        Fully typed with TypeScript for robust development, auto-completion, and type-safe interfaces out of the box.
-      </Card>
-      <Card title="Simplified Baileys Wrapper" icon="puzzle">
-        Abstracts complex Baileys.js internals so you can focus on building features instead of fighting the WhatsApp
-        protocol.
-      </Card>
-      <Card title="Group & Individual Messaging" icon="comment">
-        Seamlessly interact with WhatsApp groups and individual chats. Fetch group data, mention members, and more.
-      </Card>
-      <Card title="Extensible & Pluggable" icon="bars">
-        Modular middleware and plugin architecture. Add rate-limiting, permissions, or your own custom logic with ease.
-      </Card>
-      <Card title="Built-in Testing" icon="approve-check-circle">
-        Mock entire chat sessions with `ChatMock` — test your commands locally without a real WhatsApp connection.
-      </Card>
-    </CardGrid>
+      <CardGrid>
+        <Card title="Discord-Inspired Commands" icon="rocket">
+          Create commands like `!hello` with a simple, familiar syntax inspired by Discord bots. Supports prefixes,
+          aliases, and tags.
+        </Card>
+        <Card title="TypeScript Support" icon="laptop">
+          Fully typed with TypeScript for robust development, auto-completion, and type-safe interfaces out of the box.
+        </Card>
+        <Card title="Simplified Baileys Wrapper" icon="puzzle">
+          Abstracts complex Baileys.js internals so you can focus on building features instead of fighting the WhatsApp
+          protocol.
+        </Card>
+        <Card title="Group & Individual Messaging" icon="comment">
+          Seamlessly interact with WhatsApp groups and individual chats. Fetch group data, mention members, and more.
+        </Card>
+        <Card title="Extensible & Pluggable" icon="bars">
+          Modular middleware and plugin architecture. Add rate-limiting, permissions, or your own custom logic with
+          ease.
+        </Card>
+        <Card title="Built-in Testing" icon="approve-check-circle">
+          Mock entire chat sessions with `ChatMock` — test your commands locally without a real WhatsApp connection.
+        </Card>
+      </CardGrid>
 
-    <hr class="separator" />
+      <hr class="separator" />
 
-    <div class="footer-credits">
-      <p>
-        Proudly built and maintained by <strong>
-          <a href="https://github.com/KristanLaimon">@KristanLaimon</a>
-        </strong>. Concept art original by me assisted by AI 🦊.
-      </p>
-      <a href="https://github.com/KristanLaimon">
-        <img
-          src="https://github.com/KristanLaimon.png"
-          alt="KristanLaimon"
-          width="90"
-          height="90"
-          class="mx-auto avatar"
-        />
-      </a>
-    </div>
+      <div class="footer-credits">
+        <p>
+          Proudly built and maintained by <strong>
+            <a href="https://github.com/KristanLaimon">@KristanLaimon</a>
+          </strong>. Concept art original by me assisted by AI 🦊.
+        </p>
+        <a href="https://github.com/KristanLaimon">
+          <img
+            src="https://github.com/KristanLaimon.png"
+            alt="KristanLaimon"
+            width="90"
+            height="90"
+            class="mx-auto avatar"
+          />
+        </a>
+      </div>
+
+      <!-- Blank space -->
+      <div class="blank-space-footer"></div>
+    </section>
   </main>
 </StarlightPage>
 
 <style>
+  .blank-space-footer {
+    height: 4rem;
+    width: 100%;
+
+    @media (min-width: 768px) {
+      height: 8rem;
+    }
+    /* @media (min-width: 1024px) {
+      width: 80%;
+    }
+    @media (min-width: 1280px) {
+      width: 70%;
+    } */
+  }
+  .background {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    max-width: none !important;
+    height: auto;
+    max-height: 100%;
+    object-fit: cover;
+    object-position: top;
+    z-index: -1;
+    opacity: 0.7; /* Subimos la opacidad para que la imagen luzca genial donde es transparente */
+    pointer-events: none;
+  }
+
   #hero-section {
     --var-header-height-starlight: 4rem;
     width: 100%;
     height: calc(100vh - var(--var-header-height-starlight));
     position: relative;
-    overflow: hidden;
     /* Fijo en oscuro para que los PNG transparentes no se mezclen con blanco en Light Mode */
-    background-color: #140f25;
+    /*background-color: #140f25;*/
+
+    /* @media (min-width: 1280px) {
+      height: vh;
+    } */
+
+    /* md Tailwind */
+    @media (min-width: 48rem) {
+      height: 100vh;
+    }
+
+    /* lg tailwind */
+    @media (min-width: 64rem) {
+      height: 87vh;
+    }
+
+    /* if is too vertical (monitors set in portrait mode for example) */
+    @media (min-width: 64rem) and (min-height: 64rem) {
+      height: 40vh;
+    }
+
+    @media (min-height: 64rem) {
+      height: fit-content;
+      padding: 2.8rem 0;
+    }
+
+    @media (min-width: 90rem) {
+      height: fit-content;
+      padding: 4rem 0;
+    }
 
     img {
       object-fit: cover;
     }
 
-    .hero-bg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      opacity: 0.7; /* Subimos la opacidad para que la imagen luzca genial donde es transparente */
-    }
-
     .spyral-img {
+      display: none; /* No renderizar en móviles */
       position: fixed;
       bottom: 0;
       left: 0;
-      width: 120%; /* Un poco más grande en móvil */
+      width: 70%; /* Más pequeño en móviles (antes 120%) */
       height: auto;
       z-index: 2; /* Subimos a 2 para estar encima del degradado */
-      opacity: 0.8;
+      opacity: 0.5;
+      pointer-events: none;
 
       @media (min-width: 640px) {
         width: 100%;
       }
       @media (min-width: 768px) {
+        display: block; /* Visible a partir de tablet/desktop */
         width: 90%;
         opacity: 42%;
       }
@@ -192,13 +259,13 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
         width: 45%; /* Aumentamos el tamaño en pantallas muy altas y estrechas */
       }
       @media (min-width: 1024px) {
-        width: 20%;
+        width: 25%;
       }
       @media (min-width: 1280px) {
-        width: 18%; /* Ligeramente más grande (antes 15%) */
+        width: 22%; /* Ligeramente más grande (antes 18%) */
       }
       @media (min-width: 1536px) {
-        width: 20%; /* Removimos el scale y usamos un width real para evitar la desbalanza */
+        width: 24%; /* Ligeramente más grande (antes 20%) */
       }
     }
 
@@ -209,6 +276,7 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
       width: 75%;
       height: auto;
       z-index: 4;
+      pointer-events: none;
 
       @media (min-width: 640px) {
         width: 60%;
@@ -235,17 +303,23 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
       justify-content: center;
       gap: 2rem;
       /* Compensamos el solapamiento del main para centrar el contenido en el espacio visible */
-      padding: 0 2rem 10rem 2rem; /* Mayor compensación por el solapamiento de 10rem en móviles */
+      padding: 10rem 2rem 0 2rem; /* Mayor compensación por el solapamiento de 10rem en móviles */
       box-sizing: border-box;
 
+      @media (min-height: 64rem) {
+        height: 50%;
+      }
+
       @media (min-width: 768px) {
-        padding-bottom: 15rem;
+        padding-top: 15rem;
+        padding-bottom: 0;
       }
 
       @media (min-width: 1024px) {
         flex-direction: row;
         gap: 6rem;
-        padding-bottom: 20rem; /* En desktop compensamos los 20rem */
+        padding-top: 20rem; /* En desktop compensamos los 20rem */
+        padding-bottom: 0;
       }
 
       .hero-text {
@@ -410,6 +484,11 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
       }
     }
   }
+
+  .rest-of-page {
+    position: relative;
+    z-index: 10;
+  }
 </style>
 
 <script>
@@ -419,36 +498,64 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
   function initParallax() {
     gsap.registerPlugin(ScrollTrigger);
 
-    // Fade del Zorro y del Spyral SOLO cuando llegamos al fondo (los créditos)
-    const isMobile = window.innerWidth < 768;
-    const targetOpacityFox = isMobile ? 0.15 : 0.6;
-    const targetOpacitySpyral = isMobile ? 0.15 : 0.2;
+    // Limpiamos ScrollTriggers anteriores en caso de re-inicialización por astro
+    ScrollTrigger.getAll().forEach(trigger => trigger.kill());
 
-    gsap.to(".fox-img", {
-      opacity: targetOpacityFox,
+    // Animación de la opacidad del fondo al llegar al 70% del scroll de la página
+    gsap.to(".background", {
+      opacity: 0.15,
       scrollTrigger: {
-        trigger: ".footer-credits",
-        start: "top bottom", // cuando la parte superior de los créditos entra por abajo
+        trigger: "main",
+        start: "70% top",
         end: "bottom bottom",
         scrub: 1,
       },
     });
 
-    gsap.to(".spyral-img", {
-      opacity: targetOpacitySpyral,
-      scrollTrigger: {
-        trigger: ".footer-credits",
-        start: "top bottom",
-        end: "bottom bottom",
-        scrub: 1,
-      },
+    let mm = gsap.matchMedia();
+
+    // Móvil (< 768px)
+    mm.add("(max-width: 767px)", () => {
+      gsap.to(".fox-img", {
+        opacity: 0.15,
+        scrollTrigger: {
+          trigger: ".footer-credits",
+          start: "top bottom",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+      });
+    });
+
+    // Desktop (>= 768px)
+    mm.add("(min-width: 768px)", () => {
+      // El zorro mantiene opacidad total (no animado). El spyral baja a 0.2.
+      gsap.to(".spyral-img", {
+        opacity: 0.2,
+        scrollTrigger: {
+          trigger: ".footer-credits",
+          start: "top bottom",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+      });
     });
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initParallax);
+    document.addEventListener("DOMContentLoaded", () => {
+      initParallax();
+      setTimeout(() => ScrollTrigger.refresh(), 200);
+    });
   } else {
     initParallax();
+    setTimeout(() => ScrollTrigger.refresh(), 200);
   }
-  document.addEventListener("astro:page-load", initParallax);
+  document.addEventListener("astro:page-load", () => {
+    initParallax();
+    setTimeout(() => ScrollTrigger.refresh(), 200);
+  });
+  window.addEventListener("load", () => {
+    ScrollTrigger.refresh();
+  });
 </script>

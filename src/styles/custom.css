@@ -279,11 +279,15 @@ header .site-title img {
 /* ==============================
    GLOBAL MICRO-ANIMATIONS
    ============================== */
-.card-grid .card,
 nav.sidebar a,
 .sl-badge,
 .starlight-aside {
   transition: all 0.25s ease;
+}
+
+.card-grid .card {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease,
+    transform 0.25s ease, background-color 0.25s ease;
 }
 
 /* ==============================
