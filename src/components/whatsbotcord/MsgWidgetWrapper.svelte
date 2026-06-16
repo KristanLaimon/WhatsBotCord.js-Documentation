@@ -10,13 +10,21 @@
     chats = [],
     colorMode = $bindable(),
     showChatList = $bindable(),
+    onReady,
     ...restProps
-  }: MsgWidgetProps  = $props();
+  }: MsgWidgetProps & { onReady?: () => void } = $props();
 
 
   let innerMsgWidget = $state<IMsgWidget | undefined>();
 
   onMount(() => {
+    if (typeof window !== "undefined") {
+      const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      const windowHeightRem = window.innerHeight / rootFontSize;
+      if (windowHeightRem > 64) {
+        showChatList = false;
+      }
+    }
     return () => {
       MsgWidgetStore.ActiveRef = undefined;
     }
@@ -25,6 +33,9 @@
   $effect(() => {
     if(innerMsgWidget){
       MsgWidgetStore.ActiveRef = innerMsgWidget
+      if (onReady) {
+        onReady();
+      }
     }
   });
   

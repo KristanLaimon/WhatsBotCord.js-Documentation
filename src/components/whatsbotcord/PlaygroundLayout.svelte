@@ -2,6 +2,7 @@
   import MsgWidgetWrapper from "./MsgWidgetWrapper.svelte";
   import CodeWidgetWrapper from "./CodeWidgetWrapper.svelte";
   import { onMount } from "svelte";
+  import { fade } from "svelte/transition";
 
   let { initialCode }: { initialCode: string } = $props();
 
@@ -23,9 +24,33 @@
   let wasOpenBeforeDrag = $state(false);
   let collapsedByDrag = $state(false);
 
+  // Ready states for the widgets to manage initial loading animation
+  let isMsgWidgetReady = $state(false);
+  let isCodeWidgetReady = $state(false);
+  let isFullyReady = $derived(isMsgWidgetReady && isCodeWidgetReady);
+
+  let progress = $derived.by(() => {
+    let val = 15;
+    if (isMsgWidgetReady) val += 35;
+    if (isCodeWidgetReady) val += 50;
+    return val;
+  });
+
+  let statusText = $derived.by(() => {
+    if (!isMsgWidgetReady) return "Initializing chat preview...";
+    if (!isCodeWidgetReady) return "Loading Monaco editor & compiling bot code...";
+    return "Ready!";
+  });
+
   onMount(() => {
     if (typeof window !== "undefined") {
-      showChatList = window.innerWidth >= 640;
+      const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      const windowHeightRem = window.innerHeight / rootFontSize;
+      if (windowHeightRem > 64) {
+        showChatList = false;
+      } else {
+        showChatList = window.innerWidth >= 640;
+      }
     }
   });
 
@@ -106,6 +131,31 @@
 </script>
 
 <div class="playground-wrapper">
+  {#if !isFullyReady}
+    <div class="loading-overlay" transition:fade={{ duration: 300 }}>
+      <div class="loading-card">
+        <div class="logo-wrapper">
+          <img src="/favicon.svg" alt="Whatsbotcord Logo" class="loading-logo" />
+          <div class="pulse-ring"></div>
+          <div class="pulse-ring-outer"></div>
+        </div>
+        <h2>Preparing Playground</h2>
+        <p class="status-msg">{statusText}</p>
+        <div class="progress-track">
+          <div class="progress-bar" style="width: {progress}%"></div>
+        </div>
+        <div class="loading-steps">
+          <div class="step" class:active={isMsgWidgetReady}>
+            <span class="dot"></span> Chat Environment
+          </div>
+          <div class="step" class:active={isCodeWidgetReady}>
+            <span class="dot"></span> Code Editor & Compiler
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
+
   <!-- Mobile Toggle -->
   <div class="mobile-toggle-container">
     <div class="segment-control">
@@ -142,6 +192,7 @@
         initialSidebarCollapsed={!showChatList} 
         initialActiveChat={998} /** Documentation chat (ID) */
         initialChatScrollToBottom={false} /** Start at the top of the notes */
+        onReady={() => isMsgWidgetReady = true}
       />
     </div>
     
@@ -158,6 +209,7 @@
         onCodeRun={handleCodeRun}
         width="100%" 
         height="100%" 
+        onReady={() => isCodeWidgetReady = true}
       />
     </div>
   </div>
@@ -165,12 +217,173 @@
 
 <style>
   .playground-wrapper {
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 100%;
     height: calc(100vh - var(--var-header-height-starlight, 4rem));
     padding: 1rem;
     box-sizing: border-box;
+  }
+
+  /* Loading Overlay Styles */
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(20, 15, 37, 0.98) 0%, rgba(10, 7, 19, 0.99) 100%);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    border-radius: 8px;
+  }
+
+  .loading-card {
+    background: rgba(30, 21, 51, 0.45);
+    border: 1px solid rgba(94, 78, 194, 0.25);
+    border-radius: 16px;
+    padding: 3rem 2.5rem;
+    width: 90%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .logo-wrapper {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loading-logo {
+    width: 64px;
+    height: 64px;
+    z-index: 2;
+    filter: drop-shadow(0 0 8px rgba(94, 78, 194, 0.5));
+  }
+
+  .pulse-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid var(--sl-color-accent, #5e4ec2);
+    opacity: 0;
+    animation: pulse 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    z-index: 1;
+  }
+
+  .pulse-ring-outer {
+    position: absolute;
+    width: 120%;
+    height: 120%;
+    border-radius: 50%;
+    border: 2px dashed rgba(94, 78, 194, 0.3);
+    opacity: 0.8;
+    animation: rotate 12s linear infinite;
+    z-index: 0;
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(0.6);
+      opacity: 0;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(1.3);
+      opacity: 0;
+    }
+  }
+
+  @keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .loading-card h2 {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.025em;
+  }
+
+  .status-msg {
+    color: var(--sl-color-gray-3, #94a3b8);
+    font-size: 0.9rem;
+    margin: 0 0 2rem 0;
+    min-height: 1.25rem;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sl-color-accent, #5e4ec2) 0%, #3d7edd 100%);
+    border-radius: 3px;
+    box-shadow: 0 0 10px var(--sl-color-accent, #5e4ec2);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .loading-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    align-items: flex-start;
+    padding-left: 2rem;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.4);
+    transition: color 0.3s ease;
+  }
+
+  .step.active {
+    color: #ffffff;
+  }
+
+  .step .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .step.active .dot {
+    background: #3dd968;
+    box-shadow: 0 0 8px #3dd968;
   }
 
   .mobile-toggle-container {

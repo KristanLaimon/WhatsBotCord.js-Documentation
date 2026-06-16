@@ -21,6 +21,7 @@
     width?: string;
     height?: string;
     theme?: "light" | "dark";
+    onReady?: () => void;
   }
 
   const {
@@ -31,6 +32,7 @@
     width = "100%",
     height = "100%",
     theme = "dark",
+    onReady,
   }: CodeWidgetProps = $props();
 
   let editorContainer: HTMLElement;
@@ -380,6 +382,10 @@
       // FIX: fix widget overflow so IntelliSense dropdowns escape the container
       fixedOverflowWidgets: true,
     });
+
+    if (onReady) {
+      onReady();
+    }
 
     // Register Ctrl+S keyboard shortcut command inside the editor text area
     editor.addCommand(

@@ -10,8 +10,9 @@
     onCodeRun,
     width = "100%",
     height = "500px",
-    theme = "dark"
-  }: Omit<CodeWidgetProps, "msgWidget"> = $props();
+    theme = "dark",
+    onReady
+  }: Omit<CodeWidgetProps, "msgWidget"> & { onReady?: () => void } = $props();
 
   let msgWidgetToInject = $state<IMsgWidget | undefined>(undefined);
 
@@ -39,6 +40,7 @@
       width="100%"
       height="100%"
       theme={theme}
+      onReady={onReady}
     />
   {:else}
     <div style="padding: 2rem; text-align: center; color: {theme === 'light' ? '#475569' : 'var(--sl-color-gray-3)'}; background: {theme === 'light' ? '#f8fafc' : '#1e1e1e'}; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
