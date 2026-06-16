@@ -24,7 +24,7 @@ const isV1 = Astro.url.pathname.includes('/v1.0.3');
 
 <script is:inline>
   if (typeof localStorage !== "undefined" && !localStorage.getItem("starlight-theme")) {
-    localStorage.setItem("starlight-theme", "light");
+    localStorage.setItem("starlight-theme", "dark");
   }
 </script>
 <Default {...Astro.props}><slot /></Default>

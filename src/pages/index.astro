@@ -23,12 +23,23 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
         tag: "style",
         content: `
           html, body { overflow-x: hidden;}
-          body {
+          body, .page, .main-frame {
             background-color: #140f25 !important;
-            background-image: linear-gradient(to bottom, #140f25 0%, #140f25 50vh, #ac7554 80vh, #140f25 115vh) !important;
+            background-image: linear-gradient(to bottom, #140f25 0%, #140f25 50vh, #ac7554 75vh, #140f25 110vh) !important;
             background-attachment: scroll !important;
           }
           main, main:where(.astro-rhk77a7l), :root main { padding: 0 !important; --sl-main-pad: 0 !important; }
+          header.header {
+            background-color: transparent !important;
+            border-bottom-color: transparent !important;
+            backdrop-filter: blur(0px) !important;
+            transition: background-color 0.3s ease, border-bottom-color 0.3s ease, backdrop-filter 0.3s ease !important;
+          }
+          header.header.scrolled {
+            background-color: var(--sl-color-bg-nav) !important;
+            border-bottom-color: var(--sl-color-hairline) !important;
+            backdrop-filter: blur(8px) !important;
+          }
           .content-panel:has(#_top) { display: none !important; }
           footer.sl-flex { display: none !important; }
           .sl-container, .content-panel { max-width: none !important; padding: 0 !important; margin: 0 !important; }
@@ -547,19 +558,38 @@ import WhatsbotcordLogo from "../assets/whatsbotcord_logo.png";
     });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
-      initParallax();
-      setTimeout(() => ScrollTrigger.refresh(), 200);
-    });
-  } else {
+  function initHeaderScroll() {
+    const header = document.querySelector("header.header");
+    if (!header) return null;
+
+    const handleScroll = () => {
+      if (window.scrollY > 148) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }
+
+  let scrollCleanup: (() => void) | null = null;
+
+  function boot() {
     initParallax();
+    if (scrollCleanup) scrollCleanup();
+    scrollCleanup = initHeaderScroll();
     setTimeout(() => ScrollTrigger.refresh(), 200);
   }
-  document.addEventListener("astro:page-load", () => {
-    initParallax();
-    setTimeout(() => ScrollTrigger.refresh(), 200);
-  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+  document.addEventListener("astro:page-load", boot);
   window.addEventListener("load", () => {
     ScrollTrigger.refresh();
   });
