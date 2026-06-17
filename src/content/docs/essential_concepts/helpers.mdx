@@ -117,7 +117,7 @@ console.log(Helpers.Whatsapp.IdentifiersPostfixes.Group_Suffix_ID); // "@g.us"
 When developing new features (like interactive buttons or new media types), you may want to see the exact raw JSON structure that Baileys drops in. Calling `Helpers.Debugging.StoreMsgInHistoryJson` will dump the `rawMsg` payload into a `.json` file locally on your disk.
 
 ```ts
-  import { Debug_StoreWhatsMsgHistoryInJson } from "whatsbotcord/debugging";
+import { Debug_StoreWhatsMsgHistoryInJson } from "whatsbotcord/debugging";
 
 bot.Use(async (bot, senderLID, senderPN, chatId, rawMsg, msgType, senderType, next) => {
   if (senderPN === "1234567890@s.whatsapp.net") {

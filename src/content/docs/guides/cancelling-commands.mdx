@@ -15,11 +15,11 @@ For example, if a bot is expecting the user to send an image msg via `!forwardms
 
 You can configure which words should act as global cancellation keywords when you first instantiate the bot:
 
-```javascript
-const bot = new Bot({
+```ts
+import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
+
+const bot = new Whatsbotcord({
   commandPrefix: ["$", "!", "/", "."],
-  credentialsFolder: "./auth",
-  loggerMode: "recommended",
   delayMilisecondsBetweenMsgs: 1,
   // 1. Define global cancel keywords here
   cancelKeywords: ["abort", "stop", "cancel"], 

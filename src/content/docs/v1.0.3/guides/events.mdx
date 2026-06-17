@@ -10,8 +10,10 @@ Whatsbotcord provides a curated list of events you can subscribe to. This allows
 
 You can access events through the `bot.Events` object:
 
-```javascript
-const bot = new Bot({ /* config */ });
+```ts
+import Whatsbotcord from "whatsbotcord";
+
+const bot = new Whatsbotcord({ /* config */ });
 
 bot.Events.onGroupEnter.Subscribe((groupMetadata) => {
   console.log(`Bot joined a new group: ${groupMetadata.subject}`);

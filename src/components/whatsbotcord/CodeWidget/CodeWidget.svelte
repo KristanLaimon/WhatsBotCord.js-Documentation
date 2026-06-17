@@ -371,6 +371,7 @@
     tsOpts.setDiagnosticsOptions({
       noSemanticValidation: false,
       noSyntaxValidation: false,
+      diagnosticCodesToIgnore: [1378, 1308],
     });
 
     tsOpts.setCompilerOptions({
@@ -399,6 +400,14 @@
           tsOpts.addExtraLib(
             content,
             "file:///node_modules/whatsbotcord-browser-test/index.d.ts"
+          );
+          tsOpts.addExtraLib(
+            content,
+            "file:///node_modules/whatsbotcord-browser-test.js.d.ts"
+          );
+          tsOpts.addExtraLib(
+            content,
+            "file:///node_modules/whatsbotcord-browser-test.js/index.d.ts"
           );
         }
       } else {

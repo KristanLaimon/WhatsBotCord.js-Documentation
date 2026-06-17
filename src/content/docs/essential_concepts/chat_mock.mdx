@@ -14,11 +14,11 @@ This means you don't need an active WhatsApp connection, a testing device, or QR
 A standard testing implementation involves four specific phases: **Configuration**, **Simulation Enqueueing**, **Execution**, and **Assertion Validation**.
 
 ```ts
-  import { test, expect } from "your-testing-framework";
-  import { SenderType } from "whatsbotcord";
-  import { ChatMock } from "whatsbotcord/testing";
+import { test, expect } from "your-testing-framework";
+import { SenderType } from "whatsbotcord";
+import { ChatMock } from "whatsbotcord/testing";
 // Import the command you want to test
-  import MyCommand from "./myCommand.js";
+import MyCommand from "./myCommand.js";
 
 test("MyCommand should respond correctly", async () => {
   // 1. Configuration
@@ -165,10 +165,10 @@ If your command leveraged the raw global bot properties (e.g., executing `api.In
 Here are robust examples ensuring commands correctly handle missing parameters, confirmation loops, and dynamic mocking utilizing `ChatMock`:
 
 ```ts
-  import { describe, expect, test } from "your-testing-framework";
-  import { SenderType } from "whatsbotcord";
-  import { ChatMock } from "whatsbotcord/testing";
-  import AddMemberCommand from "./commands/AddMemberCommand.js";
+import { describe, expect, test } from "your-testing-framework";
+import { SenderType } from "whatsbotcord";
+import { ChatMock } from "whatsbotcord/testing";
+import AddMemberCommand from "./commands/AddMemberCommand.js";
 
 describe("Add Member Command Workflows", () => {
   test("Should execute failure payload when no arguments are provided", async () => {
@@ -312,17 +312,21 @@ This prevents the bot from generating a real QR code or connecting to the Bailey
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    import Bot from "whatsbotcord";
+    import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
     import { MockAdapter } from "whatsbotcord/testing";
     // Optional: Import a custom adapter
     // import { MyCustomWhatsappWebJsAdapter } from "./my-adapter";
 
-    // 1. Standard initialization: Uses Baileys by default and connects to WhatsApp
-    const bot = new Bot({ authFolder: "./auth" }); 
+    // 1. Standard initialization: Uses Baileys by default and connects to WhatsApp if you do not privade an adapter.
+    const bot = new Whatsbotcord({
+      commandPrefix: "!",
+    }, new BaileysAdapter({ credentialsFolder: "./auth" })); 
 
     // 2. Custom/Mock Initialization: Injects a different adapter engine
-    // const botMocked = new Bot({ authFolder: "./auth" }, new MyCustomWhatsappWebJsAdapter());
-    const botMocked = new Bot({ authFolder: "./auth" }, new MockAdapter());
+    // const botMocked = new Whatsbotcord({ commandPrefix: "!" }, new MyCustomWhatsappWebJsAdapter());
+    const botMocked = new Whatsbotcord({
+      commandPrefix: "!",
+    }, new MockAdapter());
     ```
   </TabItem>
 </Tabs>

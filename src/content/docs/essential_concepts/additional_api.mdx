@@ -77,10 +77,12 @@ The main [Bot](/essential_concepts/bot) instance itself exposes direct dispatch 
 You can use the bot instance globally to send messages when a `setTimeout` triggers, outside of any command.
 
 ```ts
-  import Bot, { MsgType } from "whatsbotcord";
-  import type { AdditionalAPI, IChatContext, ICommand } from "whatsbotcord/types";
+import Whatsbotcord, { BaileysAdapter, MsgType } from "whatsbotcord";
+import type { AdditionalAPI, IChatContext, ICommand } from "whatsbotcord/types";
 
-const bot = new Bot({ authFolder: "./auth" });
+const bot = new Whatsbotcord({
+  commandPrefix: "!",
+});
 
 // Start the bot as usual
 await bot.Start();
@@ -99,8 +101,8 @@ Imagine you have an external web server (like Express) running alongside your bo
 Because this endpoint is triggered by a web request and is not bound to a user's `ChatContext`, you can utilize the `Bot` instance globally and use `bot.SendMsg`.
 
 ```ts
-  import express from "express";
-  import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
+import express from "express";
+import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
 
 export function StartWebhookServer(bot: Bot) {
   const app = express();

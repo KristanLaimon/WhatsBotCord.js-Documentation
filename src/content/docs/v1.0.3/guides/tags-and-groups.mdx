@@ -15,7 +15,7 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
 <Tabs>
   <TabItem label="JavaScript" icon="seti:javascript">
     ```javascript
-    import Bot, { CommandType, CreateCommand } from "whatsbotcord";
+    import Whatsbotcord, { BaileysAdapter, CommandType, CreateCommand } from "whatsbotcord";
 
     const everyoneTag = CreateCommand(
       "everyone",
@@ -39,10 +39,9 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
       { aliases: ["e"] }
     );
 
-    const bot = new Bot({
+    const bot = new Whatsbotcord({
       commandPrefix: ["!"],
       tagPrefix: ["@"],
-      credentialsFolder: "./auth",
     });
 
     /** IMPORTANT: Use CommandType.Tag prop to make it use the @ prefix */
@@ -54,7 +53,7 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
     import type { AdditionalAPI, ChatContext, CommandArgs, ICommand } from "whatsbotcord";
-    import Bot, { CommandType } from "whatsbotcord";
+    import Whatsbotcord, { BaileysAdapter, CommandType } from "whatsbotcord";
 
     class EveryoneTag implements ICommand {
       name: string = "e";
@@ -74,10 +73,9 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
       }
     }
 
-    const bot = new Bot({
+    const bot = new Whatsbotcord({
       commandPrefix: ["!"],
       tagPrefix: ["@"],
-      credentialsFolder: "./auth",
     });
 
     bot.Commands.Add(new EveryoneTag(), CommandType.Tag);

@@ -22,15 +22,13 @@ Initialize a functional bot instance and register a fundamental command in minut
    <Tabs>
         <TabItem label="TypeScript" icon="seti:typescript">
        ```ts
-        import Bot from "whatsbotcord";
-        import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
-
-        const bot = new Bot({
-          commandPrefix: "!",
-          tagPrefix: "@",
-          credentialsFolder: "./auth",
-          loggerMode: "recommended",
-        });
+         import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
+         import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
+ 
+         const bot = new Whatsbotcord({
+           commandPrefix: "!",
+           tagPrefix: "@",
+         });
 
         class PingCommand implements ICommand {
           name: string = "ping";
@@ -47,15 +45,16 @@ Initialize a functional bot instance and register a fundamental command in minut
      </TabItem>
      <TabItem label="JavaScript" icon="seti:javascript">
       ```js
-        import Bot from "whatsbotcord";
-        import { CreateCommand } from "whatsbotcord/helpers";
-
-        const bot = new Bot({
-          commandPrefix: "!",
-          tagPrefix: "@",
-          credentialsFolder: "./auth",
-          loggerMode: "recommended",
-        }));
+         import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
+         import { CreateCommand } from "whatsbotcord/helpers";
+ 
+         const bot = new Whatsbotcord({
+           commandPrefix: "!",
+           tagPrefix: "@",
+         }, new BaileysAdapter({
+           credentialsFolder: "./auth",
+           loggerMode: "recommended",
+         }));
 
         const PongCommand = CreateCommand(
           "ping",
@@ -75,15 +74,15 @@ Initialize a functional bot instance and register a fundamental command in minut
           <TabItem label="Typescript/Javascript with inline command creation">
 
       ```js
-      import Bot from "whatsbotcord";
-      import { CommandType } from "whatsbotcord";
-
-      const bot = new Bot({
-        commandPrefix: "!",
-        tagPrefix: "@",
-        credentialsFolder: "./auth",
-        loggerMode: "recommended",
-      });
+       import Whatsbotcord, { BaileysAdapter, CommandType } from "whatsbotcord";
+ 
+       const bot = new Whatsbotcord({
+         commandPrefix: "!",
+         tagPrefix: "@",
+       }, new BaileysAdapter({
+         credentialsFolder: "./auth",
+         loggerMode: "recommended",
+       }));
 
       bot.Commands.Add(
         {
@@ -138,10 +137,10 @@ These are the most important ones:
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
     ```ts
-    import Bot from "whatsbotcord";
+    import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
     import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
-
-    const bot = new Bot({
+ 
+    const bot = new Whatsbotcord({
       // -------------------------------------------------------------------
       // 1. Basic Options
       // -------------------------------------------------------------------
@@ -151,15 +150,15 @@ These are the most important ones:
       // Which characters should trigger a tag-based command?
       tagPrefix: ["@"],
       
+      // Should the bot capture its own messages? (By default: false)
+      ignoreSelfMessage: false,
+    }, new BaileysAdapter({
       // Where to store the WhatsApp session authentication files (By default in local ./auth directory)
       credentialsFolder: "./auth",
       
       // Console logging detail level ("silent", "error", "debug", "recommended")
       loggerMode: "recommended",
-
-      // Should the bot capture its own messages? (By default: false)
-      ignoreSelfMessage: false,
-    });
+    }));
 
     class PingCommand implements ICommand {
       name: string = "ping";
@@ -175,9 +174,9 @@ These are the most important ones:
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
     ```js
-    import Bot from "whatsbotcord";
-
-    const bot = new Bot({
+    import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
+ 
+    const bot = new Whatsbotcord({
       // -------------------------------------------------------------------
       // 1. Basic Options
       // -------------------------------------------------------------------
@@ -187,15 +186,15 @@ These are the most important ones:
       // Which characters should trigger a tag-based command?
       tagPrefix: ["@"],
       
+      // Should the bot capture its own messages? (By default: false)
+      ignoreSelfMessage: false,
+    }, new BaileysAdapter({
       // Where to store the WhatsApp session authentication files (By default in local ./auth directory)
       credentialsFolder: "./auth",
       
       // Console logging detail level ("silent", "error", "debug", "recommended")
       loggerMode: "recommended",
-
-      // Should the bot capture its own messages? (By default: false)
-      ignoreSelfMessage: false,
-    });
+    }));
 
     bot.Commands.Add({
       ...
@@ -212,8 +211,6 @@ These are the most important ones:
 | :--- | :--- | :--- | :--- |
 | `commandPrefix` | `string \| string[]` | `'!'` | Character(s) used to prefix commands. Configure multiple prefixes with an array (e.g. `['!', '/']`). |
 | `tagPrefix` | `string \| string[]` | `'@'` | Character(s) used to tag the bot in messages (especially useful in group contexts). |
-| `credentialsFolder` | `string` | `"./auth"` | Path to the folder where WhatsApp session credentials are stored. |
-| `loggerMode` | `WhatsSocketLoggerMode` | `"debug"` | Logging verbosity level (e.g. `"recommended"`, `"silent"`, `"debug"`, `"error"`). |
 | `ignoreSelfMessage` | `boolean` | `true` | If true, the socket ignores messages sent by the bot itself. |
 
 

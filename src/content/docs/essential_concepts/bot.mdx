@@ -22,11 +22,10 @@ To learn how to create your first command, check out the [Quick Start](/getting-
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
     ```ts
-    import Bot from "whatsbotcord";
+    import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
 
-    const bot = new Bot({
+    const bot = new Whatsbotcord({
       commandPrefix: "!",
-      loggerMode: "recommended",
     });
 
     await bot.Start();
@@ -34,11 +33,10 @@ To learn how to create your first command, check out the [Quick Start](/getting-
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
     ```js
-    import Bot from "whatsbotcord";
+    import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
 
-    const bot = new Bot({
+    const bot = new Whatsbotcord({
       commandPrefix: "!",
-      loggerMode: "recommended",
     });
 
     await bot.Start();
@@ -60,12 +58,11 @@ The Bot instance exposes several powerful modules that you will use to shape you
 Here is an example demonstrating how these core components fit together:
 
 ```ts
-  import Bot, { CommandType, OfficialPlugin_OneCommandPerUserAtATime } from "whatsbotcord";
-  import { PingCommand, SendPrivately } from "./commands";
+import Whatsbotcord, { BaileysAdapter, CommandType, OfficialPlugin_OneCommandPerUserAtATime } from "whatsbotcord";
+import { PingCommand, SendPrivately } from "./commands";
 
-const bot = new Bot({
+const bot = new Whatsbotcord({
   commandPrefix: ["!", "/"],
-  credentialsFolder: "./auth",
 });
 
 // 1. Add Commands
@@ -98,16 +95,21 @@ The `Bot` constructor accepts an extensive set of configuration properties to fi
 Here is an example of a bot initialized with custom configuration values:
 
 ```ts
-const bot = new Bot({
+import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
+
+const bot = new Whatsbotcord({
   commandPrefix: ["$", "!", "/", "."],
   tagPrefix: ["@"],
-  credentialsFolder: process.env.NODE_ENV === "development" ? "auth_canary" : "./auth",
-  loggerMode: "recommended",
   delayMilisecondsBetweenMsgs: 1,
   cancelKeywords: ["cancelcustom"],
   defaultEmojiToSendReactionOnFailureCommand: "🦊",
-});
+}, new BaileysAdapter({
+  credentialsFolder: process.env.NODE_ENV === "development" ? "auth_canary" : "./auth",
+  loggerMode: "recommended",
+}));
 ```
+The adapter is optional, if you do not provide any, it will use BaileysAdapter by default. You would only use it if
+you need to custom, the credentialsFodler, loggermode etc...
 
 ### Basic Options
 
@@ -117,9 +119,22 @@ The main options you should always set or at least be aware of.
 | :------------------ | :---------------------- | :--------- | :--------------------------------------------------------------------------------------------------- |
 | `commandPrefix`     | `string \| string[]`    | `'!'`      | Character(s) used to prefix commands. Configure multiple prefixes with an array (e.g. `['!', '/']`). |
 | `tagPrefix`         | `string \| string[]`    | `'@'`      | Character(s) used to tag the bot in messages (especially useful in group contexts).                  |
-| `credentialsFolder` | `string`                | `"./auth"` | Path to the folder where WhatsApp session credentials are stored.                                    |
-| `loggerMode`        | `WhatsSocketLoggerMode` | `"debug"`  | Logging verbosity level (e.g. `"recommended"`, `"silent"`, `"debug"`, `"error"`).                    |
 | `ignoreSelfMessage` | `boolean`               | `true`     | If true, the bot ignores messages sent by its own account to prevent infinite loops.                 |
+
+<Aside type="important">
+The `credentialsFolder` and `loggerMode` options have been moved to the WhatsApp Adapter (such as `BaileysAdapter`).
+To customize them, pass a configured adapter as the second argument to the `Whatsbotcord` constructor:
+```ts
+import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
+
+const bot = new Whatsbotcord({
+  commandPrefix: "!",
+}, new BaileysAdapter({
+  credentialsFolder: "./auth",
+  loggerMode: "recommended"
+}));
+```
+</Aside>
 
 ### Connection & Throttling Options
 

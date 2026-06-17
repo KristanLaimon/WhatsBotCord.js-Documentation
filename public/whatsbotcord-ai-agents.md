@@ -84,9 +84,11 @@ The main [Bot](/essential_concepts/bot) instance itself exposes direct dispatch 
 You can use the bot instance globally to send messages when a `setTimeout` triggers, outside of any command.
 
 ```ts
-import Whatsbotcord from "whatsbotcord";
+import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
 
-const bot = new Whatsbotcord({ authFolder: "./auth" });
+const bot = new Whatsbotcord({
+  commandPrefix: "!",
+}, new BaileysAdapter({ credentialsFolder: "./auth" }));
 
 // Start the bot as usual
 await bot.Start();
@@ -731,15 +733,17 @@ This prevents the bot from generating a real QR code or connecting to the Bailey
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    import { WhatsBot } from "whatsbotcord";
+    import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
     // Optional: Import a custom adapter or MockAdapter
     // import { MyCustomWhatsappWebJsAdapter } from "./my-adapter";
 
     // 1. Standard initialization: Uses Baileys by default and connects to WhatsApp
-    const bot = new WhatsBot({ authFolder: "./auth" }); 
+    const bot = new Whatsbotcord({
+      commandPrefix: "!",
+    }, new BaileysAdapter({ credentialsFolder: "./auth" })); 
 
     // 2. Custom/Mock Initialization: Injects a different adapter engine
-    // const botMocked = new WhatsBot({ authFolder: "./auth" }, new MyCustomWhatsappWebJsAdapter());
+    // const botMocked = new Whatsbotcord({ commandPrefix: "!" }, new MyCustomWhatsappWebJsAdapter());
     ```
   </TabItem>
 </Tabs>
@@ -3682,8 +3686,10 @@ Whatsbotcord provides a curated list of events you can subscribe to. This allows
 
 You can access events through the `bot.Events` object:
 
-```javascript
-const bot = new Bot({ /* config */ });
+```ts
+import Whatsbotcord from "whatsbotcord";
+
+const bot = new Whatsbotcord({ /* config */ });
 
 bot.Events.onGroupEnter.Subscribe((groupMetadata) => {
   console.log(`Bot joined a new group: ${groupMetadata.subject}`);
@@ -3982,7 +3988,7 @@ Below is a reference of a production-level `index.ts` utilizing environment vali
 
     // 1. Main Dependencies
     import type { ICommand } from "whatsbotcord";
-    import Whatsbotcord, { CommandType, OfficialPlugin_OneCommandPerUserAtATime } from "whatsbotcord";
+    import Whatsbotcord, { BaileysAdapter, CommandType, OfficialPlugin_OneCommandPerUserAtATime } from "whatsbotcord";
 
     // 2. Configuration & Helpers
     import { ENV_AuthFolder, ENV_IsDev } from "./envs.js";
@@ -4009,13 +4015,14 @@ Below is a reference of a production-level `index.ts` utilizing environment vali
     const Bot = new Whatsbotcord({
       commandPrefix: ["!", "/"],
       tagPrefix: "@",
-      loggerMode: "info",
       defaultEmojiToSendReactionOnFailureCommand: "❌",
       enableCommandSafeNet: true,
-      credentialsFolder: ENV_AuthFolder,
       delayMilisecondsBetweenMsgs: 500,
       senderQueueMaxLimit: 12,
-    });
+    }, new BaileysAdapter({
+      credentialsFolder: ENV_AuthFolder,
+      loggerMode: "info",
+    }));
 
     /** ============================= Bot configuration =============================== */
     {
@@ -4092,15 +4099,17 @@ The biggest architectural change in this version is the complete abstraction of 
 
 ### Custom Adapters Injection
 
-Now the main `WhatsBot` class accepts an optional second parameter in its constructor that implements the `IWhatsappAdapter` interface. If none is provided, the bot will automatically use the official Baileys adapter (`BaileysWhatsSocketAdapter`).
+Now the main `Whatsbotcord` class accepts an optional second parameter in its constructor that implements the `IWhatsappAdapter` interface. If none is provided, the bot will automatically use the official Baileys adapter (`BaileysAdapter`).
 
 ```typescript
-import { WhatsBot } from "whatsbotcord";
+import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
 // Optional: Import a custom adapter
 // import { MyCustomWhatsappWebJsAdapter } from "./my-adapter";
 
-const bot = new WhatsBot({ authFolder: "./auth" }); // Uses Baileys by default
-// const bot = new WhatsBot({ authFolder: "./auth" }, new MyCustomWhatsappWebJsAdapter());
+const bot = new Whatsbotcord({
+  commandPrefix: "!",
+}, new BaileysAdapter({ credentialsFolder: "./auth" })); // Uses Baileys by default
+// const bot = new Whatsbotcord({ commandPrefix: "!" }, new MyCustomWhatsappWebJsAdapter());
 ```
 
 ### Testing Utilities (Mocking)
@@ -4108,12 +4117,14 @@ const bot = new WhatsBot({ authFolder: "./auth" }); // Uses Baileys by default
 Thanks to this new abstraction, it is now possible to perform **Unit Testing and E2E Testing** on your bot without needing to scan a QR code or connect to WhatsApp servers. A new testing tool is exposed: `MockAdapter`.
 
 ```typescript
-import { WhatsBot, CommandType } from "whatsbotcord";
+import Whatsbotcord, { CommandType } from "whatsbotcord";
 import { MockAdapter, ChatMock } from "whatsbotcord/testing";
 
 // 1. Initialize the bot with the mock adapter (starts instantly in memory)
 const mockAdapter = new MockAdapter();
-const bot = new WhatsBot({ authFolder: "./auth" }, mockAdapter);
+const bot = new Whatsbotcord({
+  commandPrefix: "!",
+}, mockAdapter);
 
 // 2. You can add commands and test them
 bot.Commands.AddCommand(CommandType.Normal, {

@@ -90,12 +90,16 @@ export async function runBotCode(
   libExports.default = MockedWhatsbotcord;
 
   // Wrap compiled modules into functions
+  const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
   const modules: Record<string, Function> = {};
   for (const uri in transpiledFiles) {
     const jsCode = transpiledFiles[uri];
     try {
       // Inject module system arguments, MockMedia, and console
-      modules[uri] = new Function("exports", "require", "module", "MockMedia", "console", jsCode);
+      const isAsync = /\bawait\b/.test(jsCode);
+      modules[uri] = isAsync
+        ? new AsyncFunction("exports", "require", "module", "MockMedia", "console", jsCode)
+        : new Function("exports", "require", "module", "MockMedia", "console", jsCode);
     } catch (err: any) {
       const filename = uri.replace("file:///", "");
       throw new Error(`Syntax error in ${filename}: ${err.message}`);
@@ -108,7 +112,7 @@ export async function runBotCode(
     if (name === "whatsbotcord") {
       return libExports;
     }
-    if (name === "whatsbotcord-browser-test") {
+    if (name === "whatsbotcord-browser-test" || name === "whatsbotcord-browser-test.js") {
       return WhatsbotcordTestLib;
     }
     if (name === "whatsbotcord/testing") {
@@ -161,8 +165,9 @@ export async function runBotCode(
     const moduleObj = { exports: {} };
     cache[actualUri] = moduleObj;
     
+    let res: any;
     try {
-      modules[actualUri](
+      res = modules[actualUri](
         moduleObj.exports,
         (depName: string) => requireModule(depName, actualUri),
         moduleObj,
@@ -175,12 +180,19 @@ export async function runBotCode(
       throw err;
     }
     
+    if (actualUri === entryPointUri) {
+      return res;
+    }
+    
     return moduleObj.exports;
   }
 
   try {
     // Run the entry point file
-    requireModule(entryPointUri, "file:///");
+    const result = requireModule(entryPointUri, "file:///");
+    if (result instanceof Promise) {
+      await result;
+    }
     return activeAdapter;
   } catch (err) {
     activeAdapter.destroy();

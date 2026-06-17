@@ -1,1 +1,6 @@
 export{v as ChatContext,A as ChatMock,w as CommandType,y as CreateCommand,j as Delegate,F as Helpers,a as MsgType,b as SenderType,u as WhatsSocket,k as WhatsSocketReceiverMsgError,E as WhatsappHelpers,n as WhatsappIdType,D as WhatsappIdentifiers,x as Whatsbotcord,B as WorkFlowNumericMany,C as WorkflowNumericSingle,G as default}from'./chunk-TM5I6DBB.js';import'./chunk-JFKSI6I7.js';
+export class BaileysAdapter {
+  constructor(config = {}) {
+    this.config = config;
+  }
+}

@@ -16,8 +16,7 @@ You can structure your bot any way you want, but normally, when creating many co
 
     // 1. Main Dependencies
     import type { ICommand } from "whatsbotcord/types";
-    import Bot from "whatsbotcord";
-    import { CommandType, OfficialPlugin_OneCommandPerUserAtATime } from "whatsbotcord";
+    import Whatsbotcord, { BaileysAdapter, CommandType, OfficialPlugin_OneCommandPerUserAtATime } from "whatsbotcord";
 
     // 2. Configuration & Helpers
     import { ENV_AuthFolder, ENV_IsDev } from "./envs.js";
@@ -41,16 +40,17 @@ You can structure your bot any way you want, but normally, when creating many co
     /** =================================== MAIN ======================================= */
     
     // 5. Core Bot Initialization
-    const Bot = new Bot({
+    const Bot = new Whatsbotcord({
       commandPrefix: ["!", "/"],
       tagPrefix: "@",
-      loggerMode: "info",
       defaultEmojiToSendReactionOnFailureCommand: "❌",
       enableCommandSafeNet: true,
-      credentialsFolder: ENV_AuthFolder,
       delayMilisecondsBetweenMsgs: 500,
       senderQueueMaxLimit: 12,
-    });
+    }, new BaileysAdapter({
+      credentialsFolder: ENV_AuthFolder,
+      loggerMode: "info",
+    }));
 
     /** ============================= Bot configuration =============================== */
     {

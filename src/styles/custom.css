@@ -437,3 +437,9 @@ nav.sidebar a,
   top: 8px;
   right: 52px; /* Next to the copy button in the header */
 }
+
+/* If the code snippet is a starlight-tabs group, place it in the tab list bar next to the right side */
+.playground-button-wrapper.starlight-tabs-playground .test-playground-btn {
+  top: 6px;
+  right: 8px;
+}

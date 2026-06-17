@@ -22,10 +22,11 @@ Use this for features that need to inspect all traffic, such as:
 - Blocking users across the entire bot
 
 ```typescript
-const bot = new Bot({
+import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
+
+const bot = new Whatsbotcord({
   commandPrefix: ["!"],
-  credentialsFolder: "./auth",
-});
+}, new BaileysAdapter({ credentialsFolder: "./auth" }));
 
 // Add a general middleware for logging
 bot.Use((bot, senderId_LID, senderId_PN, chatId, rawMsg, msgType, senderType, next) => {
