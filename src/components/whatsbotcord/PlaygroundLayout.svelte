@@ -11,7 +11,7 @@
   
   let isLoadingCode = $state(true);
   let codeToUse = $state("");
-  let activeChatIdToUse = $state(999);
+  let activeChatIdToUse = $state(998);
   let initialMessageInput = $state("");
 
 
