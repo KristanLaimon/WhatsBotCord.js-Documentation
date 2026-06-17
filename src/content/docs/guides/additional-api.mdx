@@ -24,7 +24,7 @@ The `InternalSocket.Send.*` endpoint mirrors the syntax of `ChatContext.Send*`, 
 - **Groups**: Append `@g.us` (e.g., `987654321@g.us`)
 
 ```typescript
-import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
+  import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
 
 class Broadcast implements ICommand {
   name = "broadcast";
@@ -52,9 +52,9 @@ _Note:_ Standard broadcasts flow through a safety-queue to prevent WhatsApp from
 Occasionally you will need to peek beneath the surface of commands and inspect raw socket emissions (such as `onIncomingMsg`).
 
 ```typescript
-import Bot from "whatsbotcord";
-import { MsgType } from "whatsbotcord";
-import type { ICommand, IChatContext, AdditionalAPI } from "whatsbotcord/types";
+  import Bot from "whatsbotcord";
+  import { MsgType } from "whatsbotcord";
+  import type { ICommand, IChatContext, AdditionalAPI } from "whatsbotcord/types";
 
 const bot = new Bot({
   commandPrefix: "!",

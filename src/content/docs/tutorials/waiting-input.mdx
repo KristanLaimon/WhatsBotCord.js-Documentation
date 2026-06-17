@@ -17,7 +17,7 @@ When receiving input, users might send invalid data, the wrong media type, or si
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
     
-import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
+    import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
 
     export class AskNameCommand implements ICommand {
       public name: string = "askname";
@@ -83,7 +83,7 @@ import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbo
 Sometimes you don't want text, you want a file. Instead of `WaitText`, you can use `WaitMultimedia`. It works exactly the same way but returns a binary `Buffer` containing the downloaded media.
 
 ```typescript
-import { MsgType } from "whatsbotcord";
+    import { MsgType } from "whatsbotcord";
 
 // ... inside your run method ...
 

@@ -11,10 +11,11 @@ WhatsBotCord provides a unified, strongly-typed interface for handling WhatsApp 
 
 ## Access Points
 
-The Groups API is accessible from two primary locations depending on where you are writing your code:
+The Groups API is accessible from three different locations depending on your context:
 
-- **Inside a Command (`ChatContext`):** Use `ctx.Group` for actions related to the current chat context.
-- **Globally (`WhatsBot` instance):** Use `bot.Groups` for external global actions (e.g., cron jobs or webhooks).
+1. **Inside a Command (`ChatContext`):** Use `ctx.Group` for quick, scoped group actions (such as `ctx.Group.GetMetadata()`).
+2. **On the Bot Instance directly:** Use `bot.Groups` for global group operations (such as `bot.Groups.GetAll()`).
+3. **Via `api.InternalSocket`:** Use `api.InternalSocket.group` (which points to the exact same object as `bot.Groups`) inside or outside command callbacks.
 
 ---
 

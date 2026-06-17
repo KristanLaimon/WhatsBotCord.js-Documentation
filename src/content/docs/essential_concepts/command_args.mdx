@@ -65,7 +65,7 @@ Contextual details about where the message landed.
 - **`msgType`**: The format of the message that triggered the command (e.g., `Text`, `Image`, `Audio`).
 
 ```ts
-import { SenderType } from "whatsbotcord";
+  import { SenderType } from "whatsbotcord";
 
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
   if (args.senderType === SenderType.Group) {

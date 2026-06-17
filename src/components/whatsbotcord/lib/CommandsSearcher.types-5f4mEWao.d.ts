@@ -3596,6 +3596,7 @@ type WhatsBotEvents = IWhatsSocket_EventsOnly_Module & {
 type WhatsBotSender = IWhatsSocket_Submodule_SugarSender;
 type WhatsBotReceiver = IWhatsSocket_Submodule_Receiver;
 type WhatsBotGroup = IWhatsSocket_Submodule_Group;
+type WhatsBotPresence = IWhatsSocket_Submodule_Presence;
 type WhatsBotCommands = CommandsSearcher;
 type WhatsbotcordMiddlewareFunct = (bot: Bot, senderId_LID: string | null, senderId_PN: string | null, chatId: string, rawMsg: WhatsappMessage, msgType: MsgType, senderType: SenderType, next: () => Promise<void>) => Promise<void> | void;
 type WhatsbotcordMiddlewareFunct_OnFoundCommand = (bot: Bot, senderId_LID: string | null, senderId_PN: string | null, chatId: string, rawMsg: WhatsappMessage, msgType: MsgType, senderType: SenderType, commandFound: ICommand, next: () => Promise<void>) => Promise<void> | void;
@@ -3721,6 +3722,15 @@ declare class Bot implements BotMinimalInfo {
      * ```
      */
     get Groups(): WhatsBotGroup;
+    /**
+     * Grouped API for WhatsApp presence/status indicators.
+     *
+     * @example
+     * ```typescript
+     * await bot.Presence.SetGlobalPresenceState("online");
+     * ```
+     */
+    get Presence(): WhatsBotPresence;
     /** Exposes all bot-related events that consumers can subscribe to.
      *
      * These events are implemented using `Delegate`, which provides `Subscribe` and
@@ -4005,4 +4015,4 @@ type FoundQuotedMsg = {
     type: MsgType;
 };
 
-export { type AdditionalAPI as A, Bot as B, ChatContext as C, Delegate as D, type WhatsbotcordPlugin as E, type WhatsSocketReceiverWaitOptions as F, type GroupMetadataInfo as G, type WhatsMsgSenderSendingOptions as H, type IChatContextConfig as I, type WhatsMsgMediaOptions as J, type WhatsMsgSenderSendingOptionsMINIMUM as K, type WhatsMsgAudioOptions as L, MsgType as M, type WhatsMsgDocumentOptions as N, type WhatsMsgPollOptions as O, type WhatsMsgUbicationOptions as P, type IWhatsSocket_Submodule_Presence as Q, type WhatsBotOptions as R, SenderType as S, WhatsappHelper_ExtractWhatsappInfoInfoFromSenderRawMsg as W, WhatsappHelper_ExtractFromWhatsappID as a, WhatsappHelper_ExtractWhatsappInfoFromMention as b, WhatsappHelper_isLIDIdentifier as c, WhatsappHelper_isMentionId as d, WhatsappHelper_isFullWhatsappIdUser as e, WhatsSocketReceiverHelper_isReceiverError as f, type CommandArgs as g, type CommandEntry as h, CommandType as i, type IChatContext as j, type IChatGroupAPI as k, type ICommand as l, type IMsgServiceSocketMinimum as m, type IWhatsSocket as n, type IWhatsSocket_EventsOnly_Module as o, type IWhatsSocket_Submodule_Group as p, type IWhatsSocket_Submodule_Receiver as q, type IWhatsSocket_Submodule_SugarSender as r, type WhatsbotcordMiddlewareFunct_OnFoundCommand as s, WhatsSocket as t, type WhatsSocketOptions as u, type WhatsSocketReceiverError as v, WhatsSocketReceiverMsgError as w, type WhatsappIDInfo as x, WhatsappIdType as y, type WhatsbotcordMiddlewareFunct as z };
+export { type AdditionalAPI as A, Bot as B, ChatContext as C, Delegate as D, WhatsappIdType as E, type WhatsbotcordMiddlewareFunct as F, type GroupMetadataInfo as G, type WhatsbotcordPlugin as H, type IChatContextConfig as I, type WhatsSocketReceiverWaitOptions as J, type WhatsMsgSenderSendingOptions as K, type WhatsMsgMediaOptions as L, MsgType as M, type WhatsMsgSenderSendingOptionsMINIMUM as N, type WhatsMsgAudioOptions as O, type WhatsMsgDocumentOptions as P, type WhatsMsgPollOptions as Q, type WhatsMsgUbicationOptions as R, SenderType as S, type IWhatsSocket_Submodule_Presence as T, type WhatsBotOptions as U, WhatsappHelper_ExtractWhatsappInfoInfoFromSenderRawMsg as W, WhatsappHelper_ExtractFromWhatsappID as a, WhatsappHelper_ExtractWhatsappInfoFromMention as b, WhatsappHelper_isLIDIdentifier as c, WhatsappHelper_isMentionId as d, WhatsappHelper_isFullWhatsappIdUser as e, WhatsSocketReceiverHelper_isReceiverError as f, type CommandArgs as g, type CommandEntry as h, CommandType as i, type IChatContext as j, type IChatGroupAPI as k, type ICommand as l, type IMsgServiceSocketMinimum as m, type IWhatsSocket as n, type IWhatsSocket_EventsOnly_Module as o, type IWhatsSocket_Submodule_Group as p, type IWhatsSocket_Submodule_Receiver as q, type IWhatsSocket_Submodule_SugarSender as r, type WhatsbotcordMiddlewareFunct_OnFoundCommand as s, type WhatsBotGroup as t, type WhatsBotPresence as u, WhatsSocket as v, type WhatsSocketOptions as w, type WhatsSocketReceiverError as x, WhatsSocketReceiverMsgError as y, type WhatsappIDInfo as z };

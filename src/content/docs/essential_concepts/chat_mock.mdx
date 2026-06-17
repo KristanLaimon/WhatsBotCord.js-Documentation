@@ -14,11 +14,11 @@ This means you don't need an active WhatsApp connection, a testing device, or QR
 A standard testing implementation involves four specific phases: **Configuration**, **Simulation Enqueueing**, **Execution**, and **Assertion Validation**.
 
 ```ts
-import { test, expect } from "your-testing-framework";
-import { SenderType } from "whatsbotcord";
-import { ChatMock } from "whatsbotcord/testing";
+  import { test, expect } from "your-testing-framework";
+  import { SenderType } from "whatsbotcord";
+  import { ChatMock } from "whatsbotcord/testing";
 // Import the command you want to test
-import MyCommand from "./myCommand.js";
+  import MyCommand from "./myCommand.js";
 
 test("MyCommand should respond correctly", async () => {
   // 1. Configuration
@@ -165,10 +165,10 @@ If your command leveraged the raw global bot properties (e.g., executing `api.In
 Here are robust examples ensuring commands correctly handle missing parameters, confirmation loops, and dynamic mocking utilizing `ChatMock`:
 
 ```ts
-import { describe, expect, test } from "your-testing-framework";
-import { SenderType } from "whatsbotcord";
-import { ChatMock } from "whatsbotcord/testing";
-import AddMemberCommand from "./commands/AddMemberCommand.js";
+  import { describe, expect, test } from "your-testing-framework";
+  import { SenderType } from "whatsbotcord";
+  import { ChatMock } from "whatsbotcord/testing";
+  import AddMemberCommand from "./commands/AddMemberCommand.js";
 
 describe("Add Member Command Workflows", () => {
   test("Should execute failure payload when no arguments are provided", async () => {

@@ -9,9 +9,9 @@
   import ConsolePanel from "./components/ConsolePanel.svelte";
   import "./style/CodeWidget.css";
 
-  import commandsSearcherTypesRaw from "../lib/CommandsSearcher.types-Cl63i0Aw.d.ts?raw";
-  import typesCBnhUPhRaw from "../lib/types-C_BnhUPh.d.ts?raw";
-  import typesO6OAA9xaRaw from "../lib/types-O6OAA9xa.d.ts?raw";
+  import commandsSearcherTypesRaw from "../lib/CommandsSearcher.types-5f4mEWao.d.ts?raw";
+  import typesCqnhN4HRRaw from "../lib/types-CqnhN4HR.d.ts?raw";
+  import typesDYpP1B44Raw from "../lib/types-DYpP1B44.d.ts?raw";
   import browserLibRaw from "../lib/whatsbotcord-browser-lib.d.ts?raw";
   import debuggingRaw from "../lib/whatsbotcord-browser-lib.debugging.d.ts?raw";
   import helpersRaw from "../lib/whatsbotcord-browser-lib.helpers.d.ts?raw";
@@ -20,9 +20,9 @@
   import browserTestRaw from "../lib/testing_framework_mock/whatsbotcord-browser-test.d.ts?raw";
 
   const dtsFiles: Record<string, string> = {
-    "../lib/CommandsSearcher.types-Cl63i0Aw.d.ts": commandsSearcherTypesRaw,
-    "../lib/types-C_BnhUPh.d.ts": typesCBnhUPhRaw,
-    "../lib/types-O6OAA9xa.d.ts": typesO6OAA9xaRaw,
+    "../lib/CommandsSearcher.types-5f4mEWao.d.ts": commandsSearcherTypesRaw,
+    "../lib/types-CqnhN4HR.d.ts": typesCqnhN4HRRaw,
+    "../lib/types-DYpP1B44.d.ts": typesDYpP1B44Raw,
     "../lib/whatsbotcord-browser-lib.d.ts": browserLibRaw,
     "../lib/whatsbotcord-browser-lib.debugging.d.ts": debuggingRaw,
     "../lib/whatsbotcord-browser-lib.helpers.d.ts": helpersRaw,

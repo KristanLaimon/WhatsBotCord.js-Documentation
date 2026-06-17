@@ -71,9 +71,10 @@ Import the library and you can use this minimal code to get started with your fi
 ### Javascript
 
 ```js
-import Whatsbotcord, { CommandType } from "whatsbotcord";
+  import Bot from "whatsbotcord";
+  import { CommandType } from "whatsbotcord";
 
-const bot = new Whatsbotcord({
+const bot = new Bot({
   commandPrefix: "!",
   tagPrefix: "@",
   credentialsFolder: "./auth",
@@ -94,9 +95,11 @@ bot.Start();
 ### Typescript
 
 ```ts
-import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, CommandType } from "whatsbotcord";
+  import Bot from "whatsbotcord";
+  import { CommandType } from "whatsbotcord";
+  import type { AdditionalAPI, CommandArgs, IChatContext } from "whatsbotcord/types";
 
-const bot = new Whatsbotcord({
+const bot = new Bot({
   commandPrefix: "!",
   tagPrefix: "@",
   credentialsFolder: "./auth",
@@ -126,7 +129,9 @@ it is valid.
 ### Javascript
 
 ```js
-import Whatsbotcord, { CommandType, CreateCommand, MsgType } from "whatsbotcord";
+  import Bot from "whatsbotcord";
+  import { CommandType, MsgType } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
 
 // ================== Ping.js ======================
 const pingCommand = CreateCommand(
@@ -140,7 +145,7 @@ export default pingCommand;
 
 // ========================== MAIN ==============================
 //import pingCommand from "./Ping.js";
-const bot = new Whatsbotcord({
+const bot = new Bot({
   //Can accept an array of prefixes or only one "!" prefix
   commandPrefix: ["$", "!", "/"],
   tagPrefix: ["@"],
@@ -189,15 +194,9 @@ bot.Start();
 ### Typescript
 
 ```ts
-import Whatsbotcord, {
-  type AdditionalAPI,
-  type ChatContext,
-  type CommandArgs,
-  type IChatContext,
-  type ICommand,
-  CommandType,
-  MsgType,
-} from "whatsbotcord";
+  import Bot from "whatsbotcord";
+  import { CommandType, MsgType } from "whatsbotcord";
+  import type { AdditionalAPI, IChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
 
 // ================== Ping.ts ======================
 // A command can be created with a class implementing ICommand
@@ -205,14 +204,14 @@ class PingCommand implements ICommand {
   name: string = "ping";
   description: string = "replies with pong!";
   aliases: string[] = ["p"];
-  async run(chat: ChatContext, _api: AdditionalAPI, _commandArgs: CommandArgs): Promise<void> {
+  async run(chat: IChatContext, _api: AdditionalAPI, _commandArgs: CommandArgs): Promise<void> {
     await chat.SendText("Pong!");
   }
 }
 export default PingCommand;
 
 // ========================== MAIN ==============================
-const bot = new Whatsbotcord({
+const bot = new Bot({
   //Can accept an array of prefixes or only one "!" prefix
   commandPrefix: ["$", "!", "/"],
   tagPrefix: ["@"],
@@ -272,7 +271,7 @@ image msg, but if you want to cancel it (don't want to send it anymore), just se
 You can configure what words to use as _cancel words_ from Bot constructor config.
 
 ```js
-const bot = new WhatsbotCord({
+const bot = new Bot({
   commandPrefix: ["$", "!", "/", "."],
   credentialsFolder: "./auth",
   loggerMode: "recommended",
@@ -317,9 +316,10 @@ from this library.
 #### Javascript And Typescript
 
 ```js
-import WhatsbotCord, { OfficialPlugin_OneCommandPerUserAtATime } from "whatsbotcord";
+  import Bot from "whatsbotcord";
+  import { OfficialPlugin_OneCommandPerUserAtATime } from "whatsbotcord";
 
-const bot = new WhatsbotCord({
+const bot = new Bot({
   /** bot config */
 });
 /** your commands here with bot.Commands.Add(...) */
@@ -344,7 +344,7 @@ Here this command recreates the famous @everyone command from Discord!
 ## Javascript
 
 ```js
-import Bot, { CommandType, CreateCommand } from "whatsbotcord";
+  import Bot, { CommandType, CreateCommand } from "whatsbotcord";
 
 const everyoneTag = CreateCommand(
   //Will be used as @everyone
@@ -387,13 +387,13 @@ bot.Start();
 ## Typescript
 
 ```ts
-import type { AdditionalAPI, ChatContext, CommandArgs, ICommand } from "whatsbotcord";
-import Bot, { CommandType } from "whatsbotcord";
+  import type { AdditionalAPI, IChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
+  import Bot, { CommandType } from "whatsbotcord";
 
 class EveryoneTag implements ICommand {
   name: string = "e";
   aliases: string[] = ["test"];
-  async run(chat: ChatContext, _api: AdditionalAPI, _args: CommandArgs): Promise<void> {
+  async run(chat: IChatContext, _api: AdditionalAPI, _args: CommandArgs): Promise<void> {
     const res = await chat.FetchGroupData();
     if (res) {
       /**
@@ -474,7 +474,7 @@ You can use this for features that need to inspect all traffic, such as:
 - Blocking users across the entire bot
 
 ```ts
-const bot = new WhatsbotCord({
+const bot = new Bot({
   commandPrefix: ["$", "!", "/", "."],
   tagPrefix: ["@"],
   credentialsFolder: "./auth",
@@ -565,7 +565,7 @@ This is the most common and reliable way to switch from a group chat to a user's
 2.  Use `ctx.CloneButTargetedToWithInitialMsg()` and pass in the message you just sent. This creates a new, perfectly configured context for that private chat.
 
 ```typescript
-import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord";
+  import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
 
 class PrivateReplyCommand implements ICommand {
   name: string = "myinfo";
@@ -600,7 +600,7 @@ Sometimes you just have a user's or group's ID and want to start talking to them
 If you want to message a user directly and only have their ID, use `CloneButTargetedToIndividualChat`.
 
 ```typescript
-import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord";
+  import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
 
 class StartPrivateChatCommand implements ICommand {
   name: string = "contactme";
@@ -622,7 +622,7 @@ class StartPrivateChatCommand implements ICommand {
 If you need your bot to send a message to a _different_ group, use `CloneButTargetedToGroupChat`.
 
 ```typescript
-import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord";
+  import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
 
 class AnnounceInAnotherGroupCommand implements ICommand {
   name: string = "announce";
@@ -651,7 +651,7 @@ class AnnounceInAnotherGroupCommand implements ICommand {
 If you need an identical, independent copy of the current context (for example, to run a background task without affecting your current flow), use `Clone()`.
 
 ```typescript
-import type { ICommand, IChatContext, AdditionalAPI, CommandArgs } from "whatsbotcord";
+  import type { ICommand, IChatContext, AdditionalAPI, CommandArgs } from "whatsbotcord/types";
 
 class ParallelTaskCommand implements ICommand {
   name: string = "starttask";
@@ -695,7 +695,7 @@ Each command receives `api: AdditionalAPI` alongside `ctx`. `ctx` is the high-le
 Messages are queued safely by default; set `sendRawWithoutEnqueue: true` only when you deliberately want to bypass the safety queue.
 
 ```ts
-import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord";
+  import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
 
 class Broadcast implements ICommand {
   name = "broadcast";
@@ -718,8 +718,8 @@ class Broadcast implements ICommand {
 You can subscribe to socket-level events directly from the command context. Remember to unsubscribe to avoid duplicate listeners when commands run multiple times.
 
 ```ts
-import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord";
-import { MsgType } from "whatsbotcord";
+  import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
+  import { MsgType } from "whatsbotcord";
 
 class TapRawStream implements ICommand {
   name = "tapprobe";
@@ -757,8 +757,9 @@ behaves as if it's running live.
 ### Javascript
 
 ```js
-import { it } from "your-testing-framework-of-choice";
-import { ChatMock, CreateCommand } from "whatsbotcord";
+  import { it } from "your-testing-framework-of-choice";
+  import { CreateCommand } from "whatsbotcord/helpers";
+  import { ChatMock } from "whatsbotcord/testing";
 
 const myCommand = CreateCommand(
   /** Command name */
@@ -795,9 +796,9 @@ it("retrieves user input correctly", async () => {
 ### Typescript
 
 ```ts
-import { it } from "your-testing-framework-of-choice";
-import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord";
-import { ChatMock } from "whatsbotcord";
+  import { it } from "your-testing-framework-of-choice";
+  import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
+  import { ChatMock } from "whatsbotcord/testing";
 
 class Com implements ICommand {
   name = "mynamecommand";
@@ -835,8 +836,10 @@ This example demonstrates full configuration and more complex interactions when 
 ### Javascript
 
 ```js
-import { describe, it } from "your-testing-framework-of-choice";
-import { ChatMock, CreateCommand, MsgHelpers, MsgType, SenderType } from "whatsbotcord";
+  import { describe, it } from "your-testing-framework-of-choice";
+  import { MsgType, SenderType } from "whatsbotcord";
+  import { CreateCommand, MsgHelper_FullMsg_GetText } from "whatsbotcord/helpers";
+  import { ChatMock } from "whatsbotcord/testing";
 
 // For Javascript uses who need to create a command with intelissense help!
 const myCommand = CreateCommand(
@@ -860,7 +863,7 @@ const myCommand = CreateCommand(
     const response = await ctx.WaitMsg(MsgType.Text);
 
     if (response) {
-      const language = MsgHelpers.FullMsg_GetText(response);
+      const language = MsgHelper_FullMsg_GetText(response);
       if (language) await ctx.SendText(`Oh, your favorite language is: ${language}`);
     } else {
       await ctx.SendText("You didn't respond in 3 seconds.");
@@ -902,9 +905,11 @@ describe("WhatsChatMock Example", () => {
 ### Typescript
 
 ```ts
-import { describe, it } from "your-testing-framework-of-choice";
-import type { AdditionalAPI, CommandArgs, IChatContext, ICommand, WhatsappMessage } from "whatsbotcord";
-import { ChatMock, MsgHelpers, MsgType, SenderType } from "whatsbotcord";
+  import { describe, it } from "your-testing-framework-of-choice";
+  import type { AdditionalAPI, CommandArgs, IChatContext, ICommand, WhatsappMessage } from "whatsbotcord/types";
+  import { MsgType, SenderType } from "whatsbotcord";
+  import { MsgHelper_FullMsg_GetText } from "whatsbotcord/helpers";
+  import { ChatMock } from "whatsbotcord/testing";
 
 // Example command implementation
 class MyCommand implements ICommand {
@@ -927,7 +932,7 @@ class MyCommand implements ICommand {
     const response: WhatsappMessage | null = await ctx.WaitMsg(MsgType.Text);
 
     if (response) {
-      const language = MsgHelpers.FullMsg_GetText(response);
+      const language = MsgHelper_FullMsg_GetText(response);
       if (language) await ctx.SendText(`Oh, your favorite language is: ${language}`);
     } else {
       await ctx.SendText("You didn't respond in 3 seconds.");
@@ -1079,9 +1084,9 @@ So, you can see your mocked data this way:
 ### Typescript (In js works the same)
 
 ```ts
-import { it } from "your-testing-framework-of-choice";
-import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord";
-import { ChatMock } from "whatsbotcord";
+  import { it } from "your-testing-framework-of-choice";
+  import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
+  import { ChatMock } from "whatsbotcord/testing";
 
 class Com implements ICommand {
   name = "mynamecommand";

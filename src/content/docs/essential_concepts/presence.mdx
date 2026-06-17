@@ -11,6 +11,16 @@ The Presence API allows you to control how the bot appears to other users on Wha
 
 These indicators are fantastic for improving user experience (UX). When a command takes several seconds to execute (like querying a database or fetching an API), triggering a typing indicator lets the user know the bot is actively processing their request.
 
+## Access Points
+
+The Presence API is accessible from three different locations depending on your context:
+
+1. **Inside a Command (`ChatContext`):** Use `ctx.Presence` for quick, scoped actions within the current chat context (such as `ctx.Presence.StartTyping()`).
+2. **On the Bot Instance directly:** Use `bot.Presence` for global presence operations (such as `bot.Presence.SetGlobalPresenceState("online")`).
+3. **Via `api.InternalSocket`:** Use `api.InternalSocket.Presence` (which points to the exact same object as `bot.Presence`) inside or outside command callbacks.
+
+---
+
 ## Global Status API
 
 You can configure the bot's global visibility. By default, the bot usually appears online when connected. You can explicitly set it to offline if you want the bot to operate in "stealth" mode.
@@ -27,6 +37,24 @@ await bot.InternalSocket.Presence.SetGlobalPresenceState("online");
 ## Chat Activity Indicators
 
 These methods trigger the indicators that appear at the top of a chat (e.g., "typing..." or "recording audio...").
+
+<Aside type="caution" title="Keep Indicators Realistic">
+WhatsApp automatically stops the "typing..." or "recording..." status indicators the moment any message is sent. If you send a message too early inside a slow block, the indicator will end abruptly.
+
+```typescript
+// ❌ Unrealistic / Abrupt:
+await ctx.Presence.WithTyping(async () => {
+  await ctx.SendText("Starting task..."); // ⚠️ Typing indicator stops immediately here!
+  await performSlowDatabaseQuery();      // No typing indicator is shown during the query
+});
+
+// ✅ Realistic:
+await ctx.Presence.WithTyping(async () => {
+  await performSlowDatabaseQuery();      // Typing indicator stays active during the query
+  await ctx.SendText("Task complete!");  // Sent at the end
+});
+```
+</Aside>
 
 ### StartTyping / StopTyping
 Use these methods to manually toggle the text typing indicator.

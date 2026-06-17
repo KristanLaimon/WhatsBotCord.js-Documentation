@@ -71,7 +71,7 @@ Using the `AdditionalAPI` to modify the bot's own WhatsApp state (story).
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
     import { SenderType } from "whatsbotcord";
-import type { AdditionalAPI, IChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
+    import type { AdditionalAPI, IChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
 
     export class SetStatusCommand implements ICommand {
       public name: string = "status";
@@ -151,7 +151,7 @@ Asks the user to upload an image. Highly useful for registration flows or profil
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
     import { MsgType } from "whatsbotcord";
-import type { AdditionalAPI, IChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
+    import type { AdditionalAPI, IChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
     import * as fs from "fs";
 
     export class UpdateProfilePhotoCommand implements ICommand {
@@ -295,7 +295,7 @@ This complex command showcases how to parse tagged users (mentions), validate ar
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
     import { Helpers, WhatsappHelpers } from "whatsbotcord";
-import type { AdditionalAPI, IChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
+    import type { AdditionalAPI, IChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
     
     // Example OtakuGifs API wrapper
     import { GlobalOtakuGifs_API } from "./OtakuGifs.api.js";
@@ -379,7 +379,7 @@ The `!help` command is often the most complex command in any bot. This example d
     ```typescript
     import stringSimilarity from "string-similarity";
     import { CommandType } from "whatsbotcord";
-import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
+    import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
     
     // Assume you have a custom Command wrapper (e.g. KLCommand) that has minimumPrivileges and localization
     export class HelpCommand implements ICommand {
@@ -471,7 +471,7 @@ We achieve this by utilizing `ctx.CloneButTargetedToIndividualChat(...)`, which 
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
     import { SenderType } from "whatsbotcord";
-import type { AdditionalAPI, IChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
+    import type { AdditionalAPI, IChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
 
     export class SecretQuestionCommand implements ICommand {
       public name: string = "secretquestion";

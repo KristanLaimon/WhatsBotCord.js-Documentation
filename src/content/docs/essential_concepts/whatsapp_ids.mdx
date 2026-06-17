@@ -31,8 +31,8 @@ You have reference to these exact suffix strings inside `Helpers.Whatsapp.Identi
 When receiving a raw message from Baileys, it can be tricky to know who sent what. `WhatsappHelper_ExtractWhatsappInfoInfoFromSenderRawMsg` safely extracts the sender's phone number information from standard individual messages AND linked device group messages.
 
 ```ts
-import { Helpers } from "whatsbotcord";
-import type { WhatsappIDInfo } from "whatsbotcord/types";
+  import { Helpers } from "whatsbotcord";
+  import type { WhatsappIDInfo } from "whatsbotcord/types";
 
 bot.Use(async (bot, senderLID, senderPN, chatId, rawMsg, msgType, senderType, next) => {
   const phoneInfo: WhatsappIDInfo = Helpers.Whatsapp.GetWhatsInfoFromSenderMsg(rawMsg);
