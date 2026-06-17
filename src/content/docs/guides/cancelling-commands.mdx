@@ -16,7 +16,7 @@ For example, if a bot is expecting the user to send an image msg via `!forwardms
 You can configure which words should act as global cancellation keywords when you first instantiate the bot:
 
 ```javascript
-const bot = new WhatsbotCord({
+const bot = new Bot({
   commandPrefix: ["$", "!", "/", "."],
   credentialsFolder: "./auth",
   loggerMode: "recommended",
@@ -51,7 +51,8 @@ Here is a complete example of a command that asks for a profile photo. If the us
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    import { type AdditionalAPI, type IChatContext, type CommandArgs, type ICommand, MsgType } from "whatsbotcord";
+    import { MsgType } from "whatsbotcord";
+import type { AdditionalAPI, IChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
 
     export class UpdatePhotoCommand implements ICommand {
       public name: string = "updatephoto";
@@ -86,7 +87,8 @@ You can easily verify that your commands correctly abort using `ChatMock`:
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
     import { test, expect } from "bun:test";
-    import { ChatMock, SenderType } from "whatsbotcord";
+    import { SenderType } from "whatsbotcord";
+import { ChatMock } from "whatsbotcord/testing";
     import { UpdatePhotoCommand } from "./UpdatePhotoCommand.js";
 
     test("User cancels the photo update", async () => {

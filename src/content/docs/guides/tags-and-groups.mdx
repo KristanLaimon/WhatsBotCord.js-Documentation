@@ -52,14 +52,14 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
   </TabItem>
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    import type { AdditionalAPI, ChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
+    import type { AdditionalAPI, IChatContext, CommandArgs, ICommand } from "whatsbotcord/types";
     import Bot, { CommandType, SenderType } from "whatsbotcord";
 
     class EveryoneTag implements ICommand {
       name: string = "everyone";
       aliases: string[] = ["e"];
 
-      async run(ctx: ChatContext, _api: AdditionalAPI, args: CommandArgs): Promise<void> {
+      async run(ctx: IChatContext, _api: AdditionalAPI, args: CommandArgs): Promise<void> {
         if (args.senderType === SenderType.Individual) {
           await ctx.SendText("This command can only be used in groups!");
           return;

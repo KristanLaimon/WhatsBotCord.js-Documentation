@@ -23,12 +23,12 @@ The biggest architectural change in this version is the complete abstraction of 
 Now the main `WhatsBot` class accepts an optional second parameter in its constructor that implements the `IWhatsappAdapter` interface. If none is provided, the bot will automatically use the official Baileys adapter (`BaileysWhatsSocketAdapter`).
 
 ```typescript
-import { WhatsBot } from "whatsbotcord";
+import Bot from "whatsbotcord";
 // Optional: Import a custom adapter
 // import { MyCustomWhatsappWebJsAdapter } from "./my-adapter";
 
-const bot = new WhatsBot({ authFolder: "./auth" }); // Uses Baileys by default
-// const bot = new WhatsBot({ authFolder: "./auth" }, new MyCustomWhatsappWebJsAdapter());
+const bot = new Bot({ authFolder: "./auth" }); // Uses Baileys by default
+// const bot = new Bot({ authFolder: "./auth" }, new MyCustomWhatsappWebJsAdapter());
 ```
 
 ### Testing Utilities (Mocking)
@@ -36,12 +36,12 @@ const bot = new WhatsBot({ authFolder: "./auth" }); // Uses Baileys by default
 Thanks to this new abstraction, it is now possible to perform **Unit Testing and E2E Testing** on your bot without needing to scan a QR code or connect to WhatsApp servers. A new testing tool is exposed: `MockAdapter`.
 
 ```typescript
-import { WhatsBot, CommandType } from "whatsbotcord";
+import Bot, { CommandType } from "whatsbotcord";
 import { MockAdapter, ChatMock } from "whatsbotcord/testing";
 
 // 1. Initialize the bot with the mock adapter (starts instantly in memory)
 const mockAdapter = new MockAdapter();
-const bot = new WhatsBot({ authFolder: "./auth" }, mockAdapter);
+const bot = new Bot({ authFolder: "./auth" }, mockAdapter);
 
 // 2. You can add commands and test them
 bot.Commands.AddCommand(CommandType.Normal, {
@@ -88,17 +88,24 @@ With version v2.0.0, the library introduces **Sub-path Exports** to improve the 
 
 Now you can access specialized modules cleanly:
 
-- **`whatsbotcord/testing`**: Tools for Unit Testing (`MockAdapter`, `ChatMock`, `GenericSocketVendorClient_Mock`).
-- **`whatsbotcord/helpers`**: Utility functions such as mention extractors, text formatters, etc.
-- **`whatsbotcord/types`**: Pure TypeScript interfaces and types (`ICommand`, `ChatContext`, etc.).
+- **`whatsbotcord`**: Main Bot export and core runtime enums/compatibilities.
+- **`whatsbotcord/testing`**: Tools for Unit Testing (`MockAdapter`, `ChatMock`, `GenericSocketVendorClient_Mock`, `CreateWhatsSocketVendorFactoryMock`).
+- **`whatsbotcord/helpers`**: Utility functions such as `CreateCommand`, `WorkFlowNumericMany`, `WorkflowNumericSingle`, `MsgHelper_FullMsg_GetSenderType`, `WhatsappHelper_isFullWhatsappIdUser`, etc.
+- **`whatsbotcord/types`**: Pure TypeScript interfaces and types (`ICommand`, `IChatContext`, `AdditionalAPI`, `IWhatsSocket`, `IChatGroupAPI`, etc.).
 - **`whatsbotcord/debugging`**: Specific debugging utilities (e.g., `Debug_StoreWhatsMsgHistoryInJson`).
 
-**Modularized usage example:**
+**Modularized namespace mapping references:**
 
 ```typescript
-import { WhatsBot } from "whatsbotcord";
-import { MockAdapter } from "whatsbotcord/testing";
-import type { ICommand } from "whatsbotcord/types";
+// Main bot entrypoint
+import Bot from "whatsbotcord";
+import { /** 1.0.3 API Compatible, all exports here including new update and security update from 2.0.0, no new additions in >= 2.0.1 */ } from "whatsbotcord";
+
+/** New features will be in their respective packages from now on in > v2.0.0 */
+import { Debug_StoreWhatsMsgHistoryInJson } from "whatsbotcord/debugging";
+import { CreateCommand, WorkFlowNumericMany, WorkflowNumericSingle, MsgHelper_FullMsg_GetSenderType, WhatsappHelper_isFullWhatsappIdUser } from "whatsbotcord/helpers";
+import { ChatMock, MockAdapter, GenericSocketVendorClient_Mock, CreateWhatsSocketVendorFactoryMock } from "whatsbotcord/testing";
+import type { AdditionalAPI, ICommand, IWhatsSocket, IChatGroupAPI } from "whatsbotcord/types";
 ```
 
 In addition, the codebase was restructured internally:

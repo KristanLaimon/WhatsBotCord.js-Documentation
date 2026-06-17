@@ -16,12 +16,8 @@ When receiving input, users might send invalid data, the wrong media type, or si
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    import {
-      type AdditionalAPI,
-      type CommandArgs,
-      type IChatContext,
-      type ICommand,
-    } from "whatsbotcord";
+    
+import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
 
     export class AskNameCommand implements ICommand {
       public name: string = "askname";

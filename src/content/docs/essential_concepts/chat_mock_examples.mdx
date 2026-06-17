@@ -18,7 +18,7 @@ When a user executes a command that strictly requires a `@user` mention, you sho
   <TabItem label="KickCommand.ts">
 
     ```ts
-    import type { ICommand, IChatContext, AdditionalAPI, CommandArgs } from "whatsbotcord";
+    import type { ICommand, IChatContext, AdditionalAPI, CommandArgs } from "whatsbotcord/types";
 
     export default class KickCommand implements ICommand {
       name = "kick";
@@ -41,7 +41,8 @@ When a user executes a command that strictly requires a `@user` mention, you sho
 
     ```ts
     import { describe, expect, test } from "your-testing-framework";
-    import { ChatMock, SenderType } from "whatsbotcord";
+    import { SenderType } from "whatsbotcord";
+    import { ChatMock } from "whatsbotcord/testing";
     import KickCommand from "./KickCommand.js";
 
     describe("Kick Command Validation", () => {
@@ -77,7 +78,7 @@ If a command relies on `ctx.WaitYesOrNoAnswer` to prevent destructive actions, y
 <Tabs>
   <TabItem label="ClearDatabaseCommand.ts">
     ```ts
-    import type { ICommand, IChatContext } from "whatsbotcord";
+    import type { ICommand, IChatContext } from "whatsbotcord/types";
 
     export default class ClearDatabaseCommand implements ICommand {
       name = "cleardb";
@@ -113,7 +114,8 @@ If a command relies on `ctx.WaitYesOrNoAnswer` to prevent destructive actions, y
   <TabItem label="ClearDatabaseCommand.test.ts">
     ```ts
     import { test, expect } from "your-testing-framework";
-    import { ChatMock, SenderType } from "whatsbotcord";
+    import { SenderType } from "whatsbotcord";
+    import { ChatMock } from "whatsbotcord/testing";
     import ClearDatabaseCommand from "./ClearDatabaseCommand.js";
 
     test("Should execute destructive action upon explicit positive confirmation", async () => {
@@ -146,7 +148,7 @@ Sometimes commands await multimedia (like `WaitMultimedia`) to process documents
 <Tabs>
   <TabItem label="ProcessInvoiceCommand.ts">
     ```ts
-    import type { ICommand, IChatContext } from "whatsbotcord";
+    import type { ICommand, IChatContext } from "whatsbotcord/types";
 
     export default class ProcessInvoiceCommand implements ICommand {
       name = "invoice";
@@ -169,7 +171,8 @@ Sometimes commands await multimedia (like `WaitMultimedia`) to process documents
   <TabItem label="ProcessInvoiceCommand.test.ts">
     ```ts
     import { test, expect } from "your-testing-framework";
-    import { ChatMock, SenderType } from "whatsbotcord";
+    import { SenderType } from "whatsbotcord";
+    import { ChatMock } from "whatsbotcord/testing";
     import ProcessInvoiceCommand from "./ProcessInvoiceCommand.js";
 
     test("Should return a processing success response upon receiving a simulated PDF Document", async () => {

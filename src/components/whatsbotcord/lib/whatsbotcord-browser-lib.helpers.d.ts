@@ -1,6 +1,6 @@
-import { M as MsgType, S as SenderType, j as IChatContext, A as AdditionalAPI, g as CommandArgs, l as ICommand } from './CommandsSearcher.types-Cl63i0Aw.js';
-export { a as WhatsappHelper_ExtractFromWhatsappID, b as WhatsappHelper_ExtractWhatsappInfoFromMention, W as WhatsappHelper_ExtractWhatsappInfoInfoFromSenderRawMsg, e as WhatsappHelper_isFullWhatsappIdUser, c as WhatsappHelper_isLIDIdentifier, d as WhatsappHelper_isMentionId, x as WhatsappIdType } from './CommandsSearcher.types-Cl63i0Aw.js';
-import { W as WhatsappMessage, l as WhatsappProtocolMessage } from './types-C_BnhUPh.js';
+import { M as MsgType, S as SenderType, j as IChatContext, A as AdditionalAPI, g as CommandArgs, l as ICommand } from './CommandsSearcher.types-BpkRelKe.js';
+export { a as WhatsappHelper_ExtractFromWhatsappID, b as WhatsappHelper_ExtractWhatsappInfoFromMention, W as WhatsappHelper_ExtractWhatsappInfoInfoFromSenderRawMsg, e as WhatsappHelper_isFullWhatsappIdUser, c as WhatsappHelper_isLIDIdentifier, d as WhatsappHelper_isMentionId, y as WhatsappIdType } from './CommandsSearcher.types-BpkRelKe.js';
+import { W as WhatsappMessage, l as WhatsappProtocolMessage } from './types-CqnhN4HR.js';
 
 /**
  * # Extract Full Message Text
@@ -155,4 +155,82 @@ type CommandParams = {
  */
 declare function CreateCommand(commandName: string, run: (ctx: IChatContext, api: AdditionalAPI, args: CommandArgs) => Promise<void>, params?: CommandParams): ICommand;
 
-export { CreateCommand, MsgHelper_FullMsg_GetMsgType, MsgHelper_FullMsg_GetQuotedMsg, MsgHelper_FullMsg_GetQuotedMsgText, MsgHelper_FullMsg_GetSenderType, MsgHelper_FullMsg_GetText, MsgHelper_ProtoMsg_GetMsgType, MsgHelper_QuotedMsg_GetText };
+/**
+ * Configuration arguments for the `WorkflowNumeric` class.
+ * @template T The type of the options to be presented.
+ */
+type WorkflowNumericArgs<T> = {
+    /** A function that converts an option of type `T` into a display string for the user. */
+    FrontEndSelector: (option: T, index: number) => string /** The introductory message to send before listing the options. */;
+    StartingMsg: string /** The message to send when the user provides an invalid (non-numeric or out-of-range) response. */;
+    WrongMsg: string /** The time in milliseconds to wait for a user's response before the workflow times out. */;
+    TimeoutMS: number /** The number to start the list from (e.g., 1). Defaults to 1. */;
+    startingNumber?: number;
+};
+
+/**
+ * Manages an interactive workflow where a user is prompted to select an option from a numbered list.
+ *
+ * This class sends a list of choices to the user and waits for them to reply with a number
+ * corresponding to their selection. It handles input validation, retries, and timeouts.
+ *
+ * @template T The type of the options to be presented.
+ */
+declare class WorkflowNumericSingle<T> {
+    ctx: IChatContext;
+    config: WorkflowNumericArgs<T>;
+    options: T[];
+    /** The regular expression used to validate that the user's response is one of the valid numbers. */
+    private responseRegex;
+    /**
+     * Initializes a new numeric selection workflow.
+     * @param ctx The chat context where the workflow will run.
+     * @param config The configuration for the workflow's messages and behavior.
+     * @param options An array of options of type `T` for the user to choose from.
+     */
+    constructor(ctx: IChatContext, config: WorkflowNumericArgs<T>, options: T[]);
+    /**
+     * Starts the workflow and waits for the user to select a single valid option.
+     * @returns A `Promise` that resolves to the selected option of type `T`, or `null` if the user fails to respond in time.
+     */
+    selectOne(): Promise<T | null>;
+    /**
+     * Handles the core loop of sending options, waiting for a reply, and validating it.
+     * @returns A `Promise` that resolves to the number chosen by the user, or `null` on timeout.
+     */
+    private askUntilGetValidOption;
+}
+
+/**
+ * Manages an interactive workflow where a user can select multiple options from a numbered list.
+ *
+ * This class sends a list of choices and waits for the user to reply with one or more numbers
+ * corresponding to their selections (e.g., "1, 3, 4"). It handles input validation, retries, and timeouts.
+ *
+ * @template T The type of the options to be presented.
+ */
+declare class WorkFlowNumericMany<T> {
+    ctx: IChatContext;
+    config: WorkflowNumericArgs<T>;
+    options: T[];
+    /**
+     * Initializes a new multi-selection workflow.
+     * @param ctx The chat context where the workflow will run.
+     * @param config The configuration for the workflow's messages and behavior.
+     * @param options An array of options for the user to choose from.
+     */
+    constructor(ctx: IChatContext, config: WorkflowNumericArgs<T>, options: T[]);
+    /**
+     * Starts the workflow and waits for the user to select one or more valid options.
+     * @returns A `Promise` that resolves to an array of the selected options of type `T`,
+     * or `null` if the user fails to respond in time.
+     */
+    selectMany(): Promise<T[] | null>;
+    /**
+     * Handles the core loop of sending options, waiting for a reply, and validating it for multiple numbers.
+     * @returns A `Promise` that resolves to an array of unique numbers chosen by the user, or `null` on timeout.
+     */
+    private askUntilGetValidOptions;
+}
+
+export { CreateCommand, MsgHelper_FullMsg_GetMsgType, MsgHelper_FullMsg_GetQuotedMsg, MsgHelper_FullMsg_GetQuotedMsgText, MsgHelper_FullMsg_GetSenderType, MsgHelper_FullMsg_GetText, MsgHelper_ProtoMsg_GetMsgType, MsgHelper_QuotedMsg_GetText, WorkFlowNumericMany, type WorkflowNumericArgs, WorkflowNumericSingle };

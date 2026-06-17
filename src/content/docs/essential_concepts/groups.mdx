@@ -27,7 +27,7 @@ Retrieves complete information about a specific group. If the bot is not in the 
 
 ```typescript
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
-  const metadata = await ctx.Group.GetMetadata(ctx.FixedChatId);
+  const metadata = await ctx.Group.GetMetadata();
   if (metadata) {
     await ctx.SendText(`This group has ${metadata.members.length} members.`);
   }
@@ -58,7 +58,7 @@ Evaluates whether the bot has Administrator privileges in the specified group. Y
 
 ```typescript
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
-  const isAdmin = await ctx.Group.IsBotAdmin(ctx.FixedChatId);
+  const isAdmin = await ctx.Group.IsBotAdmin();
   if (!isAdmin) {
     await ctx.SendText("I cannot do this because I am not an admin here!");
     return;
@@ -78,7 +78,7 @@ Adds a list of user IDs to the group.
 
 ```typescript
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
-  const success = await ctx.Group.AddParticipants(ctx.FixedChatId, ["1234567890@s.whatsapp.net"]);
+  const success = await ctx.Group.AddParticipants(["1234567890@s.whatsapp.net"]);
   if (success) {
     await ctx.SendText("User successfully added to the group!");
   }
@@ -90,7 +90,7 @@ Kicks a list of user IDs from the group.
 
 ```typescript
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
-  const kicked = await ctx.Group.RemoveParticipants(ctx.FixedChatId, ["1234567890@s.whatsapp.net"]);
+  const kicked = await ctx.Group.RemoveParticipants(["1234567890@s.whatsapp.net"]);
   if (kicked) {
     await ctx.SendText("User has been removed.");
   }
@@ -102,7 +102,7 @@ Grants administrator privileges to the specified users.
 
 ```typescript
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
-  const promoted = await ctx.Group.PromoteParticipants(ctx.FixedChatId, ["1234567890@s.whatsapp.net"]);
+  const promoted = await ctx.Group.PromoteParticipants(["1234567890@s.whatsapp.net"]);
   if (promoted) {
     await ctx.SendText("The user is now an Administrator.");
   }
@@ -114,7 +114,7 @@ Revokes administrator privileges from the specified users.
 
 ```typescript
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
-  const demoted = await ctx.Group.DemoteParticipants(ctx.FixedChatId, ["1234567890@s.whatsapp.net"]);
+  const demoted = await ctx.Group.DemoteParticipants(["1234567890@s.whatsapp.net"]);
   if (demoted) {
     await ctx.SendText("The user is no longer an Administrator.");
   }
@@ -127,7 +127,7 @@ Kicks **all** participants from the group (except the bot itself). Use this with
 ```typescript
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
   await ctx.SendText("Initiating total group purge...");
-  await ctx.Group.RemoveAllParticipants(ctx.FixedChatId);
+  await ctx.Group.RemoveAllParticipants();
 }
 ```
 
@@ -143,7 +143,7 @@ Makes the bot voluntarily leave the group.
 ```typescript
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
   await ctx.SendText("I have been commanded to leave. Goodbye!");
-  await ctx.Group.Leave(ctx.FixedChatId);
+  await ctx.Group.Leave();
 }
 ```
 
@@ -161,6 +161,6 @@ Performs an internal cleanup of the group's memory cache within the bot's Node.j
 
 ```typescript
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
-  await ctx.Group.Cleanup(ctx.FixedChatId);
+  await ctx.Group.Cleanup();
 }
 ```

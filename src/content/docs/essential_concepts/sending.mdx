@@ -14,7 +14,7 @@ You can send plain text messages to the chat using `SendText`.
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
 
   export default class HelloCommand implements ICommand {
     name = "hello";
@@ -27,7 +27,7 @@ You can send plain text messages to the chat using `SendText`.
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
 
   export default CreateCommand("hello", async function (ctx, api, args) {
     await ctx.SendText("Hello world!");
@@ -47,7 +47,7 @@ You can react to messages (like the one that triggered the command) using emojis
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
 
   export default class ReactCommand implements ICommand {
     name = "react";
@@ -73,7 +73,7 @@ You can react to messages (like the one that triggered the command) using emojis
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
 
   export default CreateCommand("react", async function (ctx, api, args) {
     // Indicate the command is starting (reacts with ⌛)
@@ -106,7 +106,7 @@ Send images from local paths or memory buffers, with or without captions.
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
   import fs from "fs";
 
   export default class ImageCommand implements ICommand {
@@ -131,7 +131,7 @@ Send images from local paths or memory buffers, with or without captions.
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
   import fs from "fs";
 
   export default CreateCommand("image", async function (ctx, api, args) {
@@ -163,7 +163,7 @@ Similarly to images, you can send videos directly from the filesystem or from bu
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
   import fs from "fs";
 
   export default class VideoCommand implements ICommand {
@@ -188,7 +188,7 @@ Similarly to images, you can send videos directly from the filesystem or from bu
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
   import fs from "fs";
 
   export default CreateCommand("video", async function (ctx, api, args) {
@@ -220,7 +220,7 @@ Send audio files like voice notes or music tracks.
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
   import fs from "fs";
 
   export default class AudioCommand implements ICommand {
@@ -240,7 +240,7 @@ Send audio files like voice notes or music tracks.
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
   import fs from "fs";
 
   export default CreateCommand("audio", async function (ctx, api, args) {
@@ -267,7 +267,7 @@ WebP graphics can be sent as WhatsApp stickers. The source can be a local file p
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
   import fs from "fs";
 
   export default class StickerCommand implements ICommand {
@@ -286,7 +286,7 @@ WebP graphics can be sent as WhatsApp stickers. The source can be a local file p
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
   import fs from "fs";
 
   export default CreateCommand("sticker", async function (ctx, api, args) {
@@ -312,7 +312,7 @@ Send a poll with multiple selections. A minimum of 1 and maximum of 12 options c
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
 
   export default class PollCommand implements ICommand {
     name = "poll";
@@ -329,7 +329,7 @@ Send a poll with multiple selections. A minimum of 1 and maximum of 12 options c
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
 
   export default CreateCommand("poll", async function (ctx, api, args) {
     await ctx.SendPoll(
@@ -353,7 +353,7 @@ Share a geographic coordinate. You can optionally include a descriptive name and
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
 
   export default class LocationCommand implements ICommand {
     name = "location";
@@ -375,7 +375,7 @@ Share a geographic coordinate. You can optionally include a descriptive name and
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
 
   export default CreateCommand("location", async function (ctx, api, args) {
     // Just coordinates
@@ -404,7 +404,7 @@ Send actual files (PDFs, ZIPs, DOCs, CSVs, etc.) as documents. The MIME type is 
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
   import fs from "fs";
 
   export default class DocumentCommand implements ICommand {
@@ -426,7 +426,7 @@ Send actual files (PDFs, ZIPs, DOCs, CSVs, etc.) as documents. The MIME type is 
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
   import fs from "fs";
 
   export default CreateCommand("document", async function (ctx, api, args) {
@@ -455,7 +455,7 @@ Send one or more contact cards (vCards) for users to easily save phone numbers i
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
 
   export default class ContactCommand implements ICommand {
     name = "contact";
@@ -475,7 +475,7 @@ Send one or more contact cards (vCards) for users to easily save phone numbers i
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
 
   export default CreateCommand("contact", async function (ctx, api, args) {
     // A single contact

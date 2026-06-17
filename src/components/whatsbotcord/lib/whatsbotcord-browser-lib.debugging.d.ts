@@ -1,4 +1,4 @@
-import { W as WhatsappMessage } from './types-C_BnhUPh.js';
+import { W as WhatsappMessage } from './types-CqnhN4HR.js';
 
 /**
  * # Store Message in History JSON (Mock)

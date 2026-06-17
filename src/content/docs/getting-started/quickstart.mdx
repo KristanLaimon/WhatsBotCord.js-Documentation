@@ -22,9 +22,10 @@ Initialize a functional bot instance and register a fundamental command in minut
    <Tabs>
         <TabItem label="TypeScript" icon="seti:typescript">
        ```ts
-        import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord";
+        import Bot from "whatsbotcord";
+import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
 
-        const bot = new Whatsbotcord({
+        const bot = new Bot({
           commandPrefix: "!",
           tagPrefix: "@",
           credentialsFolder: "./auth",
@@ -46,9 +47,10 @@ Initialize a functional bot instance and register a fundamental command in minut
      </TabItem>
      <TabItem label="JavaScript" icon="seti:javascript">
       ```js
-        import Whatsbotcord, { CreateCommand } from "whatsbotcord";
+        import Bot from "whatsbotcord";
+import { CreateCommand } from "whatsbotcord/helpers";
 
-        const bot = new Whatsbotcord({
+        const bot = new Bot({
           commandPrefix: "!",
           tagPrefix: "@",
           credentialsFolder: "./auth",
@@ -73,9 +75,10 @@ Initialize a functional bot instance and register a fundamental command in minut
           <TabItem label="Typescript/Javascript with inline command creation">
 
       ```js
-      import Whatsbotcord, { CommandType } from "whatsbotcord";
+      import Bot from "whatsbotcord";
+import { CommandType } from "whatsbotcord";
 
-      const bot = new Whatsbotcord({
+      const bot = new Bot({
         commandPrefix: "!",
         tagPrefix: "@",
         credentialsFolder: "./auth",
@@ -128,16 +131,17 @@ Initialize a functional bot instance and register a fundamental command in minut
 
 ## Configuration options
 
-The `Whatsbotcord` [Bot constructor](/essential_concepts/bot) accepts a rich set of configuration properties. 
+The `Bot` [constructor](/essential_concepts/bot) accepts a rich set of configuration properties. 
 You can easily configure basic prefixes, connection throttling, error handling, interactive prompt defaults, and more. 
 These are the most important ones:
 
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
     ```ts
-    import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord";
+    import Bot from "whatsbotcord";
+import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
 
-    const bot = new Whatsbotcord({
+    const bot = new Bot({
       // -------------------------------------------------------------------
       // 1. Basic Options
       // -------------------------------------------------------------------
@@ -171,9 +175,9 @@ These are the most important ones:
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
     ```js
-    import Whatsbotcord from "whatsbotcord";
+    import Bot from "whatsbotcord";
 
-    const bot = new Whatsbotcord({
+    const bot = new Bot({
       // -------------------------------------------------------------------
       // 1. Basic Options
       // -------------------------------------------------------------------

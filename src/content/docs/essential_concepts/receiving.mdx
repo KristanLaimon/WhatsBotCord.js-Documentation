@@ -14,7 +14,7 @@ Wait for a specific type of message (e.g., text, image, document) from the origi
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
   import { MsgType } from "whatsbotcord";
 
   export default class WaitMsgCommand implements ICommand {
@@ -37,7 +37,8 @@ Wait for a specific type of message (e.g., text, image, document) from the origi
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand, MsgType } from "whatsbotcord";
+  import { MsgType } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
 
   export default CreateCommand("waitmsg", async function (ctx, api, args) {
     await ctx.SendText("Please send any text message within 30 seconds.");
@@ -67,7 +68,7 @@ Waits specifically for a plain text message, simplifying the process by returnin
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
 
   export default class WaitTextCommand implements ICommand {
     name = "waittext";
@@ -88,7 +89,7 @@ Waits specifically for a plain text message, simplifying the process by returnin
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
 
   export default CreateCommand("waittext", async function (ctx, api, args) {
     await ctx.SendText("What is your name?");
@@ -116,7 +117,7 @@ A specialized abstraction of `WaitText` that parses predefined affirmative and n
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
 
   export default class WaitYesOrNoCommand implements ICommand {
     name = "confirm";
@@ -139,7 +140,7 @@ A specialized abstraction of `WaitText` that parses predefined affirmative and n
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
 
   export default CreateCommand("confirm", async function (ctx, api, args) {
     await ctx.SendText("Do you want to continue? (yes/no)");
@@ -169,7 +170,7 @@ Waits for the next multimedia message of a specified type (e.g., image, video, d
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
   import { MsgType } from "whatsbotcord";
   import fs from "fs";
 
@@ -193,7 +194,8 @@ Waits for the next multimedia message of a specified type (e.g., image, video, d
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand, MsgType } from "whatsbotcord";
+  import { MsgType } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
   import fs from "fs";
 
   export default CreateCommand("waitimage", async function (ctx, api, args) {
@@ -223,7 +225,7 @@ Waits for the next location (ubication) message from the original sender. The re
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
 
   export default class WaitLocationCommand implements ICommand {
     name = "waitlocation";
@@ -244,7 +246,7 @@ Waits for the next location (ubication) message from the original sender. The re
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
 
   export default CreateCommand("waitlocation", async function (ctx, api, args) {
     await ctx.SendText("Please share your current location.");
@@ -272,7 +274,7 @@ Waits for the next contact (vCard) message from the original sender. This is the
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
   ```ts
-  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord";
+  import type { CommandArgs, IChatContext, ICommand, AdditionalAPI } from "whatsbotcord/types";
 
   export default class WaitContactCommand implements ICommand {
     name = "waitcontact";
@@ -297,7 +299,7 @@ Waits for the next contact (vCard) message from the original sender. This is the
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
   ```js
-  import { CreateCommand } from "whatsbotcord";
+  import { CreateCommand } from "whatsbotcord/helpers";
 
   export default CreateCommand("waitcontact", async function (ctx, api, args) {
     await ctx.SendText("Please send me a contact card.");

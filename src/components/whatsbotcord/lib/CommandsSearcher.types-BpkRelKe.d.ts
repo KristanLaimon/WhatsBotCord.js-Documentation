@@ -1,4 +1,4 @@
-import { W as WhatsappMessage, i as WhatsappPresenceState, e as WhatsappMessageOptions, d as WhatsappMessageContent, c as WhatsappGroupMetadata, I as IWhatsappSocketAdapterClient, g as WhatsappPollUpdateMessage, h as WhatsappPollVote, f as WhatsappGroupParticipantAction, b as WhatsSocketLoggerMode, a as IWhatsappAdapter, l as WhatsappProtocolMessage } from './types-C_BnhUPh.js';
+import { W as WhatsappMessage, d as WhatsappPresenceState, f as WhatsappMessageOptions, e as WhatsappMessageContent, c as WhatsappGroupMetadata, I as IWhatsappSocketAdapterClient, h as WhatsappPollUpdateMessage, i as WhatsappPollVote, g as WhatsappGroupParticipantAction, b as WhatsSocketLoggerMode, a as IWhatsappAdapter, l as WhatsappProtocolMessage } from './types-CqnhN4HR.js';
 
 /**
  * # Message Type
@@ -1975,6 +1975,119 @@ declare class WhatsSocket implements IWhatsSocket {
     GetPollVotes(pollRawMsg: WhatsappMessage, pollUpdates: WhatsappPollUpdateMessage[]): Promise<WhatsappPollVote[]>;
 }
 
+/**
+ * # Chat Context Group API
+ *
+ * Scoped Group API bound to the current ChatContext JID.
+ * Simplifies group operations by omitting the group/chat JID parameter.
+ */
+interface IChatGroupAPI {
+    /**
+     * Normalizes any WhatsApp JID into the vendor canonical form.
+     *
+     * @param jid - WhatsApp JID to normalize.
+     * @returns The normalized WhatsApp JID.
+     */
+    NormalizeJid(jid: string): string;
+    /**
+     * Gets the connected bot account JID.
+     *
+     * @returns The normalized bot JID.
+     */
+    GetBotJid(): string;
+    /**
+     * Fetches raw metadata for this group chat.
+     *
+     * @returns Group metadata.
+     */
+    GetMetadata(): Promise<WhatsappGroupMetadata>;
+    /**
+     * Fetches every group the bot is participating in.
+     *
+     * @returns All participating group metadata.
+     */
+    GetAll(): Promise<WhatsappGroupMetadata[]>;
+    /**
+     * Finds a participating group by its exact subject.
+     *
+     * @param name - Group subject to search for.
+     * @returns Matching metadata or `null`.
+     */
+    FindByName(name: string): Promise<WhatsappGroupMetadata | null>;
+    /**
+     * Checks whether the bot is an admin in this group chat.
+     *
+     * @returns `true` when the bot is admin or superadmin.
+     */
+    IsBotAdmin(): Promise<boolean>;
+    /**
+     * Executes a participant action (add, remove, promote, demote) on this group chat.
+     *
+     * @param participants - Array of participant JIDs.
+     * @param action - Action to perform.
+     * @returns A boolean indicating if the action was executed successfully.
+     */
+    UpdateParticipants(participants: string[], action: WhatsappGroupParticipantAction): Promise<boolean>;
+    /**
+     * Adds new participants to this group chat. The bot must be an admin.
+     *
+     * @param participants - Array of participant JIDs to add.
+     * @returns A boolean indicating if the additions were executed successfully.
+     */
+    AddParticipants(participants: string[]): Promise<boolean>;
+    /**
+     * Removes existing participants from this group chat. The bot must be an admin.
+     *
+     * @param participants - Array of participant JIDs to remove.
+     * @returns A boolean indicating if the removals were executed successfully.
+     */
+    RemoveParticipants(participants: string[]): Promise<boolean>;
+    /**
+     * Promotes regular participants to admins in this group chat. The bot must be an admin.
+     *
+     * @param participants - Array of participant JIDs to promote.
+     * @returns A boolean indicating if the promotions were executed successfully.
+     */
+    PromoteParticipants(participants: string[]): Promise<boolean>;
+    /**
+     * Demotes admins to regular participants in this group chat. The bot must be an admin.
+     *
+     * @param participants - Array of participant JIDs to demote.
+     * @returns A boolean indicating if the demotions were executed successfully.
+     */
+    DemoteParticipants(participants: string[]): Promise<boolean>;
+    /**
+     * Removes every non-admin participant from this group chat. The bot must be an admin.
+     *
+     * @returns Resolves when the operation is complete.
+     */
+    RemoveAllParticipants(): Promise<void>;
+    /**
+     * Instructs the bot to leave this group chat.
+     *
+     * @returns Resolves when the bot successfully leaves.
+     */
+    Leave(): Promise<void>;
+    /**
+     * Deletes this group chat from the bot's local chat history.
+     *
+     * @returns Resolves when the chat is deleted locally.
+     */
+    DeleteChat(): Promise<void>;
+    /**
+     * Removes all participants and then leaves and deletes this group chat.
+     *
+     * @returns Resolves when cleanup is entirely complete.
+     */
+    Cleanup(): Promise<void>;
+    /**
+     * Retrieves metadata about this group chat.
+     *
+     * @returns A promise resolving to `GroupMetadataInfo` containing the group metadata,
+     *          or `null` if the metadata could not be retrieved.
+     */
+    FetchGroupData(): Promise<GroupMetadataInfo | null>;
+}
 interface IChatContext_PresenceAPI {
     SetGlobalPresenceState(state: WhatsappPresenceState): Promise<boolean>;
     StartTyping(): Promise<boolean>;
@@ -2088,7 +2201,7 @@ interface IChatContext {
      * }
      * ```
      */
-    Group: IWhatsSocket_Submodule_Group;
+    Group: IChatGroupAPI;
     /**
      * Presence helpers scoped to this context's fixed chat.
      *
@@ -2664,6 +2777,7 @@ interface IChatContext {
      * }
      * ```
      * @throws Error if there is a problem fetching group metadata.
+     * @deprecated Use {@link Group.FetchGroupData} instead.
      */
     FetchGroupData(): Promise<GroupMetadataInfo | null>;
     /**
@@ -2903,7 +3017,8 @@ declare class ChatContext implements IChatContext {
     InitialMsg: WhatsappMessage | null;
     readonly FixedSenderType: SenderType;
     Config: IChatContextConfig;
-    get Group(): IWhatsSocket_Submodule_Group;
+    private _groupSugar;
+    get Group(): IChatGroupAPI;
     get Presence(): IChatContext_PresenceAPI;
     /**
      * Creates a new chat session bound to a specific chat and initial message.
@@ -2966,6 +3081,9 @@ declare class ChatContext implements IChatContext {
     WaitMultimedia(msgTypeToWaitFor: MsgType.Image | MsgType.Sticker | MsgType.Video | MsgType.Document | MsgType.Audio, localOptions?: Partial<IChatContextConfig>): Promise<Uint8Array | null>;
     WaitUbication(localOptions?: Partial<IChatContextConfig>): Promise<ChatContextUbication | null>;
     WaitContact(localOptions?: Partial<IChatContextConfig>): Promise<ChatContextContactRes | ChatContextContactRes[] | null>;
+    /**
+     * @deprecated Use Group.FetchGroupData instead.
+     */
     FetchGroupData(): Promise<GroupMetadataInfo | null>;
 }
 
@@ -3887,4 +4005,4 @@ type FoundQuotedMsg = {
     type: MsgType;
 };
 
-export { type AdditionalAPI as A, Bot as B, ChatContext as C, Delegate as D, type IWhatsSocket_Submodule_Presence as E, type WhatsSocketReceiverWaitOptions as F, type GroupMetadataInfo as G, type WhatsMsgSenderSendingOptions as H, type IChatContextConfig as I, type WhatsMsgMediaOptions as J, type WhatsMsgSenderSendingOptionsMINIMUM as K, type WhatsMsgAudioOptions as L, MsgType as M, type WhatsMsgDocumentOptions as N, type WhatsMsgPollOptions as O, type WhatsMsgUbicationOptions as P, type WhatsBotOptions as Q, SenderType as S, WhatsappHelper_ExtractWhatsappInfoInfoFromSenderRawMsg as W, WhatsappHelper_ExtractFromWhatsappID as a, WhatsappHelper_ExtractWhatsappInfoFromMention as b, WhatsappHelper_isLIDIdentifier as c, WhatsappHelper_isMentionId as d, WhatsappHelper_isFullWhatsappIdUser as e, WhatsSocketReceiverHelper_isReceiverError as f, type CommandArgs as g, type CommandEntry as h, CommandType as i, type IChatContext as j, type IWhatsSocket_Submodule_Group as k, type ICommand as l, type IMsgServiceSocketMinimum as m, type IWhatsSocket as n, type IWhatsSocket_EventsOnly_Module as o, type IWhatsSocket_Submodule_Receiver as p, type IWhatsSocket_Submodule_SugarSender as q, type WhatsbotcordMiddlewareFunct_OnFoundCommand as r, WhatsSocket as s, type WhatsSocketOptions as t, type WhatsSocketReceiverError as u, WhatsSocketReceiverMsgError as v, type WhatsappIDInfo as w, WhatsappIdType as x, type WhatsbotcordMiddlewareFunct as y, type WhatsbotcordPlugin as z };
+export { type AdditionalAPI as A, Bot as B, ChatContext as C, Delegate as D, type WhatsbotcordPlugin as E, type WhatsSocketReceiverWaitOptions as F, type GroupMetadataInfo as G, type WhatsMsgSenderSendingOptions as H, type IChatContextConfig as I, type WhatsMsgMediaOptions as J, type WhatsMsgSenderSendingOptionsMINIMUM as K, type WhatsMsgAudioOptions as L, MsgType as M, type WhatsMsgDocumentOptions as N, type WhatsMsgPollOptions as O, type WhatsMsgUbicationOptions as P, type IWhatsSocket_Submodule_Presence as Q, type WhatsBotOptions as R, SenderType as S, WhatsappHelper_ExtractWhatsappInfoInfoFromSenderRawMsg as W, WhatsappHelper_ExtractFromWhatsappID as a, WhatsappHelper_ExtractWhatsappInfoFromMention as b, WhatsappHelper_isLIDIdentifier as c, WhatsappHelper_isMentionId as d, WhatsappHelper_isFullWhatsappIdUser as e, WhatsSocketReceiverHelper_isReceiverError as f, type CommandArgs as g, type CommandEntry as h, CommandType as i, type IChatContext as j, type IChatGroupAPI as k, type ICommand as l, type IMsgServiceSocketMinimum as m, type IWhatsSocket as n, type IWhatsSocket_EventsOnly_Module as o, type IWhatsSocket_Submodule_Group as p, type IWhatsSocket_Submodule_Receiver as q, type IWhatsSocket_Submodule_SugarSender as r, type WhatsbotcordMiddlewareFunct_OnFoundCommand as s, WhatsSocket as t, type WhatsSocketOptions as u, type WhatsSocketReceiverError as v, WhatsSocketReceiverMsgError as w, type WhatsappIDInfo as x, WhatsappIdType as y, type WhatsbotcordMiddlewareFunct as z };

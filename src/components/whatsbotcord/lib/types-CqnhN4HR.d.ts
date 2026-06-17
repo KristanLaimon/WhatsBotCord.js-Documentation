@@ -365,4 +365,4 @@ interface IWhatsappAdapter {
     Create(): Promise<IWhatsappSocketAdapterClient>;
 }
 
-export type { IWhatsappSocketAdapterClient as I, WhatsappMessage as W, IWhatsappAdapter as a, WhatsSocketLoggerMode as b, WhatsappGroupMetadata as c, WhatsappMessageContent as d, WhatsappMessageOptions as e, WhatsappGroupParticipantAction as f, WhatsappPollUpdateMessage as g, WhatsappPollVote as h, WhatsappPresenceState as i, WhatsappChatActivity as j, WhatsSocketVendorEventMap as k, WhatsappProtocolMessage as l };
+export type { IWhatsappSocketAdapterClient as I, WhatsappMessage as W, IWhatsappAdapter as a, WhatsSocketLoggerMode as b, WhatsappGroupMetadata as c, WhatsappPresenceState as d, WhatsappMessageContent as e, WhatsappMessageOptions as f, WhatsappGroupParticipantAction as g, WhatsappPollUpdateMessage as h, WhatsappPollVote as i, WhatsappChatActivity as j, WhatsSocketVendorEventMap as k, WhatsappProtocolMessage as l };

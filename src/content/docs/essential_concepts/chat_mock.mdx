@@ -15,7 +15,8 @@ A standard testing implementation involves four specific phases: **Configuration
 
 ```ts
 import { test, expect } from "your-testing-framework";
-import { ChatMock, SenderType } from "whatsbotcord";
+import { SenderType } from "whatsbotcord";
+import { ChatMock } from "whatsbotcord/testing";
 // Import the command you want to test
 import MyCommand from "./myCommand.js";
 
@@ -165,7 +166,8 @@ Here are robust examples ensuring commands correctly handle missing parameters, 
 
 ```ts
 import { describe, expect, test } from "your-testing-framework";
-import { ChatMock, SenderType } from "whatsbotcord";
+import { SenderType } from "whatsbotcord";
+import { ChatMock } from "whatsbotcord/testing";
 import AddMemberCommand from "./commands/AddMemberCommand.js";
 
 describe("Add Member Command Workflows", () => {
@@ -241,7 +243,8 @@ For production-scale applications, you should test your commands using robust te
     import { describe, expect, it } from "bun:test";
     import path from "path";
     import { container, Lifecycle } from "tsyringe";
-    import { ChatMock, SenderType } from "whatsbotcord";
+    import { SenderType } from "whatsbotcord";
+    import { ChatMock } from "whatsbotcord/testing";
 
     // ... your domain specific mocks ...
 
@@ -302,22 +305,24 @@ For production-scale applications, you should test your commands using robust te
 
 # Injecting Custom Adapters (Mocking the Entire Bot)
 
-If you are writing holistic Integration tests for your application instead of isolating individual commands, or if you simply want to switch the underlying WhatsApp engine, `WhatsBot` supports injecting a Custom Adapter (or a Mock Adapter) right into its constructor. 
+If you are writing holistic Integration tests for your application instead of isolating individual commands, or if you simply want to switch the underlying WhatsApp engine, `Bot` supports injecting a Custom Adapter (or a Mock Adapter) right into its constructor. 
 
 This prevents the bot from generating a real QR code or connecting to the Baileys network, while still allowing all your logic to execute.
 
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    import { WhatsBot } from "whatsbotcord";
-    // Optional: Import a custom adapter or MockAdapter
+    import Bot from "whatsbotcord";
+    import { MockAdapter } from "whatsbotcord/testing";
+    // Optional: Import a custom adapter
     // import { MyCustomWhatsappWebJsAdapter } from "./my-adapter";
 
     // 1. Standard initialization: Uses Baileys by default and connects to WhatsApp
-    const bot = new WhatsBot({ authFolder: "./auth" }); 
+    const bot = new Bot({ authFolder: "./auth" }); 
 
     // 2. Custom/Mock Initialization: Injects a different adapter engine
-    // const botMocked = new WhatsBot({ authFolder: "./auth" }, new MyCustomWhatsappWebJsAdapter());
+    // const botMocked = new Bot({ authFolder: "./auth" }, new MyCustomWhatsappWebJsAdapter());
+    const botMocked = new Bot({ authFolder: "./auth" }, new MockAdapter());
     ```
   </TabItem>
 </Tabs>

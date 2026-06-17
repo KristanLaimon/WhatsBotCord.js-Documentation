@@ -22,9 +22,9 @@ To learn how to create your first command, check out the [Quick Start](/getting-
 <Tabs>
   <TabItem label="TypeScript" icon="seti:typescript">
     ```ts
-    import Whatsbotcord from "whatsbotcord";
+    import Bot from "whatsbotcord";
 
-    const bot = new Whatsbotcord({
+    const bot = new Bot({
       commandPrefix: "!",
       loggerMode: "recommended",
     });
@@ -34,9 +34,9 @@ To learn how to create your first command, check out the [Quick Start](/getting-
   </TabItem>
   <TabItem label="JavaScript" icon="seti:javascript">
     ```js
-    import Whatsbotcord from "whatsbotcord";
+    import Bot from "whatsbotcord";
 
-    const bot = new Whatsbotcord({
+    const bot = new Bot({
       commandPrefix: "!",
       loggerMode: "recommended",
     });
@@ -60,10 +60,10 @@ The Bot instance exposes several powerful modules that you will use to shape you
 Here is an example demonstrating how these core components fit together:
 
 ```ts
-import Whatsbotcord, { CommandType, OfficialPlugin_OneCommandPerUserAtATime } from "whatsbotcord";
+import Bot, { CommandType, OfficialPlugin_OneCommandPerUserAtATime } from "whatsbotcord";
 import { PingCommand, SendPrivately } from "./commands";
 
-const bot = new Whatsbotcord({
+const bot = new Bot({
   commandPrefix: ["!", "/"],
   credentialsFolder: "./auth",
 });
@@ -93,12 +93,12 @@ await bot.Start();
 
 ## Configuration Reference
 
-The `Whatsbotcord` constructor accepts an extensive set of configuration properties to fine-tune prefixes, connection throttling, error handling, interactive prompt defaults, and more.
+The `Bot` constructor accepts an extensive set of configuration properties to fine-tune prefixes, connection throttling, error handling, interactive prompt defaults, and more.
 
 Here is an example of a bot initialized with custom configuration values:
 
 ```ts
-const bot = new Whatsbotcord({
+const bot = new Bot({
   commandPrefix: ["$", "!", "/", "."],
   tagPrefix: ["@"],
   credentialsFolder: process.env.NODE_ENV === "development" ? "auth_canary" : "./auth",

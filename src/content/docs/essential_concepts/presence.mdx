@@ -34,13 +34,13 @@ Use these methods to manually toggle the text typing indicator.
 ```typescript
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
   // 1. Turn on the typing indicator
-  await ctx.Presence.StartTyping(ctx.FixedChatId);
+  await ctx.Presence.StartTyping();
   
   // 2. Perform a slow task
   const data = await mySlowDatabaseQuery();
   
   // 3. Turn off the typing indicator
-  await ctx.Presence.StopTyping(ctx.FixedChatId);
+  await ctx.Presence.StopTyping();
   
   // 4. Send the result
   await ctx.SendText(`Here are the results: ${data}`);
@@ -52,11 +52,11 @@ Use these methods if your command generates and sends Voice Notes (audio files).
 
 ```typescript
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
-  await ctx.Presence.StartRecording(ctx.FixedChatId);
+  await ctx.Presence.StartRecording();
   
   const audioBuffer = await generateTextToSpeech("Hello!");
   
-  await ctx.Presence.StopRecording(ctx.FixedChatId);
+  await ctx.Presence.StopRecording();
   await ctx.SendAudio(audioBuffer);
 }
 ```
@@ -81,7 +81,7 @@ This is the recommended way to use Presence indicators in your commands.
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
   
   // The indicator will stay active for as long as this inner callback runs
-  await ctx.Presence.WithTyping(ctx.FixedChatId, async () => {
+  await ctx.Presence.WithTyping(async () => {
     
     const apiResponse = await fetch("https://api.example.com/data");
     const data = await apiResponse.json();
@@ -100,7 +100,7 @@ Works identically, but displays the "recording audio..." indicator instead.
 ```typescript
 public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
   
-  await ctx.Presence.WithRecording(ctx.FixedChatId, async () => {
+  await ctx.Presence.WithRecording(async () => {
     const audioBuffer = await generateTextToSpeech("Hello!");
     await ctx.SendAudio(audioBuffer);
   });
