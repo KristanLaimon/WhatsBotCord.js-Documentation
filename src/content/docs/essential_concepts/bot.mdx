@@ -121,7 +121,7 @@ The main options you should always set or at least be aware of.
 | `tagPrefix`         | `string \| string[]`    | `'@'`      | Character(s) used to tag the bot in messages (especially useful in group contexts).                  |
 | `ignoreSelfMessage` | `boolean`               | `true`     | If true, the bot ignores messages sent by its own account to prevent infinite loops.                 |
 
-<Aside type="important">
+<Aside type="caution">
 The `credentialsFolder` and `loggerMode` options have been moved to the WhatsApp Adapter (such as `BaileysAdapter`).
 To customize them, pass a configured adapter as the second argument to the `Whatsbotcord` constructor:
 ```ts
