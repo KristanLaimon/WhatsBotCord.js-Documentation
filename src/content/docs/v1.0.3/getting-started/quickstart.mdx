@@ -23,7 +23,6 @@ Initialize a functional bot instance and register a fundamental command in minut
           const bot = new Whatsbotcord({
             commandPrefix: "!",
             tagPrefix: "@",
-            credentialsFolder: "./auth",
             loggerMode: "recommended",
           });
 
@@ -48,7 +47,6 @@ Initialize a functional bot instance and register a fundamental command in minut
            const bot = new Whatsbotcord({
              commandPrefix: "!",
              tagPrefix: "@",
-             credentialsFolder: "./auth",
              loggerMode: "recommended",
            }));
 
@@ -73,7 +71,6 @@ Initialize a functional bot instance and register a fundamental command in minut
          const bot = new Whatsbotcord({
            commandPrefix: "!",
            tagPrefix: "@",
-           credentialsFolder: "./auth",
            loggerMode: "recommended",
          });
 
@@ -139,9 +136,6 @@ These are the most important ones:
       
       // Which characters should trigger a tag-based command?
       tagPrefix: ["@"],
-      
-      // Where to store the WhatsApp session authentication files (By default in local ./auth directory)
-      credentialsFolder: "./auth",
       
       // Console logging detail level ("silent", "error", "debug", "recommended")
       loggerMode: "recommended",

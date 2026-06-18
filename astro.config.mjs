@@ -34,7 +34,7 @@ export default defineConfig({
             { slug: "v1.0.3", redirect: "same-page" },
             // { slug: "v2.x.x", label: "v2.0.0-rc.1", redirect: "same-page" },
           ],
-          current: { label: "Latest (v2.0.0-rc.1)", redirect: "same-page" },
+          current: { label: "Latest (v2.0.0-rc.4)", redirect: "same-page" },
         }),
       ],
       logo: {
@@ -118,5 +118,4 @@ export default defineConfig({
     }),
     svelte(),
   ],
-
 });

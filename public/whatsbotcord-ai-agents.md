@@ -202,7 +202,6 @@ import { PingCommand, SendPrivately } from "./commands";
 
 const bot = new Whatsbotcord({
   commandPrefix: ["!", "/"],
-  credentialsFolder: "./auth",
 });
 
 // 1. Add Commands
@@ -2465,7 +2464,6 @@ Initialize a functional bot instance and register a fundamental command in minut
         const bot = new Whatsbotcord({
           commandPrefix: "!",
           tagPrefix: "@",
-          credentialsFolder: "./auth",
           loggerMode: "recommended",
         });
 
@@ -2489,7 +2487,6 @@ Initialize a functional bot instance and register a fundamental command in minut
         const bot = new Whatsbotcord({
           commandPrefix: "!",
           tagPrefix: "@",
-          credentialsFolder: "./auth",
           loggerMode: "recommended",
         }));
 
@@ -2516,7 +2513,6 @@ Initialize a functional bot instance and register a fundamental command in minut
       const bot = new Whatsbotcord({
         commandPrefix: "!",
         tagPrefix: "@",
-        credentialsFolder: "./auth",
         loggerMode: "recommended",
       });
 
@@ -2584,9 +2580,6 @@ These are the most important ones:
       // Which characters should trigger a tag-based command?
       tagPrefix: ["@"],
       
-      // Where to store the WhatsApp session authentication files (By default in local ./auth directory)
-      credentialsFolder: "./auth",
-      
       // Console logging detail level ("silent", "error", "debug", "recommended")
       loggerMode: "recommended",
 
@@ -2619,9 +2612,6 @@ These are the most important ones:
       
       // Which characters should trigger a tag-based command?
       tagPrefix: ["@"],
-      
-      // Where to store the WhatsApp session authentication files (By default in local ./auth directory)
-      credentialsFolder: "./auth",
       
       // Console logging detail level ("silent", "error", "debug", "recommended")
       loggerMode: "recommended",
@@ -2936,7 +2926,6 @@ You can configure which words should act as global cancellation keywords when yo
 ```javascript
 const bot = new WhatsbotCord({
   commandPrefix: ["$", "!", "/", "."],
-  credentialsFolder: "./auth",
   loggerMode: "recommended",
   delayMilisecondsBetweenMsgs: 1,
   // 1. Define global cancel keywords here
@@ -3749,7 +3738,6 @@ Use this for features that need to inspect all traffic, such as:
 ```typescript
 const bot = new WhatsbotCord({
   commandPrefix: ["!"],
-  credentialsFolder: "./auth",
 });
 
 // Add a general middleware for logging
@@ -3907,7 +3895,6 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
     const bot = new Bot({
       commandPrefix: ["!"],
       tagPrefix: ["@"],
-      credentialsFolder: "./auth",
     });
 
     /** IMPORTANT: Use CommandType.Tag prop to make it use the @ prefix */
@@ -3950,7 +3937,6 @@ Here we'll create a command that works exactly like Discord's `@everyone` by fet
     const bot = new Bot({
       commandPrefix: ["!"],
       tagPrefix: ["@"],
-      credentialsFolder: "./auth",
     });
 
     bot.Commands.Add(new EveryoneTag(), CommandType.Tag);

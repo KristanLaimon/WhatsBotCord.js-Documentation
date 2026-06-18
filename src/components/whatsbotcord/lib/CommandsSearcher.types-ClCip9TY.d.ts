@@ -1829,20 +1829,13 @@ declare class WhatsSocket_Submodule_SugarSender implements IWhatsSocket_Submodul
  */
 type WhatsSocketOptions = {
     /**
-     * Determines the logging level of the WhatsSocket instance.
+     * Determines the logging level of the WhatsSocket instance (Not related to any adapter config, including ' new BaileysAdapter({loggerMode}) ' ).
      * - "debug": full details for troubleshooting.
      * - "silent": minimal output (no logs).
      *
      * @default "debug"
      */
     loggerMode?: WhatsSocketLoggerMode;
-    /**
-     * Path to the folder where authentication credentials are stored.
-     * Can be relative to the project root or the current working directory.
-     *
-     * @default "./auth"
-     */
-    credentialsFolder?: string;
     /**
      * Maximum number of reconnection attempts if the socket encounters errors.
      *

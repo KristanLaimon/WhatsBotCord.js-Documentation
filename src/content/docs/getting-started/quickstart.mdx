@@ -22,7 +22,7 @@ Initialize a functional bot instance and register a fundamental command in minut
    <Tabs>
         <TabItem label="TypeScript" icon="seti:typescript">
        ```ts
-         import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
+         import Whatsbotcord from "whatsbotcord";
          import type { AdditionalAPI, CommandArgs, IChatContext, ICommand } from "whatsbotcord/types";
  
          const bot = new Whatsbotcord({
@@ -45,18 +45,15 @@ Initialize a functional bot instance and register a fundamental command in minut
      </TabItem>
      <TabItem label="JavaScript" icon="seti:javascript">
       ```js
-         import Whatsbotcord, { BaileysAdapter } from "whatsbotcord";
-         import { CreateCommand } from "whatsbotcord/helpers";
- 
-         const bot = new Whatsbotcord({
-           commandPrefix: "!",
-           tagPrefix: "@",
-         }, new BaileysAdapter({
-           credentialsFolder: "./auth",
-           loggerMode: "recommended",
-         }));
+        import Whatsbotcord from "whatsbotcord";
+        import { CreateCommand } from "whatsbotcord/helpers";
 
-        const PongCommand = CreateCommand(
+        const bot = new Whatsbotcord({
+          commandPrefix: "!",
+          tagPrefix: "@",
+        });
+
+        const PingCommand = CreateCommand(
           "ping",
           async function (ctx, api, args) {
             await ctx.SendText("pong!");
@@ -64,7 +61,8 @@ Initialize a functional bot instance and register a fundamental command in minut
             aliases: ["p"],
           }
         );
-        bot.Commands.Add(PongCommand);
+
+        bot.Commands.Add(PingCommand);
 
         bot.Start();
       ```
@@ -152,11 +150,15 @@ These are the most important ones:
       
       // Should the bot capture its own messages? (By default: false)
       ignoreSelfMessage: false,
-    }, new BaileysAdapter({
+
+      // This are the logs from the library by itself.
+      loggerMode: "recommended"
+    }, new BaileysAdapter({ /** **OPTIONAL PARAM**, in case you need to configure the credentialsFolder when login with QR (Baileys.js specific behaviour)*/
       // Where to store the WhatsApp session authentication files (By default in local ./auth directory)
       credentialsFolder: "./auth",
       
       // Console logging detail level ("silent", "error", "debug", "recommended")
+      // This are the logs, but exclusively from the BaileysAdapter. (Not related to loggerMode from 6 lines above)
       loggerMode: "recommended",
     }));
 
@@ -204,6 +206,17 @@ These are the most important ones:
     ```
   </TabItem>
 </Tabs>
+
+<Aside type="tip">
+  Yo don't need to provide the second constructor parameter of Whatsbotcord(). 
+  
+  🖖 (Where says => `'new "BaileysAdapter({...})"'`)
+
+  Is completely optional and if not provided, library by default uses Baileys.js adapter anyway. 
+  
+  You would need to provide in case you need to configure the loggerMode or the location of your credentialsFolder
+  when logging with QR.
+</Aside>
 
 
 

@@ -3,7 +3,8 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 
 import PlaygroundLayout from "../components/whatsbotcord/PlaygroundLayout.svelte";
 
-const initialCodeTest: string = `import Whatsbotcord, { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord";
+const initialCodeTest: string = `import Whatsbotcord from "whatsbotcord";
+import { type AdditionalAPI, type CommandArgs, type IChatContext, type ICommand } from "whatsbotcord/types";
 
 const bot = new Whatsbotcord({
     commandPrefix: "!",
@@ -12,16 +13,14 @@ const bot = new Whatsbotcord({
 
  class PingCommand implements ICommand {
     name: string = "ping";
-    aliases?: string[] | undefined = ["p"];
+    aliases?: string[] = ["p"];
     public async run(ctx: IChatContext, api: AdditionalAPI, args: CommandArgs): Promise<void> {
-      await ctx.Loading(); //Optional
       await ctx.SendText("pong! 🏓");
-      await ctx.Ok(); //Optional
+      
     }
  }
 
  bot.Commands.Add(new PingCommand());
-
  bot.Start();
 
 
